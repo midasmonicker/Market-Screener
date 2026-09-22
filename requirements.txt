@@ -1,5 +1,4 @@
 pandas
-git+https://github.com/twopirllc/pandas-ta.git
 requests
 python-dotenv
 yfinance
