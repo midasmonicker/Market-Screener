@@ -2,4 +2,3 @@ pandas
 requests
 python-dotenv
 yfinance
-numba
