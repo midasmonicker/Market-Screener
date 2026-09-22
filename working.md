@@ -177,18 +177,24 @@ Priority 3 — yfinance Bulk Download (FAILOVER 2)
 
 **Problem**: `pandas-ta==0.4.71b0` on PyPI declares a hard dependency on `pandas<2.0`. Installing it normally (`pip install pandas-ta`) will downgrade pandas or fail with a dependency conflict on Python 3.11 + pandas 3.x.
 
-**Fix**: Install `pandas-ta` with `--no-deps` to skip dependency resolution entirely:
+**Fix**: Install `pandas-ta` with `--pre --no-deps` to pull the latest prerelease and skip dependency resolution entirely:
 ```bash
-pip install pandas-ta --no-deps
+pip install pandas-ta --pre --no-deps
 ```
 
-This is reflected in the workflow:
+This is reflected in the workflow (which also runs Python **3.12** to match the local environment):
 ```yaml
+- name: Set up Python 3.12
+  uses: actions/setup-python@v5
+  with:
+    python-version: '3.12'
+    cache: 'pip'
+
 - name: Install dependencies
   run: |
     python -m pip install --upgrade pip
     pip install -r requirements.txt
-    pip install pandas-ta --no-deps
+    pip install pandas-ta --pre --no-deps
 ```
 
 **`requirements.txt` deliberately omits `pandas-ta`** — it is always installed explicitly in the workflow step above.
