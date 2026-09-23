@@ -25,6 +25,8 @@ A Python-based **daily momentum stock screener** that:
 | Phase 2 | Polygon ingestion, Pandas_TA engine, signal generation | ✅ Complete |
 | Phase 3 | Multi-tier failover (Polygon → Alpaca → yfinance) | ✅ Complete |
 | Phase 4 | Discord webhook alerts, `run_daily.py` orchestrator | ✅ Complete |
+| Phase 5.1 | Frontend data bridge: export static JSON payloads for web visualization | ✅ Complete |
+| Phase 5.2 | Next.js Dashboard: Dark trading UI, metric cards, Lightweight Charts modal | ✅ Complete |
 | Deployment | GitHub Actions CI/CD (`.github/workflows/daily_screener.yml`) | ✅ Deployed |
 
 ---
@@ -34,28 +36,48 @@ A Python-based **daily momentum stock screener** that:
 ```
 Market Screener/
 ├── .env                          # Local API keys (never committed)
+├── .gitignore                    # Git ignore file (node_modules, .next, venv, .env)
+├── package.json                  # Next.js, React, Tailwind, lightweight-charts dependencies
+├── tsconfig.json                 # TypeScript compiler configuration with @/* path aliases
+├── tailwind.config.js            # Tailwind CSS configuration with dark theme financial palette
+├── postcss.config.js             # PostCSS plugins (tailwindcss, autoprefixer)
 ├── requirements.txt              # Python dependencies (pandas-ta excluded — see gotchas)
 ├── schema.sql                    # SQLite DDL: creates tickers, daily_bars, buy_signals tables
 ├── stock_screener.db             # Persistent SQLite database (committed via GitHub Actions bot)
-├── screener.py                   # Core data pipeline: universe seeding, bar ingestion, failover, TA engine
+├── screener.py                   # Core data pipeline: universe seeding, bar ingestion, failover, TA engine, web export
 ├── alerts.py                     # Discord webhook formatter and dispatcher
-├── run_daily.py                  # Automated entrypoint: orchestrates all 6 pipeline steps
+├── run_daily.py                  # Automated entrypoint: orchestrates pipeline steps + web export
 ├── test_run.py                   # Manual verification script (historical backtest simulation)
+├── app/
+│   ├── layout.tsx                # Next.js App Router root layout (dark mode, meta)
+│   ├── globals.css               # Tailwind directives and custom scrollbar styling
+│   └── page.tsx                  # Main screener dashboard: metric cards, search, sector filters, signals table
+├── components/
+│   └── StockChart.tsx            # TradingView interactive candlestick chart, volume histogram, MA overlays (EMA20, SMA50, SMA200)
+├── lib/
+│   └── utils.ts                  # cn helper (clsx + tailwind-merge)
+├── public/
+│   └── data/
+│       ├── latest_signals.json   # Exported buy_signals with ticker info and MA alignment
+│       └── signal_bars.json      # Historical OHLCV bars for all buy_signal tickers
 └── .github/
     └── workflows/
-        └── daily_screener.yml    # GitHub Actions: scheduled + manual trigger, secrets injection, DB push
+        └── daily_screener.yml    # GitHub Actions: scheduled + manual trigger, secrets injection, DB & public/data push
 ```
 
 ### Role of Each File
 
 | File | Role |
 |---|---|
-| `screener.py` | Universe seeding (FMP → Polygon fallback), Polygon Grouped Daily ingestion, Alpaca failover, yfinance failover, individual ticker historical ingestion, Pandas_TA indicator engine, multi-threaded signal evaluation, SQLite persistence |
-| `alerts.py` | Reads `buy_signals` table, builds Discord embed JSON payload, dispatches via `DISCORD_WEBHOOK_URL`; supports `dry_run=True` for testing |
-| `run_daily.py` | Sequential 6-step orchestrator: `init_db → refresh_ticker_universe → ingest_daily_bars → run_screener_engine → send_discord_alerts`; accepts `--date`, `--force-failover`, `--dry-run` CLI args |
+| `app/page.tsx` | Main Next.js dashboard: fetches `/data/latest_signals.json` & `/data/signal_bars.json`, renders top metric cards (total signals, RVOL leader, average RSI), search/filtering controls, and responsive signal table with MA alignment badges |
+| `components/StockChart.tsx` | Interactive TradingView Lightweight Chart modal with candlestick price series, 20-EMA (blue), 50-SMA (yellow), 200-SMA (purple), toggle controls, and volume histogram sub-chart |
+| `screener.py` | Universe seeding, bar ingestion, failover, TA engine, SQLite persistence, and `export_web_data()` |
+| `alerts.py` | Reads `buy_signals` table, builds Discord embed JSON payload, dispatches via `DISCORD_WEBHOOK_URL` |
+| `run_daily.py` | Sequential orchestrator: `init_db → refresh_ticker_universe → ingest_daily_bars → run_screener_engine → send_discord_alerts → export_web_data` |
+| `public/data/` | Static JSON payloads (`latest_signals.json`, `signal_bars.json`) committed back to repository for instant client-side web charts and tables |
 | `schema.sql` | DDL for three tables and one composite index; safe to re-run (`IF NOT EXISTS`) |
 | `requirements.txt` | Core pip deps: `pandas`, `requests`, `python-dotenv`, `yfinance` — **`pandas-ta` is NOT listed here** (installed separately; see Critical Fixes) |
-| `daily_screener.yml` | GitHub Actions workflow: schedules at `0 21 * * 1-5`, maps repo secrets to env vars, commits updated `stock_screener.db` back to `main` after each run |
+| `daily_screener.yml` | GitHub Actions workflow: schedules at `0 21 * * 1-5`, maps repo secrets to env vars, commits updated `stock_screener.db` and `public/data/` back to `main` after each run |
 
 ---
 

@@ -1,0 +1,149 @@
+[
+  {
+    "id": 7,
+    "timestamp": "2026-09-22",
+    "symbol": "META",
+    "name": "Meta Platforms Inc.",
+    "sector": "Unknown",
+    "market_cap": 1500000000000.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 736.59,
+    "rvol": 2.07,
+    "rsi": 67.96,
+    "ma_alignment": {
+      "above_ema20": null,
+      "above_sma50": true,
+      "above_sma200": null,
+      "ema20": null,
+      "sma50": null,
+      "sma200": null
+    },
+    "created_at": "2026-09-22 23:33:50"
+  },
+  {
+    "id": 6,
+    "timestamp": "2026-02-04",
+    "symbol": "AAPL",
+    "name": "Apple Inc.",
+    "sector": "XNAS",
+    "market_cap": 3000000000000.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 276.49,
+    "rvol": 1.6,
+    "rsi": 68.14,
+    "ma_alignment": {
+      "above_ema20": null,
+      "above_sma50": true,
+      "above_sma200": null,
+      "ema20": null,
+      "sma50": null,
+      "sma200": null
+    },
+    "created_at": "2026-09-22 22:02:10"
+  },
+  {
+    "id": 4,
+    "timestamp": "2025-10-31",
+    "symbol": "AMZN",
+    "name": "Amazon.com Inc.",
+    "sector": "XNAS",
+    "market_cap": 2000000000000.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 244.22,
+    "rvol": 3.11,
+    "rsi": 67.05,
+    "ma_alignment": {
+      "above_ema20": null,
+      "above_sma50": true,
+      "above_sma200": null,
+      "ema20": null,
+      "sma50": null,
+      "sma200": null
+    },
+    "created_at": "2026-09-22 22:02:10"
+  },
+  {
+    "id": 5,
+    "timestamp": "2025-10-31",
+    "symbol": "AAPL",
+    "name": "Apple Inc.",
+    "sector": "XNAS",
+    "market_cap": 3000000000000.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 270.37,
+    "rvol": 1.8,
+    "rsi": 69.04,
+    "ma_alignment": {
+      "above_ema20": null,
+      "above_sma50": true,
+      "above_sma200": null,
+      "ema20": null,
+      "sma50": null,
+      "sma200": null
+    },
+    "created_at": "2026-09-22 22:02:10"
+  },
+  {
+    "id": 3,
+    "timestamp": "2025-09-19",
+    "symbol": "AAPL",
+    "name": "Apple Inc.",
+    "sector": "XNAS",
+    "market_cap": 3000000000000.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 245.5,
+    "rvol": 2.94,
+    "rsi": 67.75,
+    "ma_alignment": {
+      "above_ema20": null,
+      "above_sma50": true,
+      "above_sma200": null,
+      "ema20": null,
+      "sma50": null,
+      "sma200": null
+    },
+    "created_at": "2026-09-22 22:02:10"
+  },
+  {
+    "id": 1,
+    "timestamp": "2025-09-19",
+    "symbol": "MSFT",
+    "name": "Microsoft Corp.",
+    "sector": "Unknown",
+    "market_cap": 3000000000000.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 517.93,
+    "rvol": 2.42,
+    "rsi": 59.05,
+    "ma_alignment": {
+      "above_ema20": null,
+      "above_sma50": true,
+      "above_sma200": null,
+      "ema20": null,
+      "sma50": null,
+      "sma200": null
+    },
+    "created_at": "2026-09-22 22:02:10"
+  },
+  {
+    "id": 2,
+    "timestamp": "2025-09-19",
+    "symbol": "META",
+    "name": "Meta Platforms Inc.",
+    "sector": "Unknown",
+    "market_cap": 1500000000000.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 778.38,
+    "rvol": 2.29,
+    "rsi": 60.8,
+    "ma_alignment": {
+      "above_ema20": null,
+      "above_sma50": true,
+      "above_sma200": null,
+      "ema20": null,
+      "sma50": null,
+      "sma200": null
+    },
+    "created_at": "2026-09-22 22:02:10"
+  }
+]
