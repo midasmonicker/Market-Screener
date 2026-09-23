@@ -27,3 +27,4 @@ venv.bak/
 # OS
 .DS_Store
 Thumbs.db
+stock_screener.db
