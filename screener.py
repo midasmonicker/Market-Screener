@@ -3,6 +3,7 @@ import sys
 import time
 import datetime
 import sqlite3
+import json
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
@@ -345,8 +346,9 @@ def process_single_ticker_screener(symbol, df_symbol, date_str):
         close_price = float(latest["close"])
         rvol = float(latest["rvol"]) if pd.notnull(latest["rvol"]) else 0.0
         rsi = float(latest["rsi"]) if pd.notnull(latest["rsi"]) else 0.0
-        sma_50 = float(latest["sma_50"]) if pd.notnull(latest["sma_50"]) else None
-        
+        sma_200 = float(latest["sma_200"]) if pd.notnull(latest["sma_200"]) else None
+        ema_20 = float(latest["ema_20"]) if pd.notnull(latest["ema_20"]) else None
+
         # Signal Rule: Momentum Breakout Setup
         is_above_smas = (close_price > sma_50) if sma_50 is not None else False
         is_rvol_high = rvol >= 1.5
@@ -354,13 +356,23 @@ def process_single_ticker_screener(symbol, df_symbol, date_str):
         is_new_20d_high = close_price >= df["close"].tail(20).max() * 0.99
         
         if is_above_smas and is_rvol_high and is_rsi_valid and is_new_20d_high:
+            ma_alignment = {
+                "above_ema20": (close_price > ema_20) if ema_20 is not None else None,
+                "above_sma50": (close_price > sma_50) if sma_50 is not None else None,
+                "above_sma200": (close_price > sma_200) if sma_200 is not None else None,
+                "ema20": round(ema_20, 2) if ema_20 is not None else None,
+                "sma50": round(sma_50, 2) if sma_50 is not None else None,
+                "sma200": round(sma_200, 2) if sma_200 is not None else None
+            }
+            details_json = json.dumps({"ma_alignment": ma_alignment})
             return (
                 date_str,
                 symbol,
                 "Momentum Breakout",
                 round(close_price, 2),
                 round(rvol, 2),
-                round(rsi, 2)
+                round(rsi, 2),
+                details_json
             )
     except Exception as e:
         logger.debug("Error computing TA for %s: %s", symbol, e)
@@ -409,13 +421,154 @@ def run_screener_engine(date_str, max_workers=4):
         conn = get_connection()
         cur = conn.cursor()
         cur.executemany("""
-            INSERT INTO buy_signals (timestamp, symbol, setup_name, close_price, rvol, rsi)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO buy_signals (timestamp, symbol, setup_name, close_price, rvol, rsi, details)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         """, signals)
         conn.commit()
         conn.close()
 
     return signals
+
+def export_web_data(output_dir="public/data", bars_limit=250):
+    """
+    Phase 5: Export static JSON payloads for web visualization.
+    1. latest_signals.json: List of all generated buy_signals ordered by timestamp DESC,
+       including ticker metadata, price, RVOL, RSI, and MA alignment status.
+    2. signal_bars.json: Historical 250-day daily OHLCV bars for every ticker present
+       in buy_signals.
+    """
+    logger.info("Exporting web visualization payloads to %s...", output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+    
+    conn = get_connection()
+    
+    # 1. Fetch all buy_signals joined with ticker metadata
+    query_signals = """
+        SELECT 
+            b.id,
+            b.timestamp,
+            b.symbol,
+            b.setup_name,
+            b.close_price,
+            b.rvol,
+            b.rsi,
+            b.details,
+            b.created_at,
+            t.name,
+            t.market_cap,
+            t.sector
+        FROM buy_signals b
+        LEFT JOIN tickers t ON b.symbol = t.symbol
+        ORDER BY b.timestamp DESC, b.rvol DESC
+    """
+    cur = conn.cursor()
+    cur.execute(query_signals)
+    raw_signals = cur.fetchall()
+
+    signals_list = []
+    signal_symbols = set()
+
+    for row in raw_signals:
+        (
+            sig_id,
+            timestamp,
+            symbol,
+            setup_name,
+            close_price,
+            rvol,
+            rsi,
+            details,
+            created_at,
+            ticker_name,
+            market_cap,
+            sector
+        ) = row
+        signal_symbols.add(symbol)
+        
+        parsed_details = {}
+        if details:
+            try:
+                parsed_details = json.loads(details) if isinstance(details, str) else details
+            except Exception:
+                parsed_details = {}
+
+        ma_alignment = parsed_details.get("ma_alignment")
+        # Fallback if ma_alignment not computed in details (e.g. legacy historical records)
+        if not ma_alignment:
+            ma_alignment = {
+                "above_ema20": None,
+                "above_sma50": True,
+                "above_sma200": None,
+                "ema20": None,
+                "sma50": None,
+                "sma200": None
+            }
+
+        signal_obj = {
+            "id": sig_id,
+            "timestamp": timestamp,
+            "symbol": symbol,
+            "name": ticker_name or symbol,
+            "sector": sector or "Unknown",
+            "market_cap": market_cap,
+            "setup_name": setup_name,
+            "close_price": float(close_price) if close_price is not None else None,
+            "rvol": float(rvol) if rvol is not None else None,
+            "rsi": float(rsi) if rsi is not None else None,
+            "ma_alignment": ma_alignment,
+            "created_at": created_at
+        }
+        signals_list.append(signal_obj)
+
+    latest_signals_file = os.path.join(output_dir, "latest_signals.json")
+    with open(latest_signals_file, "w", encoding="utf-8") as f:
+        json.dump(signals_list, f, indent=2)
+    logger.info("Saved %d signals to %s", len(signals_list), latest_signals_file)
+
+    # 2. Fetch bars for all tickers present in buy_signals (up to 250 bars per ticker)
+    signal_bars_data = {}
+    if signal_symbols:
+        placeholders = ",".join(["?"] * len(signal_symbols))
+        query_bars = f"""
+            SELECT symbol, timestamp, open, high, low, close, volume, vwap
+            FROM daily_bars
+            WHERE symbol IN ({placeholders})
+            ORDER BY symbol, timestamp ASC
+        """
+        cur.execute(query_bars, list(signal_symbols))
+        bar_rows = cur.fetchall()
+
+        bars_by_symbol = {}
+        for b_row in bar_rows:
+            sym, ts, o, h, l, c, v, vw = b_row
+            if sym not in bars_by_symbol:
+                bars_by_symbol[sym] = []
+            bars_by_symbol[sym].append({
+                "timestamp": ts,
+                "open": round(o, 2) if o is not None else None,
+                "high": round(h, 2) if h is not None else None,
+                "low": round(l, 2) if l is not None else None,
+                "close": round(c, 2) if c is not None else None,
+                "volume": int(v) if v is not None else 0,
+                "vwap": round(vw, 2) if vw is not None else None
+            })
+
+        for sym, bars in bars_by_symbol.items():
+            signal_bars_data[sym] = bars[-bars_limit:]
+
+    conn.close()
+
+    signal_bars_file = os.path.join(output_dir, "signal_bars.json")
+    with open(signal_bars_file, "w", encoding="utf-8") as f:
+        json.dump(signal_bars_data, f, indent=2)
+    logger.info("Saved historical bars for %d tickers to %s", len(signal_bars_data), signal_bars_file)
+
+    return {
+        "latest_signals_path": latest_signals_file,
+        "signal_bars_path": signal_bars_file,
+        "signals_count": len(signals_list),
+        "tickers_count": len(signal_bars_data)
+    }
 
 if __name__ == "__main__":
     init_db()

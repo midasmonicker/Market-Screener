@@ -8,6 +8,7 @@ from screener import (
     refresh_ticker_universe,
     ingest_daily_bars,
     run_screener_engine,
+    export_web_data,
     get_connection
 )
 from alerts import send_discord_alerts
@@ -77,9 +78,15 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
     logger.info("Screener engine completed: %d buy signals generated.", signals_count)
 
     # Step 6: Dispatch Alerts to Discord Webhook
-    logger.info("[Step 6/6] Generating and dispatching Discord alerts (dry_run=%s)...", dry_run)
+    logger.info("[Step 6/7] Generating and dispatching Discord alerts (dry_run=%s)...", dry_run)
     alert_payload = send_discord_alerts(date_str=date_str, dry_run=dry_run)
     logger.info("Alert process completed.")
+
+    # Step 7: Export Web Data Payloads (Phase 5)
+    logger.info("[Step 7/7] Exporting static JSON payloads for web visualization...")
+    web_export = export_web_data(output_dir="public/data")
+    logger.info("Export completed: %d signals, %d tickers exported to public/data/", 
+                web_export["signals_count"], web_export["tickers_count"])
 
     logger.info("=" * 65)
     logger.info("DAILY SCREENER PIPELINE FINISHED SUCCESSFULLY")
@@ -89,7 +96,8 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
         "universe_size": universe_size,
         "bars_ingested": bars_ingested,
         "signals_generated": signals_count,
-        "alert_payload": alert_payload
+        "alert_payload": alert_payload,
+        "web_export": web_export
     }
 
 if __name__ == "__main__":
