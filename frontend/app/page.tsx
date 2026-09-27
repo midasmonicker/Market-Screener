@@ -171,7 +171,10 @@ function relativeTime(isoStr: string | null | undefined): string {
 }
 
 function ScorePill({ score }: { score: number | null | undefined }) {
-  if (score == null) return <span className="text-slate-600 font-mono text-xs">—</span>;
+  if (score == null) {
+    return <span className="text-slate-500 font-mono text-xs">Pending</span>;
+  }
+
   let colour = 'bg-slate-800 text-slate-400 border-slate-700';
   if (score >= 80) colour = 'bg-amber-500/15 text-amber-300 border-amber-500/30';
   else if (score >= 65) colour = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
@@ -398,7 +401,8 @@ export default function DashboardPage() {
         s.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesSector = selectedSector === 'ALL' || s.sector === selectedSector;
       const matchesRVOL = s.rvol >= minRVOL;
-      const matchesScore = minScore === 0 || (s.composite_score ?? 0) >= minScore;
+      const matchesScore =
+        s.composite_score == null || minScore === 0 || s.composite_score >= minScore;
       const matchesEarnings = !hideEarnings || !s.near_earnings;
 
       return matchesSearch && matchesSector && matchesRVOL && matchesScore && matchesEarnings;
@@ -503,6 +507,11 @@ export default function DashboardPage() {
   }, [regimeData]);
 
   const allPresets = [...BUILTIN_PRESETS, ...savedPresets];
+  const hasUnscoredSignals = displaySignals.some((s) => s.composite_score == null);
+  const activeFilterSummary =
+    selectedPresetName === 'Custom'
+      ? `Custom • Min ${minScore === 0 ? 'Any' : minScore} • RVOL ${minRVOL}x`
+      : selectedPresetName;
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col">
@@ -732,6 +741,11 @@ export default function DashboardPage() {
 
           {/* Row 2: Detailed Filters */}
           <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-800/60 text-xs">
+            <div className="flex items-center space-x-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-2 py-1 text-[11px] text-emerald-300">
+              <span className="text-slate-400">Active:</span>
+              <span className="font-semibold text-emerald-200">{activeFilterSummary}</span>
+            </div>
+
             {/* Sector */}
             <div className="flex items-center space-x-1.5">
               <span className="text-slate-400">Sector:</span>
@@ -810,6 +824,12 @@ export default function DashboardPage() {
 
         {/* Signals Table */}
         <section className="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+          {hasUnscoredSignals && (
+            <div className="px-4 py-3 border-b border-amber-500/20 bg-amber-500/10 text-amber-200 text-xs font-medium">
+              Scoring not yet computed for some signals — showing all matches.
+            </div>
+          )}
+
           <div className="px-6 py-4 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
