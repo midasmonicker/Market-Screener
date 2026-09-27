@@ -2,8 +2,8 @@ name: Daily Stock Screener
 
 'on':
   schedule:
-    # Run at 21:00 UTC (4:00 PM EST / 5:00 PM EDT) Monday through Friday
-    - cron: '0 21 * * 1-5'
+    # Run at 22:30 UTC (5:30 PM EST / 6:30 PM EDT) Monday through Friday
+    - cron: '30 22 * * 1-5'
   workflow_dispatch:
 
 permissions:
@@ -14,8 +14,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main repository
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Restore SQLite DB from orphan data branch
+        run: |
+          # Fetch the data branch if it exists, and extract stock_screener.db
+          if git ls-remote --exit-code --heads origin data; then
+            echo "Found existing 'data' branch. Checking out stock_screener.db..."
+            git fetch origin data
+            git checkout origin/data -- stock_screener.db || true
+          else
+            echo "No 'data' branch found yet. Starting with clean or repository DB."
+          fi
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -37,17 +51,34 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python run_daily.py
 
-      - name: Commit and push updated database and web data
+      - name: Commit and push web data to main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add stock_screener.db public/data/
+          git add public/data/
           if git diff --staged --quiet; then
-            echo "No database or web data changes to commit."
+            echo "No web data changes to commit to main."
           else
-            git commit -m "chore: automated daily database and web data update [skip ci]"
-            git push
+            git commit -m "chore: automated daily web data update [skip ci]"
+            git push origin main
+          fi
+
+      - name: Persist SQLite DB as single commit on orphan data branch
+        if: success()
+        run: |
+          if [ -f "stock_screener.db" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            # Create a separate clean orphan branch with only stock_screener.db
+            git checkout --orphan data-temp
+            git rm -rf . --quiet || true
+            git add stock_screener.db
+            git commit -m "chore: persistent database snapshot [skip ci]"
+            # Force-push as single commit to 'data' branch so Git history never accumulates
+            git push -f origin data-temp:data
           fi

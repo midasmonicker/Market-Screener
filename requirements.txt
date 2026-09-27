@@ -5,3 +5,4 @@ yfinance
 numba
 tqdm
 scipy
+pandas_market_calendars
