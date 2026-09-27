@@ -1335,7 +1335,7 @@ def get_performance_summary(conn=None):
 
 # ── Web Export ─────────────────────────────────────────────────────────────────
 
-def export_web_data(output_dir="public/data", bars_limit=250):
+def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
     """
     Phase 5+: Export static JSON payloads for web visualization.
       1. latest_signals.json  — all signals with all new fields from details JSON

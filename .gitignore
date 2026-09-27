@@ -1,4 +1,4 @@
-# Node
+# ── Node (frontend/) ────────────────────────────────────────────────────────
 node_modules/
 .next/
 out/
@@ -8,7 +8,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Python
+# ── Python (backend/) ────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,11 +20,19 @@ ENV/
 env.bak/
 venv.bak/
 
-# Environment Variables
+# ── Secrets & Environment ───────────────────────────────────────────────────
 .env
 .env*.local
 
-# OS
+# ── SQLite database ─────────────────────────────────────────────────────────
+# Persisted via orphan `data` branch — never committed to main
+stock_screener.db
+backend/stock_screener.db
+
+# ── Earnings cache ───────────────────────────────────────────────────────────
+.cache/
+backend/.cache/
+
+# ── OS ───────────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
-stock_screener.db

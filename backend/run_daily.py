@@ -255,10 +255,10 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
         # Step 8: Export Web Data Payloads (Phase 5, 7, 8 & Setup Stats)
         current_step = "[Step 8/8] Exporting static JSON payloads for web visualization"
         logger.info(current_step)
-        web_export = export_web_data(output_dir="public/data")
-        setup_stats_export = export_setup_stats(output_path="public/data/setup_stats.json")
+        web_export = export_web_data(output_dir="../frontend/public/data")
+        setup_stats_export = export_setup_stats(output_path="../frontend/public/data/setup_stats.json")
         logger.info(
-            "Export completed: %d signals, %d tickers, setup_stats.json, regime.json exported to public/data/",
+            "Export completed: %d signals, %d tickers, setup_stats.json, regime.json exported to frontend/public/data/",
             web_export["signals_count"], web_export["tickers_count"]
         )
 

@@ -237,7 +237,7 @@ def update_signal_outcomes(conn=None):
 
     return updated_count
 
-def export_setup_stats(output_path="public/data/setup_stats.json", conn=None):
+def export_setup_stats(output_path="../frontend/public/data/setup_stats.json", conn=None):
     """
     Exports summary statistics per setup_name:
       - signal_count: Total signals generated for setup
