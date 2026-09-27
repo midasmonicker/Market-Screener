@@ -309,6 +309,11 @@ This is reflected in the workflow (which also runs Python **3.12** to match the 
 
 **`requirements.txt` deliberately omits `pandas-ta`** â€” it is always installed explicitly in the workflow step above.
 
+### Finnhub Historical Earnings Depth
+- The `/stock/earnings` response used for AMD returned four quarterly periods: 2025-09-30, 2025-12-31, 2026-03-31, and 2026-06-30.
+- Requests with a wider `from`/`to` range and with `limit=8` or `limit=20` returned the same four records; AMD's 2025-06-30 quarter was absent.
+- The observed response does not establish whether a higher Finnhub plan exposes older periods. When no report-date field is returned, earnings eligibility uses the approximate `EARNINGS_REPORT_LAG_DAYS_DEFAULT` buffer; a quarter missing from the response cannot be selected and may remain `null`.
+
 ### FMP API Legacy Endpoint Errors
 - All `api/v3/*` FMP endpoints return HTTP 403 `"Legacy Endpoint"` on current subscription tier.
 - All `/stable/*` screener endpoints return HTTP 402 `"Restricted Endpoint"`.
