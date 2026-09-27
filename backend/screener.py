@@ -43,6 +43,128 @@ WEIGHT_TREND_STRENGTH    = 0.20
 # Earnings proximity window (calendar days on each side of report date to flag)
 EARNINGS_PROXIMITY_DAYS = 1
 
+# Max Polygon ticker-details API calls per pipeline run for sector backfill
+# (respects free-tier rate limit; priority symbols are always processed first)
+MAX_SECTOR_FETCHES_PER_RUN = 200
+
+# Exchange MIC codes that Polygon's bulk tickers endpoint puts in the `primary_exchange`
+# field — these are NOT sector names and must be replaced via backfill.
+_MIC_CODES = {"XNAS", "XNYS", "XASE", "BATS", "ARCX", "XCIS", "US", "Unknown"}
+
+
+def _sic_to_sector(sic_code) -> str:
+    """
+    Map a Polygon SIC code (string or int) to a GICS-style sector label.
+    Returns "Unknown" if the code is missing or unrecognised.
+
+    SIC reference: https://www.osha.gov/data/sic-manual
+    """
+    if not sic_code:
+        return "Unknown"
+    try:
+        code = int(sic_code)
+    except (ValueError, TypeError):
+        return "Unknown"
+
+    # Specific overrides for high-volume tech/healthcare SIC codes
+    _OVERRIDES = {
+        3559: "Industrials",     # Special Industry Machinery
+        3571: "Technology",     # Electronic Computers (Apple)
+        3572: "Technology",     # Computer Storage Devices
+        3575: "Technology",     # Computer Terminals
+        3577: "Technology",     # Computer Peripheral Equipment
+        3578: "Technology",     # Calculating Machines
+        3579: "Technology",     # Office Machines NEC
+        3661: "Communication Services",  # Telephone & Telegraph Apparatus
+        3663: "Communication Services",  # Radio/TV Broadcasting Apparatus
+        3669: "Communication Services",  # Communications Equipment NEC
+        3672: "Technology",     # Printed Circuit Boards
+        3674: "Technology",     # Semiconductors & Related Devices
+        3675: "Technology",     # Electronic Capacitors
+        3678: "Technology",     # Electronic Connectors
+        3679: "Technology",     # Electronic Components NEC
+        3812: "Industrials",    # Defense Electronics
+        3825: "Technology",     # Instruments for Measuring
+        3841: "Healthcare",     # Surgical & Medical Instruments
+        3842: "Healthcare",     # Orthopedic, Prosthetic Appliances
+        3845: "Healthcare",     # Electromedical Equipment
+        4813: "Communication Services",  # Telephone Communications
+        4833: "Communication Services",  # Television Broadcasting
+        4841: "Communication Services",  # Cable & Other Pay Television
+        4899: "Communication Services",  # Communications Services NEC
+        5912: "Consumer Defensive",  # Drug Stores
+        6020: "Financials",     # State commercial banks
+        6022: "Financials",     # State commercial banks (member)
+        6036: "Financials",     # Savings institutions, not federally chartered
+        6141: "Financials",     # Personal credit institutions
+        6159: "Financials",     # Federal-sponsored credit agencies
+        6282: "Financials",     # Investment advice
+        6311: "Financials",     # Life insurance
+        6321: "Financials",     # Accident and health insurance
+        6331: "Financials",     # Fire, marine & casualty insurance
+        6411: "Financials",     # Insurance agents, brokers
+        7370: "Technology",     # Computer Programming, Data Processing
+        7371: "Technology",     # Computer Programming Services
+        7372: "Technology",     # Prepackaged Software
+        7373: "Technology",     # Computer Integrated Systems Design
+        7374: "Technology",     # Computer Processing and Data Preparation
+        7375: "Technology",     # Computer Rental & Leasing
+        7377: "Technology",     # Computer Rental & Leasing NEC
+        7379: "Technology",     # Computer Related Services NEC
+        8000: "Healthcare",     # Health services
+        8011: "Healthcare",     # Offices & clinics of medical doctors
+        8049: "Healthcare",     # Offices & clinics of other health practitioners
+        8051: "Healthcare",     # Skilled nursing care facilities
+        8062: "Healthcare",     # General medical & surgical hospitals
+        8099: "Healthcare",     # Health services NEC
+    }
+    if code in _OVERRIDES:
+        return _OVERRIDES[code]
+
+    # Broad range fallback
+    if 100   <= code <= 999:   return "Basic Materials"      # Agriculture / Fishing
+    if 1000  <= code <= 1399:  return "Energy"               # Mining, Oil & Gas
+    if 1400  <= code <= 1499:  return "Basic Materials"      # Non-metallic minerals
+    if 1500  <= code <= 1799:  return "Industrials"          # Construction
+    if 2000  <= code <= 2099:  return "Consumer Defensive"   # Food & kindred products
+    if 2100  <= code <= 2199:  return "Consumer Defensive"   # Tobacco
+    if 2200  <= code <= 2399:  return "Consumer Cyclical"    # Textiles, Apparel
+    if 2400  <= code <= 2499:  return "Basic Materials"      # Lumber & Wood
+    if 2500  <= code <= 2599:  return "Consumer Cyclical"    # Furniture & Fixtures
+    if 2600  <= code <= 2699:  return "Basic Materials"      # Paper
+    if 2700  <= code <= 2799:  return "Communication Services"  # Publishing
+    if 2800  <= code <= 2899:  return "Basic Materials"      # Chemicals
+    if 2900  <= code <= 2999:  return "Energy"               # Petroleum refining
+    if 3000  <= code <= 3199:  return "Basic Materials"      # Rubber, Plastics, Leather
+    if 3200  <= code <= 3299:  return "Basic Materials"      # Stone, Clay, Glass
+    if 3300  <= code <= 3399:  return "Basic Materials"      # Primary Metals
+    if 3400  <= code <= 3499:  return "Industrials"          # Fabricated Metals
+    if 3500  <= code <= 3599:  return "Industrials"          # Industrial Machinery
+    if 3600  <= code <= 3699:  return "Technology"           # Electronic Equipment
+    if 3700  <= code <= 3799:  return "Consumer Cyclical"    # Transportation Equipment (Autos)
+    if 3800  <= code <= 3899:  return "Healthcare"           # Scientific Instruments
+    if 3900  <= code <= 3999:  return "Consumer Cyclical"    # Misc Manufacturing
+    if 4000  <= code <= 4599:  return "Industrials"          # Transportation
+    if 4600  <= code <= 4699:  return "Energy"               # Pipelines
+    if 4700  <= code <= 4799:  return "Industrials"          # Transport Services
+    if 4800  <= code <= 4899:  return "Communication Services"  # Communications
+    if 4900  <= code <= 4999:  return "Utilities"            # Electric, Gas, Water
+    if 5000  <= code <= 5199:  return "Consumer Cyclical"    # Wholesale - Durable
+    if 5200  <= code <= 5399:  return "Consumer Cyclical"    # Retail - General
+    if 5400  <= code <= 5499:  return "Consumer Defensive"   # Retail - Food
+    if 5500  <= code <= 5999:  return "Consumer Cyclical"    # Retail - Misc
+    if 6000  <= code <= 6499:  return "Financials"           # Finance & Banking
+    if 6500  <= code <= 6599:  return "Real Estate"          # Real Estate
+    if 6600  <= code <= 6799:  return "Financials"           # Holding Companies
+    if 7000  <= code <= 7099:  return "Consumer Cyclical"    # Hotels / Lodging
+    if 7200  <= code <= 7299:  return "Consumer Cyclical"    # Personal Services
+    if 7300  <= code <= 7399:  return "Industrials"          # Business Services
+    if 7500  <= code <= 7999:  return "Consumer Cyclical"    # Entertainment / Recreation
+    if 8000  <= code <= 8099:  return "Healthcare"           # Health Services
+    if 8100  <= code <= 8999:  return "Industrials"          # Professional Services
+    return "Unknown"
+
+
 
 def get_connection():
     return sqlite3.connect(DB_PATH)
@@ -156,7 +278,7 @@ def refresh_ticker_universe():
                                         sym,
                                         r.get("name", sym),
                                         0.0,
-                                        r.get("primary_exchange", "US"),
+                                        None,  # sector filled by backfill_ticker_sectors()
                                         1
                                     ))
                         next_url = data.get("next_url")
@@ -217,6 +339,12 @@ def refresh_ticker_universe():
         ON CONFLICT(symbol) DO UPDATE SET
             market_cap=CASE WHEN excluded.market_cap > 0 THEN excluded.market_cap ELSE tickers.market_cap END,
             name=excluded.name,
+            sector=CASE
+                WHEN excluded.sector IS NOT NULL
+                     AND excluded.sector NOT IN ('XNAS','XNYS','XASE','BATS','ARCX','XCIS','US','Unknown')
+                THEN excluded.sector
+                ELSE tickers.sector
+            END,
             is_active=1,
             last_updated=date('now')
     """, tickers)
@@ -224,6 +352,170 @@ def refresh_ticker_universe():
     conn.close()
     logger.info("Total active tickers seeded in database: %d", len(tickers))
     return len(tickers)
+
+
+
+# ── Sector Backfill ─────────────────────────────────────────────────────────────
+
+def backfill_ticker_sectors(priority_symbols=None, max_fetches=MAX_SECTOR_FETCHES_PER_RUN):
+    """
+    Phase 16: Sector Backfill.
+
+    For every ticker whose `sector` is NULL or is an exchange MIC code (XNAS, XNYS
+    etc.), fetches the ticker details from Polygon v3/reference/tickers/{sym},
+    maps `sic_code` → GICS-style sector via `_sic_to_sector()`, and persists the
+    result back to the tickers table.
+
+    Results are cached in .cache/ticker_sectors.json so re-fetches are skipped on
+    subsequent runs.  Polygon free-tier rate limit is ~5 req/min; the function
+    sleeps 13 s between calls to stay safe.
+
+    Args:
+        priority_symbols: iterable of symbols to process first (e.g. buy-signal symbols)
+        max_fetches:      cap on total Polygon API calls this run (default MAX_SECTOR_FETCHES_PER_RUN)
+
+    Returns:
+        int — number of sectors updated in the DB this run
+    """
+    if not POLYGON_API_KEY:
+        logger.warning("POLYGON_API_KEY not set; cannot backfill ticker sectors.")
+        return 0
+
+    cache_dir  = ".cache"
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, "ticker_sectors.json")
+
+    # ── Load persistent sector cache ──────────────────────────────────────────
+    sector_cache: dict = {}
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r", encoding="utf-8") as fh:
+                sector_cache = json.load(fh)
+        except Exception as e:
+            logger.warning("Failed to load sector cache: %s", e)
+
+    conn = get_connection()
+    cur  = conn.cursor()
+
+    # ── Apply any already-cached values immediately ────────────────────────────
+    cur.execute("SELECT symbol, sector FROM tickers WHERE is_active = 1")
+    all_rows = cur.fetchall()
+
+    needs_fetch = []
+    for sym, sec in all_rows:
+        if sec is None or sec in _MIC_CODES:
+            if sym in sector_cache:
+                cur.execute(
+                    "UPDATE tickers SET sector = ? WHERE symbol = ?",
+                    (sector_cache[sym], sym)
+                )
+            else:
+                needs_fetch.append(sym)
+    conn.commit()
+
+    if needs_fetch:
+        logger.info(
+            "Sector backfill: %d tickers need Polygon lookup (cache hit avoided %d fetches).",
+            len(needs_fetch), len(all_rows) - len(needs_fetch) - sum(
+                1 for _, s in all_rows if s and s not in _MIC_CODES
+            )
+        )
+
+    # ── Prioritise buy-signal symbols ─────────────────────────────────────────
+    if priority_symbols:
+        pset = set(priority_symbols)
+        needs_fetch = (
+            [s for s in needs_fetch if s in pset] +
+            [s for s in needs_fetch if s not in pset]
+        )
+
+    updated = 0
+    failed  = 0
+    fetch_count = 0
+
+    for sym in needs_fetch:
+        if fetch_count >= max_fetches:
+            logger.info(
+                "Sector backfill: reached max_fetches=%d cap. %d tickers deferred to next run.",
+                max_fetches, len(needs_fetch) - fetch_count
+            )
+            break
+
+        # Rate-limit: Polygon free tier allows ~5 req/min (sleep between calls)
+        if fetch_count > 0:
+            time.sleep(13)
+
+        url = f"https://api.polygon.io/v3/reference/tickers/{sym}?apiKey={POLYGON_API_KEY}"
+        success = False
+        for attempt in range(3):
+            try:
+                res = requests.get(url, timeout=10)
+                if res.status_code == 200:
+                    results    = res.json().get("results", {})
+                    sic_code   = results.get("sic_code")
+                    ticker_type = results.get("type", "CS")
+
+                    if ticker_type in ("ETF", "ETP"):
+                        sector = "Index ETF"
+                    else:
+                        sector = _sic_to_sector(sic_code)
+
+                    sector_cache[sym] = sector
+                    cur.execute(
+                        "UPDATE tickers SET sector = ? WHERE symbol = ?",
+                        (sector, sym)
+                    )
+                    conn.commit()
+                    # Incremental cache write
+                    try:
+                        with open(cache_file, "w", encoding="utf-8") as fh:
+                            json.dump(sector_cache, fh, indent=2)
+                    except Exception:
+                        pass
+                    updated += 1
+                    fetch_count += 1
+                    logger.info(
+                        "Sector backfill: %s -> %s  (SIC %s)",
+                        sym, sector, sic_code or "N/A"
+                    )
+                    success = True
+                    break
+                elif res.status_code == 429:
+                    wait = 15 * (attempt + 1)
+                    logger.warning(
+                        "Polygon rate-limit 429 for %s (attempt %d). Waiting %ds...",
+                        sym, attempt + 1, wait
+                    )
+                    time.sleep(wait)
+                else:
+                    logger.warning(
+                        "Polygon ticker details HTTP %d for %s: %s",
+                        res.status_code, sym, res.text[:120]
+                    )
+                    failed += 1
+                    fetch_count += 1
+                    break
+            except Exception as e:
+                logger.warning("Sector fetch error for %s (attempt %d): %s", sym, attempt + 1, e)
+                if attempt == 2:
+                    failed += 1
+                    fetch_count += 1
+                else:
+                    time.sleep(5)
+
+    # ── Persist updated cache ─────────────────────────────────────────────────
+    try:
+        with open(cache_file, "w", encoding="utf-8") as fh:
+            json.dump(sector_cache, fh, indent=2)
+    except Exception as e:
+        logger.warning("Failed to save sector cache: %s", e)
+
+    conn.close()
+    logger.info(
+        "Sector backfill complete: %d updated, %d failed, %d already cached.",
+        updated, failed, len(all_rows) - len(needs_fetch)
+    )
+    return updated
 
 
 # ── Bar Ingestion ──────────────────────────────────────────────────────────────
@@ -1347,6 +1639,22 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
     os.makedirs(output_dir, exist_ok=True)
 
     conn = get_connection()
+
+    # Ensure any signal symbols without proper sector values are resolved before export
+    try:
+        cur_check = conn.cursor()
+        cur_check.execute("""
+            SELECT DISTINCT b.symbol
+            FROM buy_signals b
+            LEFT JOIN tickers t ON b.symbol = t.symbol
+            WHERE t.sector IS NULL OR t.sector IN ('XNAS','XNYS','XASE','BATS','ARCX','XCIS','US','Unknown')
+        """)
+        unresolved_symbols = [r[0] for r in cur_check.fetchall()]
+        if unresolved_symbols:
+            logger.info("Resolving sectors for %d signal symbols before web export: %s", len(unresolved_symbols), unresolved_symbols)
+            backfill_ticker_sectors(priority_symbols=unresolved_symbols, max_fetches=len(unresolved_symbols) + 5)
+    except Exception as e:
+        logger.warning("Auto sector backfill check in export_web_data encountered an issue: %s", e)
 
     # 1. latest_signals.json — full signal list
     query_signals = """
