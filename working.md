@@ -37,7 +37,8 @@ A Python-based **daily momentum stock screener** that:
 | Phase 12 | DB Gitignore: `stock_screener.db` removed from `main` tracking; `.gitignore` updated; restored/persisted exclusively via `data` orphan branch | ✅ Complete |
 | Phase 13 | TA Engine Extension: computed fields (% change, ATR%, 20d dollar vol, RS vs SPY, 52-wk high distance), Finnhub earnings-proximity flagging, composite 0-100 score (RVOL/RS/proximity/trend), signal_streak dedup (Discord alerts on streak==1 only), `regime.json` (SPY vs SMA200 + % universe above SMA50) | ✅ Complete |
 | Phase 14 | Dashboard UI Overhaul: Loading/error/empty states (failed URL display), As-of badge, Market Regime/30d-avg/Data Freshness cards, 14 sortable columns, multi-criteria filters with localStorage presets, chart modal "Why it triggered" & ATR risk calculator box, and Strategy Track Record section (`TrackRecord.tsx`) | ✅ Complete |
-| Deployment | GitHub Actions CI/CD (`.github/workflows/daily_screener.yml`) â€” cron `30 22 * * 1-5` (22:30 UTC Monâ€“Fri) | âœ… Deployed |
+| Phase 15 | Monorepo Structure: Separation into `frontend/` (Next.js App Router, Tailwind, TypeScript) and `backend/` (Python TA pipeline, SQLite, venv). Restored `globals.css` inside `frontend/app/`, scoped `.gitignore` files, fixed export paths to `../frontend/public/data`, and aligned CI/CD `daily_screener.yml`. | ✅ Complete |
+| Deployment | GitHub Actions CI/CD (`.github/workflows/daily_screener.yml`) — cron `30 22 * * 1-5` (22:30 UTC Mon–Fri) | ✅ Deployed |
 
 ---
 
@@ -45,37 +46,43 @@ A Python-based **daily momentum stock screener** that:
 
 ```
 Market Screener/
-â”œâ”€â”€ .env                          # Local API keys (never committed)
-â”œâ”€â”€ .gitignore                    # Git ignore file (node_modules, .next, venv, .env, stock_screener.db)
-â”œâ”€â”€ package.json                  # Next.js, React, Tailwind, lightweight-charts dependencies
-â”œâ”€â”€ tsconfig.json                 # TypeScript compiler configuration with @/* path aliases
-â”œâ”€â”€ tailwind.config.js            # Tailwind CSS configuration with dark theme financial palette
-â”œâ”€â”€ postcss.config.js             # PostCSS plugins (tailwindcss, autoprefixer)
-â”œâ”€â”€ requirements.txt              # Python dependencies (pandas-ta excluded â€” see gotchas; numba, tqdm, scipy, pandas_market_calendars added)
-â”œâ”€â”€ schema.sql                    # SQLite DDL: creates tickers, daily_bars (with source), buy_signals, signal_outcomes tables
-â”œâ”€â”€ stock_screener.db             # NOT tracked on main (gitignored); persisted to orphan `data` branch; restored by workflow at run start
-â”œâ”€â”€ screener.py                   # Core data pipeline: universe seeding, bar ingestion, failover, TA engine, web export
-â”œâ”€â”€ alerts.py                     # Discord/Telegram alerts + failure/stale alert functions
-â”œâ”€â”€ run_daily.py                  # Orchestrator: holiday skip, freshness check, full pipeline, exception alerting
-â”œâ”€â”€ outcomes.py                   # Backtest & outcome tracking: signal_outcomes upsert, setup_stats export, --backfill replay
-â”œâ”€â”€ test_run.py                   # Manual verification script (historical backtest simulation)
-â”œâ”€â”€ app/
-â”‚   â”œâ”€â”€ layout.tsx                # Next.js App Router root layout (dark mode, meta)
-â”‚   â”œâ”€â”€ globals.css               # Tailwind directives and custom scrollbar styling
-â”‚   â””â”€â”€ page.tsx                  # Main screener dashboard: Strategy Performance Stats Header, TradingView watchlist export, signals table
-â”œâ”€â”€ components/
-â”‚   â””â”€â”€ StockChart.tsx            # TradingView Lightweight Chart modal: candlestick, volume, MA overlays, VWAP line, 2Ã—ATR trailing stop toggle
-â”œâ”€â”€ lib/
-â”‚   â””â”€â”€ utils.ts                  # cn helper (clsx + tailwind-merge)
-â”œâ”€â”€ public/
-â”‚   â””â”€â”€ data/
-â”‚       â”œâ”€â”€ latest_signals.json   # Exported buy_signals with ticker info, MA alignment, RS score, market regime, 5d/10d/20d returns
-â”‚       â”œâ”€â”€ signal_bars.json      # Historical OHLCV bars for all buy_signal tickers
-â”‚       â”œâ”€â”€ performance_summary.json  # Win rates, average returns, sample counts across 5d/10d/20d horizons
-â”‚       â””â”€â”€ setup_stats.json      # Per-setup signal count, hit rates, excess vs SPY, median drawdown (wrapped under `setups` key + `generated_at`)
-â””â”€â”€ .github/
-    â””â”€â”€ workflows/
-        â””â”€â”€ daily_screener.yml    # GitHub Actions: 22:30 UTC Mon-Fri; restores DB from `data` branch; pushes DB back as orphan
+├── .env                          # Local API keys (never committed)
+├── .gitignore                    # Root gitignore (monorepo scope: node_modules, .next, venv, .env, *.db)
+├── working.md                    # Project context & architecture history
+├── .github/
+│   └── workflows/
+│       └── daily_screener.yml    # GitHub Actions: 22:30 UTC Mon-Fri; runs backend & commits frontend data
+├── frontend/
+│   ├── .gitignore                # Frontend-scoped gitignore (.next, node_modules, out, dist, etc.)
+│   ├── package.json              # Next.js, React, Tailwind, lightweight-charts
+│   ├── tsconfig.json             # TypeScript compiler config
+│   ├── tailwind.config.js        # Tailwind CSS dark theme configuration
+│   ├── postcss.config.js         # PostCSS plugins
+│   ├── app/
+│   │   ├── layout.tsx            # Next.js App Router root layout (imports ./globals.css)
+│   │   ├── globals.css           # Tailwind directives & custom scrollbars
+│   │   └── page.tsx              # Main dashboard: filters, presets, sortable table, metric cards
+│   ├── components/
+│   │   ├── StockChart.tsx        # TradingView chart modal, why-it-triggered panel, ATR risk box
+│   │   └── TrackRecord.tsx       # Strategy track record section from setup_stats.json
+│   └── public/
+│       └── data/
+│           ├── latest_signals.json
+│           ├── signal_bars.json
+│           ├── performance_summary.json
+│           ├── setup_stats.json
+│           └── regime.json
+└── backend/
+    ├── .gitignore                # Backend-scoped gitignore (venv, __pycache__, stock_screener.db, .cache)
+    ├── requirements.txt          # Python dependencies (pandas-ta excluded — installed --no-deps)
+    ├── schema.sql                # SQLite DDL: tickers, daily_bars, buy_signals, signal_outcomes
+    ├── stock_screener.db         # SQLite database (persisted via orphan data branch)
+    ├── screener.py               # Core TA engine & export_web_data (exports to ../frontend/public/data)
+    ├── alerts.py                 # Discord & Telegram notification functions
+    ├── run_daily.py              # Pipeline orchestrator
+    ├── outcomes.py               # Backtesting & outcome statistics generator
+    ├── test_run.py               # Historical test verification script
+    └── venv/                     # Local Python 3.12 virtual environment
 ```
 
 
@@ -380,15 +387,10 @@ ingest_historical_bars_for_ticker("NVDA", "2025-01-01", "2026-03-20")
 
 ## 7. GitHub Actions Deployment Status
 
-### Workflow File
-[`.github/workflows/daily_screener.yml`](.github/workflows/daily_screener.yml)
-
-### Schedule
-| Setting | Value |
-|---|---|
-| Cron | `0 21 * * 1-5` |
-| Time | 21:00 UTC = 4:00 PM EST / 5:00 PM EDT |
-| Days | Mondayâ€“Friday only |
+### Workflow Files
+- [`.github/workflows/daily_screener.yml`](.github/workflows/daily_screener.yml) — Scheduled production pipeline (cron `30 22 * * 1-5` + manual `workflow_dispatch`). Runs screener, commits web data to `frontend/public/data/`, and snapshots SQLite DB to orphan `data` branch.
+- [`.github/workflows/frontend.yml`](.github/workflows/frontend.yml) — Frontend CI (path filtered to `frontend/**`). Runs `npm ci` and `npm run build` inside `frontend/`.
+- [`.github/workflows/backend.yml`](.github/workflows/backend.yml) — Backend CI (path filtered to `backend/**`). Installs dependencies, sets up `pandas-ta --no-deps`, verifies imports, and runs `--dry-run`.
 
 ### Required Repository Secrets
 All set under `Settings â†’ Secrets and variables â†’ Actions`:
