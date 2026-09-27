@@ -1,0 +1,8 @@
+pandas
+requests
+python-dotenv
+yfinance
+numba
+tqdm
+scipy
+pandas_market_calendars
