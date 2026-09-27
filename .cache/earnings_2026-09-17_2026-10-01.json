@@ -1,0 +1,1022 @@
+{
+  "ACN": {
+    "date": "2026-10-01",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "AEHR": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 1,
+    "year": 2027
+  },
+  "ANGO": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 1,
+    "year": 2027
+  },
+  "AYI": {
+    "date": "2026-10-01",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "BFK": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "BLE": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "BTT": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "JTBK": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "MHD": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MIY": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MPA": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MQT": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MUA": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MVT": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MYI": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MYN": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "PKE": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 2,
+    "year": 2027
+  },
+  "SDHY": {
+    "date": "2026-10-01",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "BSET": {
+    "date": "2026-09-30",
+    "hour": "amc",
+    "quarter": 3,
+    "year": 2026
+  },
+  "BTLN": {
+    "date": "2026-09-30",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "CALM": {
+    "date": "2026-09-30",
+    "hour": "bmo",
+    "quarter": 1,
+    "year": 2027
+  },
+  "FDS": {
+    "date": "2026-09-30",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "HPF": {
+    "date": "2026-09-30",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "HPI": {
+    "date": "2026-09-30",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "INBP": {
+    "date": "2026-09-30",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "JBL": {
+    "date": "2026-09-30",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "JEF": {
+    "date": "2026-09-30",
+    "hour": "",
+    "quarter": 3,
+    "year": 2026
+  },
+  "MU": {
+    "date": "2026-09-30",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "PRGS": {
+    "date": "2026-09-30",
+    "hour": "amc",
+    "quarter": 3,
+    "year": 2026
+  },
+  "SENR": {
+    "date": "2026-09-30",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "XERI": {
+    "date": "2026-09-30",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "BTM": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 3,
+    "year": 2026
+  },
+  "CAG": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 1,
+    "year": 2027
+  },
+  "CNXC": {
+    "date": "2026-09-29",
+    "hour": "amc",
+    "quarter": 3,
+    "year": 2026
+  },
+  "GFUZ": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "KMX": {
+    "date": "2026-09-29",
+    "hour": "bmo",
+    "quarter": 2,
+    "year": 2027
+  },
+  "MUC": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "QTEX": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "TAYD": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 1,
+    "year": 2027
+  },
+  "TORO": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "TRSG": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "UEC": {
+    "date": "2026-09-29",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "ZCMD": {
+    "date": "2026-09-29",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "ABLV": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "AIFU": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "AIIO": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "ALP": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 3,
+    "year": 2026
+  },
+  "AMST": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "ANEB": {
+    "date": "2026-09-28",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "AOREF": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "ASPU": {
+    "date": "2026-09-28",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "ATGL": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "ATGN": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "BCRD": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 1,
+    "year": 2026
+  },
+  "BNET": {
+    "date": "2026-09-28",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "BON": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "CCL": {
+    "date": "2026-09-28",
+    "hour": "bmo",
+    "quarter": 3,
+    "year": 2026
+  },
+  "CVAT": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "CYCA": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "DMNIF": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "EESE": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "FKWL": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "GDTC": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "GHG": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "IDT": {
+    "date": "2026-09-28",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "INEO": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "IXHL": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "JFR": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "JQC": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "LBUYD": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "LDDD": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "LNAI": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "LSE": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "MARPS": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MFI": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "MITQ": {
+    "date": "2026-09-28",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MPU": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "MSS": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 1,
+    "year": 2026
+  },
+  "MTN": {
+    "date": "2026-09-28",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MWAI": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MYD": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "NKE": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 1,
+    "year": 2027
+  },
+  "NTCL": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "NTWK": {
+    "date": "2026-09-28",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "POCI": {
+    "date": "2026-09-28",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "SRXH": {
+    "date": "2026-09-28",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "SYNX": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "TRAK": {
+    "date": "2026-09-28",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "TVTV": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "VIVC": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "VSEE": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "ZKIN": {
+    "date": "2026-09-28",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "FGPR": {
+    "date": "2026-09-25",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "TBN": {
+    "date": "2026-09-25",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "AFB": {
+    "date": "2026-09-24",
+    "hour": "",
+    "quarter": 3,
+    "year": 2026
+  },
+  "BTOC": {
+    "date": "2026-09-24",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "BXMT": {
+    "date": "2026-09-24",
+    "hour": "bmo",
+    "quarter": 3,
+    "year": 2026
+  },
+  "COST": {
+    "date": "2026-09-24",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "DRI": {
+    "date": "2026-09-24",
+    "hour": "bmo",
+    "quarter": 1,
+    "year": 2027
+  },
+  "JOCM": {
+    "date": "2026-09-24",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "LGCY": {
+    "date": "2026-09-24",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "LITS": {
+    "date": "2026-09-24",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "LVVV": {
+    "date": "2026-09-24",
+    "hour": "",
+    "quarter": 4,
+    "year": 2025
+  },
+  "MTEK": {
+    "date": "2026-09-24",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "PCLA": {
+    "date": "2026-09-24",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "QH": {
+    "date": "2026-09-24",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "SCHL": {
+    "date": "2026-09-24",
+    "hour": "amc",
+    "quarter": 1,
+    "year": 2027
+  },
+  "SNX": {
+    "date": "2026-09-24",
+    "hour": "bmo",
+    "quarter": 3,
+    "year": 2026
+  },
+  "SOS": {
+    "date": "2026-09-24",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "AGSS": {
+    "date": "2026-09-23",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "ASTC": {
+    "date": "2026-09-23",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "CBRL": {
+    "date": "2026-09-23",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "CLRC": {
+    "date": "2026-09-23",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "CTAS": {
+    "date": "2026-09-23",
+    "hour": "bmo",
+    "quarter": 1,
+    "year": 2027
+  },
+  "FUL": {
+    "date": "2026-09-23",
+    "hour": "amc",
+    "quarter": 3,
+    "year": 2026
+  },
+  "GLNS": {
+    "date": "2026-09-23",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MANU": {
+    "date": "2026-09-23",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "MGLD": {
+    "date": "2026-09-23",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "NAII": {
+    "date": "2026-09-23",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "PAYX": {
+    "date": "2026-09-23",
+    "hour": "bmo",
+    "quarter": 1,
+    "year": 2027
+  },
+  "RAVE": {
+    "date": "2026-09-23",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "SFIX": {
+    "date": "2026-09-23",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "AYTU": {
+    "date": "2026-09-22",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "AZO": {
+    "date": "2026-09-22",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "HERE": {
+    "date": "2026-09-22",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "KBH": {
+    "date": "2026-09-22",
+    "hour": "amc",
+    "quarter": 3,
+    "year": 2026
+  },
+  "MLKN": {
+    "date": "2026-09-22",
+    "hour": "bmo",
+    "quarter": 1,
+    "year": 2027
+  },
+  "RWWI": {
+    "date": "2026-09-22",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "THO": {
+    "date": "2026-09-22",
+    "hour": "bmo",
+    "quarter": 4,
+    "year": 2026
+  },
+  "WOR": {
+    "date": "2026-09-22",
+    "hour": "amc",
+    "quarter": 1,
+    "year": 2027
+  },
+  "AIR": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 1,
+    "year": 2027
+  },
+  "AMEN": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "ANAB": {
+    "date": "2026-09-21",
+    "hour": "amc",
+    "quarter": 2,
+    "year": 2026
+  },
+  "CBIH": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "COOT": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 3,
+    "year": 2026
+  },
+  "EBF": {
+    "date": "2026-09-21",
+    "hour": "bmo",
+    "quarter": 2,
+    "year": 2027
+  },
+  "HCBC": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "HLEO": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 3,
+    "year": 2026
+  },
+  "HTOO": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "KCRD": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "NAMI": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "NCPL": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 1,
+    "year": 2027
+  },
+  "NVNI": {
+    "date": "2026-09-21",
+    "hour": "bmo",
+    "quarter": 2,
+    "year": 2026
+  },
+  "PTN": {
+    "date": "2026-09-21",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "SBSAA": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "TDTH": {
+    "date": "2026-09-21",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "WDSP": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "AKOM": {
+    "date": "2026-09-18",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "BLSM": {
+    "date": "2026-09-18",
+    "hour": "bmo",
+    "quarter": 2,
+    "year": 2026
+  },
+  "NCEL": {
+    "date": "2026-09-18",
+    "hour": "amc",
+    "quarter": 2,
+    "year": 2026
+  },
+  "NEUP": {
+    "date": "2026-09-18",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "VFS": {
+    "date": "2026-09-18",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "XCH": {
+    "date": "2026-09-18",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "BIOQ": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "ESP": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "FEAM": {
+    "date": "2026-09-17",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "GFLT": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "GWOX": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 1,
+    "year": 2027
+  },
+  "HUHU": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "INTE": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "ITOX": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "JF": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "OCCI": {
+    "date": "2026-09-17",
+    "hour": "amc",
+    "quarter": 3,
+    "year": 2026
+  },
+  "OWPC": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "PZG": {
+    "date": "2026-09-17",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "RYSMF": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  },
+  "TRT": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 4,
+    "year": 2026
+  },
+  "UPXI": {
+    "date": "2026-09-17",
+    "hour": "amc",
+    "quarter": 4,
+    "year": 2026
+  },
+  "VOGX": {
+    "date": "2026-09-17",
+    "hour": "amc",
+    "quarter": 2,
+    "year": 2026
+  },
+  "YI": {
+    "date": "2026-09-17",
+    "hour": "",
+    "quarter": 2,
+    "year": 2026
+  }
+}
