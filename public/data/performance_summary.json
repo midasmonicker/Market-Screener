@@ -1,0 +1,25 @@
+{
+  "total_signals": 9,
+  "horizon_5d": {
+    "count": 9,
+    "win_rate": 66.7,
+    "avg_return": 1.39,
+    "max_return": 13.38,
+    "min_return": -10.42
+  },
+  "horizon_10d": {
+    "count": 9,
+    "win_rate": 55.6,
+    "avg_return": -0.95,
+    "max_return": 18.84,
+    "min_return": -19.86
+  },
+  "horizon_20d": {
+    "count": 9,
+    "win_rate": 55.6,
+    "avg_return": -1.12,
+    "max_return": 16.53,
+    "min_return": -18.59
+  },
+  "generated_at": "2026-09-26T13:35:17.638600+00:00"
+}
