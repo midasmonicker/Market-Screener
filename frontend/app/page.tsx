@@ -11,6 +11,7 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
   Info,
   Calendar,
   CheckCircle2,
@@ -210,6 +211,21 @@ export default function DashboardPage() {
 
   // Chart modal
   const [activeSymbolForChart, setActiveSymbolForChart] = useState<Signal | null>(null);
+
+  // Responsive mobile row expansion: stores signal keys (e.g. `${symbol}-${id}`)
+  const [expandedRowIds, setExpandedRowIds] = useState<Set<string>>(new Set());
+
+  const toggleRowExpand = (rowKey: string) => {
+    setExpandedRowIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(rowKey)) {
+        next.delete(rowKey);
+      } else {
+        next.add(rowKey);
+      }
+      return next;
+    });
+  };
 
   // Load presets from localStorage
   useEffect(() => {
@@ -448,10 +464,12 @@ export default function DashboardPage() {
     col,
     label,
     align = 'left',
+    className = '',
   }: {
     col: SortColumn;
     label: string;
     align?: 'left' | 'right' | 'center';
+    className?: string;
   }) => {
     const active = sortCol === col;
     return (
@@ -459,7 +477,7 @@ export default function DashboardPage() {
         onClick={() => handleSort(col)}
         className={`py-3 px-3 cursor-pointer select-none hover:text-white transition group ${
           align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'
-        }`}
+        } ${className}`}
       >
         <span className="inline-flex items-center gap-1 font-semibold text-[11px] uppercase tracking-wider">
           {label}
@@ -851,192 +869,380 @@ export default function DashboardPage() {
                 <thead>
                   <tr className="bg-[#0a0f1d] text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider font-semibold">
                     <SortHeader col="symbol" label="Ticker" />
-                    <SortHeader col="timestamp" label="Date" />
+                    <SortHeader col="timestamp" label="Date" className="hidden md:table-cell" />
                     <SortHeader col="close_price" label="Price" align="right" />
-                    <SortHeader col="pct_change_1d" label="Chg%" align="right" />
+                    <SortHeader col="pct_change_1d" label="Chg%" align="right" className="hidden md:table-cell" />
                     <SortHeader col="rvol" label="RVOL" align="right" />
-                    <SortHeader col="rsi" label="RSI" align="right" />
-                    <SortHeader col="atr_pct" label="ATR%" align="right" />
-                    <SortHeader col="avg_dollar_vol_20d" label="$ Vol (20d)" align="right" />
-                    <SortHeader col="rs_vs_spy" label="RS vs SPY" align="center" />
+                    <SortHeader col="rsi" label="RSI" align="right" className="hidden md:table-cell" />
+                    <SortHeader col="atr_pct" label="ATR%" align="right" className="hidden md:table-cell" />
+                    <SortHeader col="avg_dollar_vol_20d" label="$ Vol (20d)" align="right" className="hidden md:table-cell" />
+                    <SortHeader col="rs_vs_spy" label="RS vs SPY" align="center" className="hidden md:table-cell" />
                     <SortHeader col="composite_score" label="Score" align="center" />
-                    <SortHeader col="signal_streak" label="Streak" align="center" />
-                    <SortHeader col="near_earnings" label="Earnings" align="center" />
-                    <th className="py-3 px-3 text-left">MA Alignment</th>
-                    <th className="py-3 px-3 text-center w-12" aria-label="Chart" />
+                    <SortHeader col="signal_streak" label="Streak" align="center" className="hidden md:table-cell" />
+                    <SortHeader col="near_earnings" label="Earnings" align="center" className="hidden md:table-cell" />
+                    <th className="py-3 px-3 text-left hidden md:table-cell">MA Alignment</th>
+                    <th className="py-3 px-3 text-center w-10 sm:w-12" aria-label="Details and Chart">
+                      <span className="md:hidden text-[10px] text-slate-500 font-normal">More</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-mono text-xs">
                   {displaySignals.map((sig) => {
+                    const rowKey = `${sig.symbol}-${sig.id}-${sig.timestamp}`;
+                    const isExpanded = expandedRowIds.has(rowKey);
                     const isAbove50 = sig.ma_alignment?.above_sma50 !== false;
                     const isAbove20 = sig.ma_alignment?.above_ema20 === true;
                     const isAbove200 = sig.ma_alignment?.above_sma200 === true;
                     const hasEarnings = sig.near_earnings === true;
 
                     return (
-                      <tr
-                        key={`${sig.symbol}-${sig.id}-${sig.timestamp}`}
-                        onClick={() => setActiveSymbolForChart(sig)}
-                        className="hover:bg-slate-800/40 cursor-pointer transition group"
-                      >
-                        {/* Ticker / Company */}
-                        <td className="py-3 px-3 font-sans">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-bold text-white text-sm tracking-tight font-mono group-hover:text-emerald-400 transition">
-                              {sig.symbol}
-                            </span>
-                            <span className="text-[11px] text-slate-400 truncate max-w-[140px] hidden lg:inline">
-                              {sig.name}
-                            </span>
-                          </div>
-                          <span className="text-[10px] text-slate-500 block lg:hidden font-mono">
-                            {sig.sector}
-                          </span>
-                        </td>
-
-                        {/* Date */}
-                        <td className="py-3 px-3 text-slate-400 font-mono whitespace-nowrap">
-                          {sig.timestamp}
-                        </td>
-
-                        {/* Close Price */}
-                        <td className="py-3 px-3 text-right font-semibold text-slate-100">
-                          ${sig.close_price?.toFixed(2)}
-                        </td>
-
-                        {/* % Change 1d */}
-                        <td className="py-3 px-3 text-right">
-                          {sig.pct_change_1d != null ? (
-                            <span
-                              className={`font-semibold ${
-                                sig.pct_change_1d >= 0 ? 'text-emerald-400' : 'text-rose-400'
-                              }`}
-                            >
-                              {sig.pct_change_1d >= 0 ? '+' : ''}
-                              {sig.pct_change_1d.toFixed(2)}%
-                            </span>
-                          ) : (
-                            <span className="text-slate-600">—</span>
-                          )}
-                        </td>
-
-                        {/* RVOL */}
-                        <td className="py-3 px-3 text-right">
-                          <span className="inline-block px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                            {sig.rvol?.toFixed(2)}x
-                          </span>
-                        </td>
-
-                        {/* RSI */}
-                        <td className="py-3 px-3 text-right text-cyan-400 font-semibold">
-                          {sig.rsi?.toFixed(1)}
-                        </td>
-
-                        {/* ATR% */}
-                        <td className="py-3 px-3 text-right">
-                          {sig.atr_pct != null ? (
-                            <span
-                              className={
-                                sig.atr_pct > 5 ? 'text-amber-400' : 'text-slate-300'
-                              }
-                            >
-                              {sig.atr_pct.toFixed(1)}%
-                            </span>
-                          ) : (
-                            <span className="text-slate-600">—</span>
-                          )}
-                        </td>
-
-                        {/* Dollar Volume (20d) */}
-                        <td className="py-3 px-3 text-right text-slate-300">
-                          {formatDollarVol(sig.avg_dollar_vol_20d)}
-                        </td>
-
-                        {/* RS vs SPY */}
-                        <td className="py-3 px-3 text-center">
-                          {sig.rs_vs_spy != null ? (
-                            <span
-                              className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold ${
-                                sig.rs_vs_spy >= 0
-                                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
-                                  : 'bg-rose-950/60 text-rose-300 border border-rose-500/30'
-                              }`}
-                            >
-                              {sig.rs_vs_spy >= 0 ? '+' : ''}
-                              {sig.rs_vs_spy.toFixed(1)}pp
-                            </span>
-                          ) : (
-                            <span className="text-slate-600">—</span>
-                          )}
-                        </td>
-
-                        {/* Composite Score */}
-                        <td className="py-3 px-3 text-center">
-                          <ScorePill score={sig.composite_score} />
-                        </td>
-
-                        {/* Signal Streak */}
-                        <td className="py-3 px-3 text-center">
-                          {sig.signal_streak != null && sig.signal_streak > 1 ? (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[11px] font-bold bg-orange-500/15 text-orange-400 border border-orange-500/30">
-                              <Flame className="w-3 h-3" />
-                              {sig.signal_streak}d
-                            </span>
-                          ) : (
-                            <span className="text-slate-500 text-xs">1d</span>
-                          )}
-                        </td>
-
-                        {/* Earnings Flag */}
-                        <td className="py-3 px-3 text-center">
-                          {hasEarnings ? (
-                            <span
-                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 whitespace-nowrap"
-                              title={`Earnings on ${sig.earnings_date ?? 'upcoming'}`}
-                            >
-                              <AlertTriangle className="w-2.5 h-2.5" />
-                              {sig.earnings_date ? sig.earnings_date.slice(5) : 'Near'}
-                            </span>
-                          ) : (
-                            <span className="text-slate-600">—</span>
-                          )}
-                        </td>
-
-                        {/* MA Alignment Badges */}
-                        <td className="py-3 px-3 font-sans">
-                          <div className="flex flex-wrap gap-1">
-                            {isAbove20 && (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-950/70 text-blue-300 border border-blue-500/30">
-                                20
+                      <React.Fragment key={rowKey}>
+                        <tr
+                          onClick={() => setActiveSymbolForChart(sig)}
+                          className={`hover:bg-slate-800/40 cursor-pointer transition group ${
+                            isExpanded ? 'bg-slate-800/20' : ''
+                          }`}
+                        >
+                          {/* 1. Ticker / Company (Mobile: always visible) */}
+                          <td className="py-3 px-3 font-sans">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-bold text-white text-sm tracking-tight font-mono group-hover:text-emerald-400 transition">
+                                {sig.symbol}
                               </span>
-                            )}
-                            {isAbove50 && (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-yellow-950/70 text-yellow-300 border border-yellow-500/30">
-                                50
+                              <span className="text-[11px] text-slate-400 truncate max-w-[140px] hidden lg:inline">
+                                {sig.name}
                               </span>
-                            )}
-                            {isAbove200 && (
-                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-950/70 text-purple-300 border border-purple-500/30">
-                                200
-                              </span>
-                            )}
-                          </div>
-                        </td>
+                            </div>
+                            <span className="text-[10px] text-slate-500 block lg:hidden font-mono">
+                              {sig.sector}
+                            </span>
+                          </td>
 
-                        {/* Chart Action */}
-                        <td className="py-3 px-3 text-center">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveSymbolForChart(sig);
-                            }}
-                            className="p-1 rounded-lg bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 border border-slate-700/80 transition"
-                            title="Open Candlestick Chart"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
+                          {/* 2. Date (Desktop only) */}
+                          <td className="py-3 px-3 text-slate-400 font-mono whitespace-nowrap hidden md:table-cell">
+                            {sig.timestamp}
+                          </td>
+
+                          {/* 3. Close Price (Mobile: always visible) */}
+                          <td className="py-3 px-3 text-right font-semibold text-slate-100">
+                            ${sig.close_price?.toFixed(2)}
+                          </td>
+
+                          {/* 4. % Change 1d (Desktop only) */}
+                          <td className="py-3 px-3 text-right hidden md:table-cell">
+                            {sig.pct_change_1d != null ? (
+                              <span
+                                className={`font-semibold ${
+                                  sig.pct_change_1d >= 0 ? 'text-emerald-400' : 'text-rose-400'
+                                }`}
+                              >
+                                {sig.pct_change_1d >= 0 ? '+' : ''}
+                                {sig.pct_change_1d.toFixed(2)}%
+                              </span>
+                            ) : (
+                              <span className="text-slate-600">—</span>
+                            )}
+                          </td>
+
+                          {/* 5. RVOL (Mobile: always visible) */}
+                          <td className="py-3 px-3 text-right">
+                            <span className="inline-block px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                              {sig.rvol?.toFixed(2)}x
+                            </span>
+                          </td>
+
+                          {/* 6. RSI (Desktop only) */}
+                          <td className="py-3 px-3 text-right text-cyan-400 font-semibold hidden md:table-cell">
+                            {sig.rsi?.toFixed(1)}
+                          </td>
+
+                          {/* 7. ATR% (Desktop only) */}
+                          <td className="py-3 px-3 text-right hidden md:table-cell">
+                            {sig.atr_pct != null ? (
+                              <span
+                                className={
+                                  sig.atr_pct > 5 ? 'text-amber-400' : 'text-slate-300'
+                                }
+                              >
+                                {sig.atr_pct.toFixed(1)}%
+                              </span>
+                            ) : (
+                              <span className="text-slate-600">—</span>
+                            )}
+                          </td>
+
+                          {/* 8. Dollar Volume (20d) (Desktop only) */}
+                          <td className="py-3 px-3 text-right text-slate-300 hidden md:table-cell">
+                            {formatDollarVol(sig.avg_dollar_vol_20d)}
+                          </td>
+
+                          {/* 9. RS vs SPY (Desktop only) */}
+                          <td className="py-3 px-3 text-center hidden md:table-cell">
+                            {sig.rs_vs_spy != null ? (
+                              <span
+                                className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold ${
+                                  sig.rs_vs_spy >= 0
+                                    ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-rose-950/60 text-rose-300 border border-rose-500/30'
+                                }`}
+                              >
+                                {sig.rs_vs_spy >= 0 ? '+' : ''}
+                                {sig.rs_vs_spy.toFixed(1)}pp
+                              </span>
+                            ) : (
+                              <span className="text-slate-600">—</span>
+                            )}
+                          </td>
+
+                          {/* 10. Composite Score (Mobile: always visible) */}
+                          <td className="py-3 px-3 text-center">
+                            <ScorePill score={sig.composite_score} />
+                          </td>
+
+                          {/* 11. Signal Streak (Desktop only) */}
+                          <td className="py-3 px-3 text-center hidden md:table-cell">
+                            {sig.signal_streak != null && sig.signal_streak > 1 ? (
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[11px] font-bold bg-orange-500/15 text-orange-400 border border-orange-500/30">
+                                <Flame className="w-3 h-3" />
+                                {sig.signal_streak}d
+                              </span>
+                            ) : (
+                              <span className="text-slate-500 text-xs">1d</span>
+                            )}
+                          </td>
+
+                          {/* 12. Earnings Flag (Desktop only) */}
+                          <td className="py-3 px-3 text-center hidden md:table-cell">
+                            {hasEarnings ? (
+                              <span
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 whitespace-nowrap"
+                                title={`Earnings on ${sig.earnings_date ?? 'upcoming'}`}
+                              >
+                                <AlertTriangle className="w-2.5 h-2.5" />
+                                {sig.earnings_date ? sig.earnings_date.slice(5) : 'Near'}
+                              </span>
+                            ) : (
+                              <span className="text-slate-600">—</span>
+                            )}
+                          </td>
+
+                          {/* 13. MA Alignment Badges (Desktop only) */}
+                          <td className="py-3 px-3 font-sans hidden md:table-cell">
+                            <div className="flex flex-wrap gap-1">
+                              {isAbove20 && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-950/70 text-blue-300 border border-blue-500/30">
+                                  20
+                                </span>
+                              )}
+                              {isAbove50 && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-yellow-950/70 text-yellow-300 border border-yellow-500/30">
+                                  50
+                                </span>
+                              )}
+                              {isAbove200 && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-950/70 text-purple-300 border border-purple-500/30">
+                                  200
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* 14. Action Column: Mobile chevron expand toggle / Desktop chart button */}
+                          <td className="py-3 px-3 text-center">
+                            {/* Mobile: Expand / Collapse chevron toggle */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleRowExpand(rowKey);
+                              }}
+                              className="md:hidden p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 transition"
+                              aria-expanded={isExpanded}
+                              aria-label="Toggle details"
+                            >
+                              {isExpanded ? (
+                                <ChevronUp className="w-3.5 h-3.5 text-emerald-400" />
+                              ) : (
+                                <ChevronRight className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+
+                            {/* Desktop: Chart modal button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveSymbolForChart(sig);
+                              }}
+                              className="hidden md:inline-flex p-1 rounded-lg bg-slate-800/80 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 border border-slate-700/80 transition"
+                              title="Open Candlestick Chart"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+
+                        {/* Mobile Expanded Details Drawer (<768px only) */}
+                        {isExpanded && (
+                          <tr className="md:hidden bg-[#090d16]/95 border-b border-slate-800 font-sans">
+                            <td colSpan={5} className="p-3">
+                              <div className="bg-[#0c1322] border border-slate-800/90 rounded-lg p-3.5 space-y-3">
+                                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                                  <div>
+                                    <span className="font-bold text-white text-xs">{sig.symbol}</span>
+                                    <span className="text-[11px] text-slate-400 ml-2">{sig.name}</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveSymbolForChart(sig);
+                                    }}
+                                    className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-semibold transition"
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    <span>Open Chart</span>
+                                  </button>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                                  {/* Sector */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">Sector</span>
+                                    <span className="text-slate-200 font-mono text-[11px]">{sig.sector || 'Unknown'}</span>
+                                  </div>
+
+                                  {/* Date */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">Date</span>
+                                    <span className="text-slate-300 font-mono text-[11px]">{sig.timestamp}</span>
+                                  </div>
+
+                                  {/* % Change 1d */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">1d Chg</span>
+                                    <span className="font-mono text-[11px]">
+                                      {sig.pct_change_1d != null ? (
+                                        <span className={`font-semibold ${sig.pct_change_1d >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                          {sig.pct_change_1d >= 0 ? '+' : ''}{sig.pct_change_1d.toFixed(2)}%
+                                        </span>
+                                      ) : (
+                                        <span className="text-slate-600">—</span>
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  {/* RSI */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">RSI (14)</span>
+                                    <span className="text-cyan-400 font-mono font-semibold text-[11px]">
+                                      {sig.rsi?.toFixed(1) ?? '—'}
+                                    </span>
+                                  </div>
+
+                                  {/* ATR% */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">ATR%</span>
+                                    <span className="font-mono text-[11px]">
+                                      {sig.atr_pct != null ? (
+                                        <span className={sig.atr_pct > 5 ? 'text-amber-400' : 'text-slate-300'}>
+                                          {sig.atr_pct.toFixed(1)}%
+                                        </span>
+                                      ) : (
+                                        <span className="text-slate-600">—</span>
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  {/* 20d Dollar Volume */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">$ Vol (20d)</span>
+                                    <span className="text-slate-300 font-mono text-[11px]">
+                                      {formatDollarVol(sig.avg_dollar_vol_20d)}
+                                    </span>
+                                  </div>
+
+                                  {/* RS vs SPY */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">RS vs SPY</span>
+                                    <span className="font-mono text-[11px]">
+                                      {sig.rs_vs_spy != null ? (
+                                        <span className={sig.rs_vs_spy >= 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
+                                          {sig.rs_vs_spy >= 0 ? '+' : ''}{sig.rs_vs_spy.toFixed(1)}pp
+                                        </span>
+                                      ) : (
+                                        <span className="text-slate-600">—</span>
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  {/* Signal Streak */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">Streak</span>
+                                    <span className="font-mono text-[11px]">
+                                      {sig.signal_streak != null && sig.signal_streak > 1 ? (
+                                        <span className="inline-flex items-center gap-0.5 text-orange-400 font-bold">
+                                          <Flame className="w-3 h-3" />
+                                          {sig.signal_streak}d
+                                        </span>
+                                      ) : (
+                                        <span className="text-slate-400">1d</span>
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  {/* Earnings */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">Earnings</span>
+                                    <span className="text-[11px]">
+                                      {hasEarnings ? (
+                                        <span className="inline-flex items-center gap-1 text-amber-300 font-semibold">
+                                          <AlertTriangle className="w-2.5 h-2.5" />
+                                          {sig.earnings_date ? sig.earnings_date.slice(5) : 'Near'}
+                                        </span>
+                                      ) : (
+                                        <span className="text-slate-500 font-mono">None</span>
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  {/* 52w High Distance */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">52w High Dist</span>
+                                    <span className="text-slate-300 font-mono text-[11px]">
+                                      {sig.dist_to_52w_high_pct != null
+                                        ? `${sig.dist_to_52w_high_pct >= 0 ? '+' : ''}${sig.dist_to_52w_high_pct.toFixed(1)}%`
+                                        : '—'}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* MA Alignment in Drawer */}
+                                <div className="flex items-center justify-between pt-1">
+                                  <span className="text-slate-400 text-[11px]">MA Alignment</span>
+                                  <div className="flex items-center gap-1">
+                                    {isAbove20 && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-950/70 text-blue-300 border border-blue-500/30">
+                                        20-EMA
+                                      </span>
+                                    )}
+                                    {isAbove50 && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-yellow-950/70 text-yellow-300 border border-yellow-500/30">
+                                        50-SMA
+                                      </span>
+                                    )}
+                                    {isAbove200 && (
+                                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-950/70 text-purple-300 border border-purple-500/30">
+                                        200-SMA
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
                     );
                   })}
                 </tbody>

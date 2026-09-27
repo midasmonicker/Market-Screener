@@ -13,6 +13,7 @@ from screener import (
     update_post_breakout_performance,
     get_performance_summary,
     export_web_data,
+    backfill_ticker_sectors,
     get_connection,
     DB_PATH
 )
