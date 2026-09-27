@@ -42,6 +42,8 @@ WEIGHT_TREND_STRENGTH    = 0.20
 
 # Earnings proximity window (calendar days on each side of report date to flag)
 EARNINGS_PROXIMITY_DAYS = 1
+# Finnhub omits report dates in this response, so this lag is an approximation.
+EARNINGS_REPORT_LAG_DAYS_DEFAULT = 35
 
 # Max Polygon ticker-details API calls per pipeline run for sector backfill
 # (respects free-tier rate limit; priority symbols are always processed first)
@@ -953,106 +955,158 @@ def compute_regime_detail(date_str, grouped, conn=None):
             conn.close()
 
 
-# ── Earnings Calendar ──────────────────────────────────────────────────────────
+# ── Earnings Calendar / Company Earnings ───────────────────────────────────────
 
-def fetch_finnhub_earnings_calendar(from_date, to_date, cache_dir=".cache"):
+
+def fetch_finnhub_symbol_earnings(symbol, cache_dir=".cache", ttl_hours=168):
     """
-    Fetch earnings calendar from Finnhub within [from_date, to_date].
-    Caches results locally to handle rate limits and avoid repeated network calls.
-    Returns: dict mapping symbol -> {'date': YYYY-MM-DD, 'hour': bmo/amc/'', ...}
+    Fetch a symbol's historical quarterly earnings dataset from Finnhub's
+    /stock/earnings endpoint and cache the result keyed by symbol.
+    Returns {period_date: {"period": ..., "actual": ..., "estimate": ..., "surprise": ...}}
     """
     if not FINNHUB_API_KEY:
-        logger.warning("Finnhub API key not configured; skipping earnings calendar check.")
+        logger.warning("Finnhub API key not configured; skipping stock earnings lookup for %s.", symbol)
         return {}
 
+    sym = str(symbol).upper()
     os.makedirs(cache_dir, exist_ok=True)
-    cache_file = os.path.join(cache_dir, f"earnings_{from_date}_{to_date}.json")
+    cache_file = os.path.join(cache_dir, f"earnings_{sym}.json")
+    now_ts = datetime.datetime.now(datetime.timezone.utc)
 
     if os.path.exists(cache_file):
         try:
             with open(cache_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                logger.info("Loaded %d earnings calendar records from cache (%s).", len(data), cache_file)
-                return data
+                cached = json.load(f)
+            fetched_at = cached.get("fetched_at")
+            if fetched_at:
+                fetched_dt = datetime.datetime.fromisoformat(fetched_at)
+                age_hours = (now_ts - fetched_dt).total_seconds() / 3600.0
+                if age_hours < ttl_hours:
+                    records = cached.get("records", {})
+                    logger.info("Loaded %d cached earnings records for %s from %s.", len(records), sym, cache_file)
+                    return records
         except Exception as e:
             logger.warning("Failed to read earnings cache %s: %s", cache_file, e)
 
-    url = (
-        f"https://finnhub.io/api/v1/calendar/earnings"
-        f"?from={from_date}&to={to_date}&token={FINNHUB_API_KEY}"
-    )
+    url = f"https://finnhub.io/api/v1/stock/earnings?symbol={sym}&token={FINNHUB_API_KEY}"
     for attempt in range(3):
         try:
-            res = requests.get(url, timeout=15)
+            res = requests.get(url, timeout=20)
+            raw_body = res.text[:2000] if hasattr(res, "text") else str(res)
+            logger.warning("DEBUG FINNHUB symbol earnings status=%s for %s body=%s", res.status_code, sym, raw_body)
             if res.status_code == 200:
-                calendar_items = res.json().get("earningsCalendar", [])
-                earnings_map = {}
-                for item in calendar_items:
-                    sym = item.get("symbol")
-                    if sym:
-                        earnings_map[sym.upper()] = {
-                            "date":    item.get("date"),
-                            "hour":    item.get("hour", ""),
-                            "quarter": item.get("quarter"),
-                            "year":    item.get("year")
-                        }
+                payload = res.json()
+                if not isinstance(payload, list):
+                    return {}
+
+                records = {}
+                for item in payload:
+                    period = item.get("period")
+                    if not period:
+                        continue
+                    try:
+                        parsed_date = datetime.date.fromisoformat(period)
+                    except Exception:
+                        continue
+                    records[parsed_date.isoformat()] = {
+                        "symbol": item.get("symbol", sym),
+                        "period": parsed_date.isoformat(),
+                        "estimate": item.get("estimate"),
+                        "actual": item.get("actual"),
+                        "surprise": item.get("surprise"),
+                        "surprisePercent": item.get("surprisePercent"),
+                        "year": item.get("year"),
+                        "quarter": item.get("quarter"),
+                    }
+                cache_payload = {"fetched_at": now_ts.isoformat(), "records": records}
                 try:
                     with open(cache_file, "w", encoding="utf-8") as f:
-                        json.dump(earnings_map, f, indent=2)
+                        json.dump(cache_payload, f, indent=2)
                 except Exception as e:
-                    logger.warning("Failed to write earnings cache: %s", e)
-                logger.info(
-                    "Fetched and cached %d earnings events from Finnhub (%s to %s).",
-                    len(earnings_map), from_date, to_date
-                )
-                return earnings_map
+                    logger.warning("Failed to write symbol earnings cache for %s: %s", sym, e)
+                logger.info("Fetched and cached %d earnings periods for %s from Finnhub.", len(records), sym)
+                return records
             elif res.status_code == 429:
-                logger.warning("Finnhub 429 rate limit (attempt %d). Waiting 3s...", attempt + 1)
+                logger.warning("Finnhub 429 rate limit on %s earnings request (attempt %d). Waiting 3s...", sym, attempt + 1)
                 time.sleep(3)
             else:
-                logger.warning(
-                    "Finnhub earnings calendar returned HTTP %d: %s",
-                    res.status_code, res.text[:100]
-                )
+                logger.warning("Finnhub stock/earnings returned HTTP %d for %s: %s", res.status_code, sym, raw_body)
                 break
         except Exception as e:
-            logger.warning("Finnhub earnings request error (attempt %d): %s", attempt + 1, e)
+            logger.exception("DEBUG FINNHUB symbol earnings request error for %s (attempt %d)", sym, attempt + 1)
             time.sleep(2)
 
-    logger.warning("Gracefully proceeding without Finnhub earnings calendar data.")
+    logger.warning("Gracefully proceeding without earnings data for %s; no valid stock earnings response.", sym)
+    return {}
+
+
+def fetch_finnhub_earnings_calendar(from_date, to_date, cache_dir=".cache"):
+    """Backward-compatible wrapper retained for older callers; prefer symbol-scoped fetches."""
+    logger.warning("Deprecated broad calendar/earnings path invoked for %s to %s. Prefer per-symbol stock/earnings lookups.", from_date, to_date)
     return {}
 
 
 def _is_near_earnings(symbol, date_str, earnings_map, trading_days_series, proximity_days=EARNINGS_PROXIMITY_DAYS):
     """
     Return (near_earnings: bool, earnings_date: str|None) for a given symbol.
-    'Near' = earnings report is within `proximity_days` trading sessions of date_str.
-    Uses the trading_days_series (sorted list of known trading-day strings) for proximity.
+    Only consider earnings periods that were already known as of the signal date.
+    If the API includes a report date, filter to report_date <= signal_date.
+    If only quarter-end period is available, require a conservative buffer so future
+    periods are not treated as already known.
     """
-    if not earnings_map or symbol not in earnings_map:
+    if not earnings_map:
         return False, None
 
-    earnings_date = earnings_map[symbol].get("date")
-    if not earnings_date:
+    candidate_map = earnings_map.get(symbol) if isinstance(earnings_map, dict) and symbol in earnings_map and isinstance(earnings_map[symbol], dict) else earnings_map
+    if not candidate_map:
         return False, None
 
+    signal_dt = datetime.date.fromisoformat(date_str)
+    eligibility_buffer_days = EARNINGS_REPORT_LAG_DAYS_DEFAULT
+    eligible_dates = []
+
+    for key, value in candidate_map.items():
+        info = value if isinstance(value, dict) else {}
+        period_value = info.get("period") or info.get("date") or key
+        report_date_value = info.get("reportDate") or info.get("report_date") or info.get("actualDate") or info.get("actual_date")
+
+        try:
+            period_dt = datetime.date.fromisoformat(str(period_value))
+        except Exception:
+            continue
+
+        if report_date_value:
+            try:
+                report_dt = datetime.date.fromisoformat(str(report_date_value))
+            except Exception:
+                report_dt = None
+            if report_dt is not None and report_dt <= signal_dt:
+                eligible_dates.append(period_dt)
+            continue
+
+        # Conservative fallback: only count quarter-end periods that were likely already reported,
+        # not future periods that had not closed yet.
+        if period_dt <= signal_dt - datetime.timedelta(days=eligibility_buffer_days):
+            eligible_dates.append(period_dt)
+
+    if not eligible_dates:
+        return False, None
+
+    nearest_date = max(eligible_dates)
+    earnings_date = nearest_date.isoformat()
     try:
-        # Build index lookup for fast proximity test
         td_list = sorted(trading_days_series)
         if date_str not in td_list or earnings_date not in td_list:
-            # Fall back to calendar-day proximity
-            signal_dt   = datetime.date.fromisoformat(date_str)
-            earnings_dt = datetime.date.fromisoformat(earnings_date)
-            diff = abs((earnings_dt - signal_dt).days)
-            near = diff <= proximity_days * 2  # rough calendar-day approximation
+            diff = abs((nearest_date - signal_dt).days)
+            near = diff <= proximity_days * 2
             return near, earnings_date
 
-        idx_signal   = td_list.index(date_str)
+        idx_signal = td_list.index(date_str)
         idx_earnings = td_list.index(earnings_date)
         near = abs(idx_earnings - idx_signal) <= proximity_days
         return near, earnings_date
     except Exception:
-        return False, None
+        return False, earnings_date
 
 
 # ── RS Scores & Signal Streak ──────────────────────────────────────────────────
@@ -1436,15 +1490,17 @@ def run_screener_engine(date_str, max_workers=4):
     # Known trading days for earnings proximity calculation
     all_trading_days = sorted(df_all["timestamp"].unique().tolist())
 
-    # Fetch earnings calendar for a ±7 calendar-day window around date_str
+    # Fetch symbol-scoped earnings histories once per symbol (cache by symbol)
     try:
-        target_dt   = datetime.date.fromisoformat(date_str)
-        earn_from   = (target_dt - datetime.timedelta(days=7)).isoformat()
-        earn_to     = (target_dt + datetime.timedelta(days=7)).isoformat()
-        earnings_map = fetch_finnhub_earnings_calendar(earn_from, earn_to)
+        symbol_earnings_map = {}
+        symbols = sorted(grouped.keys())
+        for idx, sym in enumerate(symbols):
+            if idx and idx % 25 == 0:
+                time.sleep(1.0)
+            symbol_earnings_map[sym] = fetch_finnhub_symbol_earnings(sym)
     except Exception as e:
-        logger.warning("Could not fetch earnings calendar: %s", e)
-        earnings_map = {}
+        logger.warning("Could not preload symbol earnings histories: %s", e)
+        symbol_earnings_map = {}
 
     signals = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -1457,7 +1513,7 @@ def run_screener_engine(date_str, max_workers=4):
                 rs_scores.get(sym),
                 market_regime,
                 spy_return_63d,
-                earnings_map,
+                symbol_earnings_map.get(sym, {}),
                 all_trading_days
             ): sym
             for sym, df_sym in grouped.items()

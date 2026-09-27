@@ -681,7 +681,7 @@ export default function DashboardPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-2 truncate">
               {regimeData?.generated_at
-                ? `Generated at ${new Date(regimeData.generated_at).toLocaleTimeString()}`
+                ? `Exported ${relativeTime(regimeData.generated_at)} • Latest signal: ${signals[0]?.timestamp ?? regimeData.date ?? 'n/a'}`
                 : 'Awaiting pipeline export'}
             </p>
           </div>
