@@ -1,17 +1,4 @@
 {
-  "generated_at": "2026-09-30T05:54:16.756033+00:00",
-  "setups": {
-    "Momentum Breakout": {
-      "signal_count": 9,
-      "completed_5d_count": 9,
-      "hit_rate_5d": 66.7,
-      "completed_20d_count": 9,
-      "hit_rate_20d": 55.6,
-      "median_excess_5d": 0.0,
-      "avg_excess_5d": 0.85,
-      "median_excess_20d": -0.53,
-      "avg_excess_20d": -2.46,
-      "median_max_drawdown": -2.02
-    }
-  }
+  "generated_at": "2026-09-30T06:07:53.714491+00:00",
+  "setups": {}
 }
