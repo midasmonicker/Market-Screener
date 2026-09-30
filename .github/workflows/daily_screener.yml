@@ -12,6 +12,7 @@ permissions:
 jobs:
   run-screener:
     runs-on: ubuntu-latest
+    timeout-minutes: 240
 
     steps:
       - name: Checkout main repository
@@ -22,11 +23,31 @@ jobs:
 
       - name: Restore SQLite DB from orphan data branch
         run: |
+          set -euo pipefail
+          restore_tmp="$(mktemp backend/stock_screener.db.restore.XXXXXX)"
+          trap 'rm -f "$restore_tmp"' EXIT
           # Fetch the data branch if it exists, and extract backend/stock_screener.db
           if git ls-remote --exit-code --heads origin data; then
-            echo "Found existing 'data' branch. Checking out stock_screener.db..."
+            echo "Found existing 'data' branch. Restoring the database snapshot..."
             git fetch origin data
-            git checkout origin/data -- backend/stock_screener.db || true
+            if git cat-file -e origin/data:stock_screener.db 2>/dev/null; then
+              git show origin/data:stock_screener.db > "$restore_tmp"
+            elif git cat-file -e origin/data:backend/stock_screener.db 2>/dev/null; then
+              git show origin/data:backend/stock_screener.db > "$restore_tmp"
+            else
+              parts=$(git ls-tree -r --name-only origin/data | grep -E '^stock_screener\.db\.gz\.part-[0-9]+$' || true)
+              if [[ -n "$parts" ]]; then
+                while IFS= read -r part; do
+                  git show "origin/data:$part"
+                done <<< "$parts" | gzip -dc > "$restore_tmp"
+              else
+                echo "No recognized database snapshot found; the seed step will initialize it."
+              fi
+            fi
+            if [[ -s "$restore_tmp" ]]; then
+              mv "$restore_tmp" backend/stock_screener.db
+              echo "Database snapshot restored atomically."
+            fi
           else
             echo "No 'data' branch found yet. Starting with clean or repository DB."
           fi
@@ -44,6 +65,23 @@ jobs:
           pip install -r backend/requirements.txt
           pip install pandas-ta --no-deps
 
+      - name: Verify restored SQLite database
+        run: |
+          if [[ -f backend/stock_screener.db ]]; then
+            python - <<'PY'
+          import sqlite3
+
+          connection = sqlite3.connect("backend/stock_screener.db")
+          try:
+              result = connection.execute("PRAGMA integrity_check").fetchone()[0]
+              if result != "ok":
+                  raise RuntimeError(f"Restored SQLite database is invalid: {result}")
+              print("Restored SQLite database integrity: ok")
+          finally:
+              connection.close()
+          PY
+          fi
+
       - name: Restore Finnhub earnings cache
         uses: actions/cache@v4
         with:
@@ -51,6 +89,16 @@ jobs:
           key: earnings-cache-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             earnings-cache-${{ runner.os }}-
+
+      - name: Seed rolling history when needed
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_API_SECRET }}
+          ALPACA_API_SECRET: ${{ secrets.ALPACA_API_SECRET }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+        run: |
+          cd backend && python seed_history.py --trading-days 200
 
       - name: Run daily screener
         env:
@@ -77,18 +125,30 @@ jobs:
             git push origin main
           fi
 
-      - name: Persist SQLite DB as single commit on orphan data branch
+      - name: Persist compressed SQLite DB on orphan data branch
         if: success()
         run: |
+          set -euo pipefail
           if [ -f "backend/stock_screener.db" ]; then
+            python - <<'PY'
+          import sqlite3
+
+          connection = sqlite3.connect("backend/stock_screener.db")
+          try:
+              result = connection.execute("PRAGMA integrity_check").fetchone()[0]
+              if result != "ok":
+                  raise RuntimeError(f"Refusing to persist invalid SQLite database: {result}")
+          finally:
+              connection.close()
+          PY
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             # Create a separate clean orphan branch with only stock_screener.db
             git checkout --orphan data-temp
             git rm -rf . --quiet || true
-            cp backend/stock_screener.db stock_screener.db
-            git add stock_screener.db
-            git commit -m "chore: persistent database snapshot [skip ci]"
+            gzip -1 -c backend/stock_screener.db | split -b 90m -d -a 3 - stock_screener.db.gz.part-
+            git add stock_screener.db.gz.part-*
+            git commit -m "chore: compressed database snapshot [skip ci]"
             # Force-push as single commit to 'data' branch so Git history never accumulates
             git push -f origin data-temp:data
           fi

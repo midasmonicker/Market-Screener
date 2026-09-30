@@ -605,6 +605,13 @@ Executed `python outcomes.py --backfill` (exit code 0):
 - Cron updated from 0 21 * * 1-5 to 30 22 * * 1-5 (22:30 UTC Mon-Fri).
 - requirements.txt expanded: added numba, tqdm, scipy alongside existing deps.
 
+### Historical Seed Incident and Production Database (2026-09-30)
+- Windows System events show Kernel-Power entering Modern Standby at 08:20:30 (idle timeout) and exiting at 08:22:45 (keyboard input), matching the reported 08:22 write cutoff. WSL `dmesg` includes DNS-resolution failures but no explicit suspend marker. The interruption is the strongest explanation for the blocked run; no code-level infinite loop or final network notification was found. Treat the Actions timeout and explicit logging shutdown as resilience, not proof of a script-level root-cause fix.
+- `seed_history.py` refreshes the active ticker universe once before iterating sessions. The grouped daily provider supplies bars for a broader symbol set; the screener filters to `tickers.is_active = 1`. Seed verification: SQLite integrity `ok`, 2,430,795 bars, 14,395 distinct bar symbols, 4,982 active tickers, 200 sessions from 2025-12-11 through 2026-09-29, 200 sessions each for SPY and AAPL, and no duplicate symbol/date groups. Historical-only symbols and share/listing variants are retained as source history; they are not eligible for screening unless active in the ticker table. No cleanup is needed before screening.
+- Promoted the seed to `backend/stock_screener.db` after backing up the prior 4.5 MiB DB to ignored `backend/.cache/stock_screener_before_seed_20260930.db`. Production now passes SQLite integrity checks and has the same 2,430,795 bars / 200-session date range.
+- Production indicator check for AAPL on 2026-09-29: RVOL20 0.9032, RSI14 50.8781, SMA200 288.3256; SPY regime `Bullish` (SPY close 764.20, SMA200 719.25).
+- The 332,972,032-byte database compresses with gzip level 1 to 145,291,393 bytes. A test of the workflow's 90 MiB split/concatenate/gzip-restore path produced two parts (largest 90 MiB) and a byte-identical database (SHA-256 `918432d78eebb0ef18e15089ec726b5b8a38a81691616f48c2f1a3cdfff33eb4`). This fits GitHub's 100 MiB per-file limit and supports retaining the compressed orphan `data` branch; restore is now staged atomically and verified with SQLite before use. Actions has a 240-minute job timeout.
+
 
 ---
 
