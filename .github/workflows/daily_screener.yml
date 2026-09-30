@@ -44,6 +44,14 @@ jobs:
           pip install -r backend/requirements.txt
           pip install pandas-ta --no-deps
 
+      - name: Restore Finnhub earnings cache
+        uses: actions/cache@v4
+        with:
+          path: backend/.cache
+          key: earnings-cache-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            earnings-cache-${{ runner.os }}-
+
       - name: Run daily screener
         env:
           ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
