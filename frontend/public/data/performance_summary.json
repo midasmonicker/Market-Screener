@@ -1,25 +1,25 @@
 {
-  "total_signals": 9,
+  "total_signals": 0,
   "horizon_5d": {
-    "count": 9,
-    "win_rate": 66.7,
-    "avg_return": 1.39,
-    "max_return": 13.38,
-    "min_return": -10.42
+    "count": 0,
+    "win_rate": null,
+    "avg_return": null,
+    "max_return": null,
+    "min_return": null
   },
   "horizon_10d": {
-    "count": 9,
-    "win_rate": 55.6,
-    "avg_return": -0.95,
-    "max_return": 18.84,
-    "min_return": -19.86
+    "count": 0,
+    "win_rate": null,
+    "avg_return": null,
+    "max_return": null,
+    "min_return": null
   },
   "horizon_20d": {
-    "count": 9,
-    "win_rate": 55.6,
-    "avg_return": -1.12,
-    "max_return": 16.53,
-    "min_return": -18.59
+    "count": 0,
+    "win_rate": null,
+    "avg_return": null,
+    "max_return": null,
+    "min_return": null
   },
-  "generated_at": "2026-09-30T05:54:16.356075+00:00"
+  "generated_at": "2026-09-30T06:07:53.388783+00:00"
 }
