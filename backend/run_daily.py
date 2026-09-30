@@ -4,6 +4,8 @@ import argparse
 import datetime
 import logging
 import sqlite3
+import time
+from zoneinfo import ZoneInfo
 import pandas_market_calendars as mcal
 from screener import (
     init_db,
@@ -39,6 +41,25 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger("DailyScreener")
+
+def get_latest_completed_trading_date(now_utc=None):
+    """Return the latest NYSE session whose scheduled close has passed."""
+    if now_utc is None:
+        now_utc = datetime.datetime.now(datetime.timezone.utc)
+    elif now_utc.tzinfo is None:
+        raise ValueError("now_utc must be timezone-aware")
+
+    now_utc = now_utc.astimezone(datetime.timezone.utc)
+    ny_date = now_utc.astimezone(ZoneInfo("America/New_York")).date()
+    nyse = mcal.get_calendar("NYSE")
+    schedule = nyse.schedule(
+        start_date=(ny_date - datetime.timedelta(days=14)).isoformat(),
+        end_date=ny_date.isoformat()
+    )
+    completed_sessions = schedule[schedule["market_close"] <= now_utc]
+    if completed_sessions.empty:
+        raise RuntimeError(f"No completed NYSE session found as of {now_utc.isoformat()}")
+    return completed_sessions.index[-1].date()
 
 def check_us_market_holiday_and_schedule(target_date):
     """
@@ -143,11 +164,11 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
     Sequential execution pipeline with holiday check, data freshness validation,
     idempotent signal generation, and Discord failure alert wrapping.
     """
+    pipeline_started = time.perf_counter()
     logger.info("=" * 65)
     logger.info("STARTING DAILY STOCK SCREENER PIPELINE")
     logger.info("=" * 65)
 
-    today = datetime.date.today()
     current_step = "Target Date & Market Holiday Resolution"
 
     try:
@@ -158,7 +179,7 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
                 logger.error("Invalid date format: %s. Use YYYY-MM-DD.", date_str)
                 return False
         else:
-            target_date = today
+            target_date = get_latest_completed_trading_date()
 
         # Step 0: Check for US market holiday using pandas_market_calendars
         is_trading_day, expected_day_str, reason = check_us_market_holiday_and_schedule(target_date)
@@ -180,14 +201,22 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
         # Step 2: Universe Seeding
         current_step = "[Step 2/8] Refreshing ticker universe"
         logger.info(current_step)
+        stage_started = time.perf_counter()
         universe_size = refresh_ticker_universe()
-        logger.info("Universe active tickers: %d", universe_size)
+        logger.info(
+            "Universe active tickers: %d (refresh %.2fs).",
+            universe_size, time.perf_counter() - stage_started
+        )
 
         # Step 3: Daily Bars Ingestion with multi-layer failover
         current_step = f"[Step 3/8] Ingesting daily market bars for {date_str}"
         logger.info("%s (force_failover=%s)...", current_step, force_failover)
+        stage_started = time.perf_counter()
         bars_ingested = ingest_daily_bars(date_str, force_failover=force_failover)
-        logger.info("Ingestion completed: %d bars stored.", bars_ingested)
+        logger.info(
+            "Ingestion completed: %d bars stored (%.2fs).",
+            bars_ingested, time.perf_counter() - stage_started
+        )
 
         # Step 3.5: Data Freshness Check
         current_step = f"[Step 3.5/8] Data Freshness Validation for {date_str}"
@@ -256,15 +285,20 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
         # Step 8: Export Web Data Payloads (Phase 5, 7, 8 & Setup Stats)
         current_step = "[Step 8/8] Exporting static JSON payloads for web visualization"
         logger.info(current_step)
+        stage_started = time.perf_counter()
         web_export = export_web_data(output_dir="../frontend/public/data")
         setup_stats_export = export_setup_stats(output_path="../frontend/public/data/setup_stats.json")
         logger.info(
-            "Export completed: %d signals, %d tickers, setup_stats.json, regime.json exported to frontend/public/data/",
-            web_export["signals_count"], web_export["tickers_count"]
+            "Export completed: %d signals, %d tickers, setup_stats.json, regime.json exported "
+            "to frontend/public/data/ (%.2fs).",
+            web_export["signals_count"], web_export["tickers_count"],
+            time.perf_counter() - stage_started
         )
 
+        total_seconds = time.perf_counter() - pipeline_started
         logger.info("=" * 65)
         logger.info("DAILY SCREENER PIPELINE FINISHED SUCCESSFULLY")
+        logger.info("End-to-end pipeline runtime: %.2fs (%.2f minutes).", total_seconds, total_seconds / 60.0)
         logger.info("=" * 65)
         return {
             "date": date_str,

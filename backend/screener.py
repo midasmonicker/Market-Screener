@@ -42,6 +42,8 @@ WEIGHT_TREND_STRENGTH    = 0.20
 
 # Earnings proximity window (calendar days on each side of report date to flag)
 EARNINGS_PROXIMITY_DAYS = 1
+EARNINGS_ENRICHMENT_MAX_LOOKUPS = 25
+EARNINGS_ENRICHMENT_BUDGET_SECONDS = 45.0
 # Finnhub omits report dates in this response, so this lag is an approximation.
 EARNINGS_REPORT_LAG_DAYS_DEFAULT = 35
 
@@ -551,7 +553,7 @@ def fetch_polygon_grouped_daily(date_str, max_retries=2):
                     time.sleep(12)
             else:
                 logger.error(
-                    "Polygon API error on %s: HTTP %d %s", date_str, res.status_code, res.text[:100]
+                    "Polygon API error on %s: HTTP %d %s", date_str, res.status_code, res.text[:1000]
                 )
                 break
         except Exception as e:
@@ -636,37 +638,89 @@ def fetch_alpaca_batch_daily(symbols, date_str, chunk_size=100):
     return records, source_tag
 
 
-def fetch_yfinance_bulk_daily(symbols, date_str, chunk_size=80):
+def fetch_yfinance_bulk_daily(
+    symbols, date_str, chunk_size=80, batch_delay=1.0, max_retries=4,
+    initial_backoff=5.0, download_threads=20
+):
     """
-    Failover 2: Fetch bulk daily bars using yfinance download.
+    Failover 2: Fetch batched daily bars with backoff for Yahoo rate limits.
     Tags bars with source='yfinance'.
     """
     records = []
     try:
         import yfinance as yf
+        from yfinance.exceptions import YFRateLimitError
+
+        class RateLimitLogHandler(logging.Handler):
+            def __init__(self):
+                super().__init__()
+                self.detected = False
+
+            def emit(self, record):
+                message = record.getMessage().lower()
+                if any(term in message for term in ("yfratelimiterror", "too many requests", "rate limited")):
+                    self.detected = True
+
         curr_d = datetime.date.fromisoformat(date_str)
         next_d = (curr_d + datetime.timedelta(days=1)).isoformat()
 
-        for i in range(0, len(symbols), chunk_size):
+        for batch_index, i in enumerate(range(0, len(symbols), chunk_size)):
             chunk = symbols[i:i + chunk_size]
             sym_str = " ".join(chunk)
-            df = yf.download(
-                sym_str, start=date_str, end=next_d,
-                interval="1d", group_by="ticker", progress=False, threads=True
-            )
-            if df.empty:
-                continue
-
-            for sym in chunk:
+            df = None
+            for attempt in range(max_retries):
+                rate_limit_handler = RateLimitLogHandler()
+                yf_logger = logging.getLogger("yfinance")
+                yf_logger.addHandler(rate_limit_handler)
                 try:
-                    if len(chunk) == 1:
-                        sym_df = df
-                    elif sym in df.columns.levels[0]:
-                        sym_df = df[sym]
-                    else:
-                        continue
+                    df = yf.download(
+                        sym_str, start=date_str, end=next_d,
+                        interval="1d", group_by="ticker", progress=False, threads=download_threads,
+                        timeout=30
+                    )
+                except YFRateLimitError as e:
+                    rate_limit_handler.detected = True
+                    logger.debug("Yahoo rate limit raised for batch %d: %s", batch_index + 1, e)
+                except Exception as e:
+                    logger.error("yfinance batch %d failed: %s", batch_index + 1, e)
+                    break
+                finally:
+                    yf_logger.removeHandler(rate_limit_handler)
 
-                    if not sym_df.empty:
+                if rate_limit_handler.detected:
+                    if attempt == max_retries - 1:
+                        logger.error(
+                            "Yahoo rate limit persisted for batch %d/%d after %d attempts; keeping any partial data.",
+                            batch_index + 1, (len(symbols) + chunk_size - 1) // chunk_size,
+                            max_retries
+                        )
+                        break
+                    delay = initial_backoff * (2 ** attempt)
+                    logger.warning(
+                        "Yahoo rate limit on batch %d/%d (attempt %d/%d); retrying in %.1fs.",
+                        batch_index + 1, (len(symbols) + chunk_size - 1) // chunk_size,
+                        attempt + 1, max_retries, delay
+                    )
+                    time.sleep(delay)
+                    continue
+                break
+
+            batch_records_before = len(records)
+            no_data = []
+            if df is not None and not df.empty:
+                for sym in chunk:
+                    try:
+                        if len(chunk) == 1:
+                            sym_df = df
+                        elif sym in df.columns.levels[0]:
+                            sym_df = df[sym]
+                        else:
+                            no_data.append(sym)
+                            continue
+
+                        if sym_df.empty:
+                            no_data.append(sym)
+                            continue
                         row = sym_df.iloc[-1]
                         o = float(row.get("Open", 0))
                         h = float(row.get("High", 0))
@@ -675,8 +729,20 @@ def fetch_yfinance_bulk_daily(symbols, date_str, chunk_size=80):
                         v = int(row.get("Volume", 0))
                         if c > 0:
                             records.append((sym, date_str, o, h, l, c, v, c, "yfinance"))
-                except Exception:
-                    continue
+                        else:
+                            no_data.append(sym)
+                    except Exception as e:
+                        logger.warning("Could not parse yfinance data for %s: %s", sym, e)
+                        no_data.append(sym)
+            else:
+                no_data.extend(chunk)
+
+            logger.info(
+                "yfinance batch %d: %d bars retrieved; %d symbols returned no data.",
+                batch_index + 1, len(records) - batch_records_before, len(no_data)
+            )
+            if batch_index < (len(symbols) - 1) // chunk_size:
+                time.sleep(batch_delay)
     except Exception as e:
         logger.error("yfinance bulk download error: %s", e)
     return records
@@ -958,7 +1024,9 @@ def compute_regime_detail(date_str, grouped, conn=None):
 # ── Earnings Calendar / Company Earnings ───────────────────────────────────────
 
 
-def fetch_finnhub_symbol_earnings(symbol, cache_dir=".cache", ttl_hours=168):
+def fetch_finnhub_symbol_earnings(
+    symbol, cache_dir=".cache", ttl_hours=168, stats=None, max_api_lookups=None
+):
     """
     Fetch a symbol's historical quarterly earnings dataset from Finnhub's
     /stock/earnings endpoint and cache the result keyed by symbol.
@@ -972,6 +1040,7 @@ def fetch_finnhub_symbol_earnings(symbol, cache_dir=".cache", ttl_hours=168):
     os.makedirs(cache_dir, exist_ok=True)
     cache_file = os.path.join(cache_dir, f"earnings_{sym}.json")
     now_ts = datetime.datetime.now(datetime.timezone.utc)
+    cached_records = {}
 
     if os.path.exists(cache_file):
         try:
@@ -981,19 +1050,31 @@ def fetch_finnhub_symbol_earnings(symbol, cache_dir=".cache", ttl_hours=168):
             if fetched_at:
                 fetched_dt = datetime.datetime.fromisoformat(fetched_at)
                 age_hours = (now_ts - fetched_dt).total_seconds() / 3600.0
+                cached_records = cached.get("records", {})
                 if age_hours < ttl_hours:
-                    records = cached.get("records", {})
-                    logger.info("Loaded %d cached earnings records for %s from %s.", len(records), sym, cache_file)
-                    return records
+                    if stats is not None:
+                        stats["cache_hits"] += 1
+                    return cached_records
+                if stats is not None:
+                    stats["stale_cache"] += 1
         except Exception as e:
             logger.warning("Failed to read earnings cache %s: %s", cache_file, e)
+            if stats is not None:
+                stats["cache_misses"] += 1
+    elif stats is not None:
+        stats["cache_misses"] += 1
+
+    if max_api_lookups is not None and stats is not None:
+        if stats["api_lookups"] >= max_api_lookups:
+            stats["deferred"] += 1
+            return cached_records
+        stats["api_lookups"] += 1
 
     url = f"https://finnhub.io/api/v1/stock/earnings?symbol={sym}&token={FINNHUB_API_KEY}"
-    for attempt in range(3):
+    for attempt in range(2):
         try:
-            res = requests.get(url, timeout=20)
+            res = requests.get(url, timeout=5)
             raw_body = res.text[:2000] if hasattr(res, "text") else str(res)
-            logger.warning("DEBUG FINNHUB symbol earnings status=%s for %s body=%s", res.status_code, sym, raw_body)
             if res.status_code == 200:
                 payload = res.json()
                 if not isinstance(payload, list):
@@ -1027,17 +1108,19 @@ def fetch_finnhub_symbol_earnings(symbol, cache_dir=".cache", ttl_hours=168):
                 logger.info("Fetched and cached %d earnings periods for %s from Finnhub.", len(records), sym)
                 return records
             elif res.status_code == 429:
-                logger.warning("Finnhub 429 rate limit on %s earnings request (attempt %d). Waiting 3s...", sym, attempt + 1)
-                time.sleep(3)
+                logger.warning("Finnhub 429 rate limit on %s earnings request (attempt %d).", sym, attempt + 1)
+                if attempt == 0:
+                    time.sleep(2)
             else:
                 logger.warning("Finnhub stock/earnings returned HTTP %d for %s: %s", res.status_code, sym, raw_body)
                 break
         except Exception as e:
-            logger.exception("DEBUG FINNHUB symbol earnings request error for %s (attempt %d)", sym, attempt + 1)
-            time.sleep(2)
+            logger.warning("Finnhub earnings request failed for %s (attempt %d): %s", sym, attempt + 1, e)
+            if attempt == 0:
+                time.sleep(1)
 
-    logger.warning("Gracefully proceeding without earnings data for %s; no valid stock earnings response.", sym)
-    return {}
+    logger.warning("Proceeding without fresh earnings data for %s.", sym)
+    return cached_records
 
 
 def fetch_finnhub_earnings_calendar(from_date, to_date, cache_dir=".cache"):
@@ -1447,6 +1530,7 @@ def run_screener_engine(date_str, max_workers=4):
     Step 4 & 5: Load local history into Pandas, compute TA via Pandas_TA,
     apply quality filters, generate buy signals, and calculate signal_streak.
     """
+    screening_started = time.perf_counter()
     logger.info("Running technical analysis engine for date %s...", date_str)
     conn = get_connection()
 
@@ -1490,18 +1574,6 @@ def run_screener_engine(date_str, max_workers=4):
     # Known trading days for earnings proximity calculation
     all_trading_days = sorted(df_all["timestamp"].unique().tolist())
 
-    # Fetch symbol-scoped earnings histories once per symbol (cache by symbol)
-    try:
-        symbol_earnings_map = {}
-        symbols = sorted(grouped.keys())
-        for idx, sym in enumerate(symbols):
-            if idx and idx % 25 == 0:
-                time.sleep(1.0)
-            symbol_earnings_map[sym] = fetch_finnhub_symbol_earnings(sym)
-    except Exception as e:
-        logger.warning("Could not preload symbol earnings histories: %s", e)
-        symbol_earnings_map = {}
-
     signals = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
@@ -1513,7 +1585,7 @@ def run_screener_engine(date_str, max_workers=4):
                 rs_scores.get(sym),
                 market_regime,
                 spy_return_63d,
-                symbol_earnings_map.get(sym, {}),
+                {},
                 all_trading_days
             ): sym
             for sym, df_sym in grouped.items()
@@ -1523,7 +1595,54 @@ def run_screener_engine(date_str, max_workers=4):
             if res:
                 signals.append(res)
 
-    logger.info("Generated %d buy signals passing quality filters for %s.", len(signals), date_str)
+    screening_seconds = time.perf_counter() - screening_started
+    logger.info(
+        "Technical screening (excluding earnings enrichment) completed in %.2fs; %d signals passed for %s.",
+        screening_seconds, len(signals), date_str
+    )
+
+    earnings_started = time.perf_counter()
+    earnings_stats = {"cache_hits": 0, "stale_cache": 0, "cache_misses": 0, "api_lookups": 0, "deferred": 0}
+    earnings_deferred = 0
+    for index, signal in enumerate(signals):
+        if time.perf_counter() - earnings_started >= EARNINGS_ENRICHMENT_BUDGET_SECONDS:
+            earnings_deferred += len(signals) - index
+            break
+
+        symbol = signal[1]
+        try:
+            earnings_map = fetch_finnhub_symbol_earnings(
+                symbol,
+                stats=earnings_stats,
+                max_api_lookups=EARNINGS_ENRICHMENT_MAX_LOOKUPS
+            )
+        except Exception as e:
+            logger.warning("Earnings enrichment failed for %s; continuing without refreshed data: %s", symbol, e)
+            earnings_map = {}
+        try:
+            near_earnings, earnings_date = _is_near_earnings(
+                symbol, date_str, earnings_map, all_trading_days
+            ) if earnings_map else (False, None)
+            details = json.loads(signal[6]) if signal[6] else {}
+            details["near_earnings"] = near_earnings
+            details["earnings_date"] = earnings_date
+            signals[index] = (*signal[:6], json.dumps(details))
+        except Exception as e:
+            logger.warning("Could not enrich earnings fields for %s: %s", symbol, e)
+
+    earnings_seconds = time.perf_counter() - earnings_started
+    earnings_deferred += earnings_stats["deferred"]
+    if earnings_deferred:
+        logger.warning(
+            "Earnings enrichment stopped/deferred for %d signal(s); the remaining pipeline will continue.",
+            earnings_deferred
+        )
+    logger.info(
+        "Earnings enrichment completed in %.2fs for %d signal(s): %d cache hits, %d stale cache, "
+        "%d cache misses, %d API lookups, %d deferred.",
+        earnings_seconds, len(signals), earnings_stats["cache_hits"], earnings_stats["stale_cache"],
+        earnings_stats["cache_misses"], earnings_stats["api_lookups"], earnings_deferred
+    )
 
     if signals:
         conn = get_connection()

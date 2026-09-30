@@ -314,6 +314,16 @@ This is reflected in the workflow (which also runs Python **3.12** to match the 
 - Requests with a wider `from`/`to` range and with `limit=8` or `limit=20` returned the same four records; AMD's 2025-06-30 quarter was absent.
 - The observed response does not establish whether a higher Finnhub plan exposes older periods. When no report-date field is returned, earnings eligibility uses the approximate `EARNINGS_REPORT_LAG_DAYS_DEFAULT` buffer; a quarter missing from the response cannot be selected and may remain `null`.
 
+### Earnings Enrichment Runtime
+- Per-symbol earnings responses are cached in `backend/.cache/earnings_{SYMBOL}.json` for 168 hours. A fresh cache hit returns records without a Finnhub request; expired cache records remain usable if refresh is deferred.
+- `run_screener_engine()` now runs technical screening first and enriches only symbols that produced signals, rather than walking the full historical universe.
+- Each run allows at most 25 cache-miss/stale-cache API lookups and gives the step a 45-second budget. Requests time out after 5 seconds with at most one retry; any remaining signal symbols proceed without refreshed earnings fields.
+- Logs report earnings cache hits, stale entries, misses, API lookups, deferred symbols, and elapsed time. The pipeline separately reports universe refresh, bar ingestion, technical screening, export, and total runtime.
+- GitHub Actions restores and saves `backend/.cache` with `actions/cache@v4`; its runner is otherwise ephemeral, so a local cache alone does not warm scheduled runs.
+- Cache inventory before the 2026-09-29 full run: 153 files, 143 fresh within seven days, 10 unreadable from an interrupted prior run. The 153-file JSON scan took 1.93s locally; enrichment now avoids scanning the universe and checks only signal symbols.
+- Final uninterrupted `python run_daily.py --date 2026-09-29 --dry-run` completed successfully in 45.74s: universe refresh 40.52s (including two Polygon reference pagination 429 waits; 5,311 tickers), Polygon ingestion 3.51s (12,605 bars), technical screening 1.10s, earnings enrichment 0.00s (0 signals to enrich), and JSON export 0.42s.
+- `frontend/public/data/latest_signals.json` was rewritten and parsed successfully (9 historical signals; no new signal was generated for 2026-09-29). The target date had 12,605 stored bars.
+
 ### FMP API Legacy Endpoint Errors
 - All `api/v3/*` FMP endpoints return HTTP 403 `"Legacy Endpoint"` on current subscription tier.
 - All `/stable/*` screener endpoints return HTTP 402 `"Restricted Endpoint"`.
