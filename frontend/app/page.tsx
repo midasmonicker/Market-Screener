@@ -61,7 +61,9 @@ interface Signal {
   atr_pct?: number | null;
   avg_dollar_vol_20d?: number | null;
   rs_vs_spy?: number | null;
+  dist_to_20d_high_pct?: number | null;
   dist_to_52w_high_pct?: number | null;
+  primary_exchange?: string | null;
   near_earnings?: boolean;
   earnings_date?: string | null;
   composite_score?: number | null;
@@ -96,6 +98,16 @@ interface SetupStats {
   }>;
 }
 
+interface PerformanceSummary {
+  total_signals: number;
+  avg_breakout_gain_pct: number | null;
+  signal_activity?: {
+    as_of: string | null;
+    today_count: number;
+    avg_per_signal_day_30d: number | null;
+  };
+}
+
 interface FilterPreset {
   name: string;
   sector: string;
@@ -126,24 +138,24 @@ type SortColumn =
   | 'signal_streak'
   | 'near_earnings';
 
-function formatTradingViewSymbol(sym: string, sectorOrExchange?: string | null): string {
-  const s = (sectorOrExchange || '').toUpperCase();
-  if (s.includes('NAS') || s.includes('XNAS')) return `NASDAQ:${sym}`;
-  if (s.includes('NYS') || s.includes('XNYS')) return `NYSE:${sym}`;
-  if (s.includes('AMEX') || s.includes('ARCX')) return `AMEX:${sym}`;
+const TRADINGVIEW_EXCHANGE_BY_MIC: Record<string, string> = {
+  XNAS: 'NASDAQ',
+  XNGS: 'NASDAQ',
+  XNCM: 'NASDAQ',
+  XNYS: 'NYSE',
+  XASE: 'AMEX',
+  ARCX: 'NYSEARCA',
+  BATS: 'BATS',
+  NASDAQ: 'NASDAQ',
+  NYSE: 'NYSE',
+  AMEX: 'AMEX',
+  NYSEARCA: 'NYSEARCA',
+};
 
-  const nasdaqSymbols = new Set([
-    'AAPL', 'MSFT', 'NVDA', 'AMZN', 'GOOGL', 'GOOG', 'META', 'TSLA', 'AMD',
-    'NFLX', 'INTC', 'AVGO', 'QCOM', 'CSCO', 'ADBE'
-  ]);
-  if (nasdaqSymbols.has(sym)) return `NASDAQ:${sym}`;
-
-  const nyseSymbols = new Set([
-    'SPY', 'JPM', 'V', 'UNH', 'HD', 'PG', 'DIS', 'MA', 'BAC', 'XOM', 'CVX', 'LLY'
-  ]);
-  if (nyseSymbols.has(sym)) return `NYSE:${sym}`;
-
-  return `NASDAQ:${sym}`;
+function formatTradingViewSymbol(sym: string, primaryExchange?: string | null): string {
+  const mic = (primaryExchange || '').trim().toUpperCase();
+  const exchange = TRADINGVIEW_EXCHANGE_BY_MIC[mic] || mic;
+  return exchange ? `${exchange}:${sym}` : sym;
 }
 
 function formatDollarVol(v: number | null | undefined): string {
@@ -192,6 +204,7 @@ export default function DashboardPage() {
   const [barsMap, setBarsMap] = useState<Record<string, BarData[]>>({});
   const [regimeData, setRegimeData] = useState<RegimeData | null>(null);
   const [setupStats, setSetupStats] = useState<SetupStats | null>(null);
+  const [performanceSummary, setPerformanceSummary] = useState<PerformanceSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorUrl, setErrorUrl] = useState<string | null>(null);
@@ -304,10 +317,11 @@ export default function DashboardPage() {
         const signalsData: Signal[] = await signalsRes.json();
 
         // Optional parallel fetches
-        const [barsRes, regimeRes, statsRes] = await Promise.all([
+        const [barsRes, regimeRes, statsRes, performanceRes] = await Promise.all([
           fetch('/data/signal_bars.json', { cache: 'no-store' }).catch(() => null),
           fetch('/data/regime.json', { cache: 'no-store' }).catch(() => null),
           fetch('/data/setup_stats.json', { cache: 'no-store' }).catch(() => null),
+          fetch('/data/performance_summary.json', { cache: 'no-store' }).catch(() => null),
         ]);
 
         if (barsRes && barsRes.ok) {
@@ -325,7 +339,19 @@ export default function DashboardPage() {
           setSetupStats(statsData);
         }
 
-        setSignals(signalsData);
+        if (performanceRes && performanceRes.ok) {
+          const summaryData: PerformanceSummary = await performanceRes.json();
+          setPerformanceSummary(summaryData);
+        }
+
+        const latestSignalBySymbol = new Map<string, Signal>();
+        for (const signal of signalsData) {
+          const current = latestSignalBySymbol.get(signal.symbol);
+          if (!current || signal.timestamp > current.timestamp) {
+            latestSignalBySymbol.set(signal.symbol, signal);
+          }
+        }
+        setSignals(Array.from(latestSignalBySymbol.values()));
       } catch (err: any) {
         console.error('Data load error:', err);
         setError(err.message || 'Error loading screener data');
@@ -346,42 +372,13 @@ export default function DashboardPage() {
     return Array.from(s).sort();
   }, [signals]);
 
-  // Card 2: signals today vs 30-day average
-  const { todayCount, avg30Count } = useMemo(() => {
-    if (signals.length === 0) return { todayCount: 0, avg30Count: '—' };
-    const latestDate = signals[0]?.timestamp;
-    const today = signals.filter((s) => s.timestamp === latestDate).length;
-
-    // Filter to last 30 calendar days from latestDate
-    const latestTime = new Date(latestDate).getTime();
-    const thirtyDaysAgo = latestTime - 30 * 24 * 60 * 60 * 1000;
-
-    const signalsIn30d = signals.filter(
-      (s) => new Date(s.timestamp).getTime() >= thirtyDaysAgo
-    );
-    const uniqueDates = new Set(signalsIn30d.map((s) => s.timestamp)).size;
-    const avg = uniqueDates > 0 ? (signalsIn30d.length / uniqueDates).toFixed(1) : '—';
-
-    return { todayCount: today, avg30Count: avg };
-  }, [signals]);
-
-  // Card 3: avg breakout gain
-  const avgBreakoutGain = useMemo(() => {
-    const returns: number[] = [];
-    signals.forEach((s) => {
-      if (s.return_20d_pct != null) returns.push(s.return_20d_pct);
-      else if (s.return_10d_pct != null) returns.push(s.return_10d_pct);
-      else if (s.return_5d_pct != null) returns.push(s.return_5d_pct);
-    });
-    if (returns.length === 0) return '—';
-    const positive = returns.filter((r) => r > 0);
-    if (positive.length > 0) {
-      const avg = positive.reduce((a, b) => a + b, 0) / positive.length;
-      return `+${avg.toFixed(1)}%`;
-    }
-    const avg = returns.reduce((a, b) => a + b, 0) / returns.length;
-    return `${avg >= 0 ? '+' : ''}${avg.toFixed(1)}%`;
-  }, [signals]);
+  // Dashboard performance metrics come from full-history database exports.
+  const todayCount = performanceSummary?.signal_activity?.today_count ?? null;
+  const avg30Count = performanceSummary?.signal_activity?.avg_per_signal_day_30d ?? null;
+  const averageGain = performanceSummary?.avg_breakout_gain_pct;
+  const avgBreakoutGain = averageGain == null
+    ? '—'
+    : `${averageGain > 0 ? '+' : ''}${averageGain.toFixed(1)}%`;
 
   // Handle column sort toggle
   const handleSort = (col: SortColumn) => {
@@ -432,7 +429,12 @@ export default function DashboardPage() {
 
   // Copy TradingView Watchlist
   const handleCopyTradingViewWatchlist = async () => {
-    const activeList = displaySignals.length > 0 ? displaySignals : signals;
+    const seenSymbols = new Set<string>();
+    const activeList = displaySignals.filter((signal) => {
+      if (seenSymbols.has(signal.symbol)) return false;
+      seenSymbols.add(signal.symbol);
+      return true;
+    });
     if (activeList.length === 0) {
       setToastMessage('No breakout tickers available to copy.');
       setTimeout(() => setToastMessage(null), 3000);
@@ -440,7 +442,7 @@ export default function DashboardPage() {
     }
 
     const formattedList = activeList
-      .map((s) => formatTradingViewSymbol(s.symbol, s.sector))
+      .map((s) => formatTradingViewSymbol(s.symbol, s.primary_exchange))
       .join(', ');
 
     try {
@@ -625,14 +627,16 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-baseline space-x-3">
               <span className="text-3xl font-extrabold text-white tracking-tight font-mono">
-                {loading ? '—' : todayCount}
+                {loading || todayCount == null ? '—' : todayCount}
               </span>
               <span className="text-xs text-cyan-400 font-mono">
-                / {avg30Count} daily avg (30d)
+                / {avg30Count == null ? '—' : avg30Count.toFixed(1)} daily avg (30d)
               </span>
             </div>
             <p className="text-[11px] text-slate-400 mt-2">
-              {signals.length} total historical signals loaded
+              {performanceSummary
+                ? `${performanceSummary.total_signals} total historical signals in database`
+                : 'Historical signal summary unavailable'}
             </p>
           </div>
 

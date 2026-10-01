@@ -50,6 +50,7 @@ EARNINGS_REPORT_LAG_DAYS_DEFAULT = 35
 # Max Polygon ticker-details API calls per pipeline run for sector backfill
 # (respects free-tier rate limit; priority symbols are always processed first)
 MAX_SECTOR_FETCHES_PER_RUN = 200
+SIGNAL_WINDOW_TRADING_DAYS = 10
 
 # Exchange MIC codes that Polygon's bulk tickers endpoint puts in the `primary_exchange`
 # field — these are NOT sector names and must be replaced via backfill.
@@ -183,6 +184,12 @@ def init_db(schema_path="schema.sql"):
 
     cur = conn.cursor()
 
+    cur.execute("PRAGMA table_info(tickers)")
+    ticker_cols = {row[1] for row in cur.fetchall()}
+    if "primary_exchange" not in ticker_cols:
+        logger.info("Migrating tickers table: Adding missing column primary_exchange (TEXT)")
+        cur.execute("ALTER TABLE tickers ADD COLUMN primary_exchange TEXT")
+
     # Auto-migration: Ensure daily_bars has nullable source column
     cur.execute("PRAGMA table_info(daily_bars)")
     daily_bars_cols = {row[1] for row in cur.fetchall()}
@@ -241,6 +248,7 @@ def refresh_ticker_universe():
                                 x.get("companyName", sym),
                                 float(x.get("marketCap") or 0),
                                 x.get("sector", "Unknown"),
+                                None,
                                 1
                             ))
                     logger.info("Fetched %d tickers from primary FMP screener.", len(tickers))
@@ -283,6 +291,7 @@ def refresh_ticker_universe():
                                         r.get("name", sym),
                                         0.0,
                                         None,  # sector filled by backfill_ticker_sectors()
+                                        r.get("primary_exchange"),
                                         1
                                     ))
                         next_url = data.get("next_url")
@@ -323,23 +332,23 @@ def refresh_ticker_universe():
 
     # Core major liquid equities fallback guarantee
     core_stocks = [
-        ("AAPL", "Apple Inc.", 3000000000000.0, "Technology", 1),
-        ("MSFT", "Microsoft Corp.", 3000000000000.0, "Technology", 1),
-        ("NVDA", "NVIDIA Corp.", 2500000000000.0, "Technology", 1),
-        ("AMZN", "Amazon.com Inc.", 2000000000000.0, "Consumer Cyclical", 1),
-        ("GOOGL", "Alphabet Inc.", 2000000000000.0, "Technology", 1),
-        ("META", "Meta Platforms Inc.", 1500000000000.0, "Technology", 1),
-        ("TSLA", "Tesla Inc.", 800000000000.0, "Consumer Cyclical", 1),
-        ("AMD", "Advanced Micro Devices Inc.", 300000000000.0, "Technology", 1),
-        ("SPY", "SPDR S&P 500 ETF Trust", 550000000000.0, "Index ETF", 1),
+        ("AAPL", "Apple Inc.", 3000000000000.0, "Technology", None, 1),
+        ("MSFT", "Microsoft Corp.", 3000000000000.0, "Technology", None, 1),
+        ("NVDA", "NVIDIA Corp.", 2500000000000.0, "Technology", None, 1),
+        ("AMZN", "Amazon.com Inc.", 2000000000000.0, "Consumer Cyclical", None, 1),
+        ("GOOGL", "Alphabet Inc.", 2000000000000.0, "Technology", None, 1),
+        ("META", "Meta Platforms Inc.", 1500000000000.0, "Technology", None, 1),
+        ("TSLA", "Tesla Inc.", 800000000000.0, "Consumer Cyclical", None, 1),
+        ("AMD", "Advanced Micro Devices Inc.", 300000000000.0, "Technology", None, 1),
+        ("SPY", "SPDR S&P 500 ETF Trust", 550000000000.0, "Index ETF", None, 1),
     ]
     tickers.extend(core_stocks)
 
     conn = get_connection()
     cur = conn.cursor()
     cur.executemany("""
-        INSERT INTO tickers (symbol, name, market_cap, sector, is_active, last_updated)
-        VALUES (?, ?, ?, ?, ?, date('now'))
+        INSERT INTO tickers (symbol, name, market_cap, sector, primary_exchange, is_active, last_updated)
+        VALUES (?, ?, ?, ?, ?, ?, date('now'))
         ON CONFLICT(symbol) DO UPDATE SET
             market_cap=CASE WHEN excluded.market_cap > 0 THEN excluded.market_cap ELSE tickers.market_cap END,
             name=excluded.name,
@@ -349,6 +358,7 @@ def refresh_ticker_universe():
                 THEN excluded.sector
                 ELSE tickers.sector
             END,
+            primary_exchange=COALESCE(excluded.primary_exchange, tickers.primary_exchange),
             is_active=1,
             last_updated=date('now')
     """, tickers)
@@ -361,25 +371,28 @@ def refresh_ticker_universe():
 
 # ── Sector Backfill ─────────────────────────────────────────────────────────────
 
-def backfill_ticker_sectors(priority_symbols=None, max_fetches=MAX_SECTOR_FETCHES_PER_RUN):
+def backfill_ticker_sectors(
+    priority_symbols=None,
+    max_fetches=MAX_SECTOR_FETCHES_PER_RUN,
+    target_symbols=None,
+):
     """
-    Phase 16: Sector Backfill.
+    Phase 16: Backfill sector and listing exchange metadata.
 
     For every ticker whose `sector` is NULL or is an exchange MIC code (XNAS, XNYS
     etc.), fetches the ticker details from Polygon v3/reference/tickers/{sym},
-    maps `sic_code` → GICS-style sector via `_sic_to_sector()`, and persists the
-    result back to the tickers table.
+    maps `sic_code` → GICS-style sector via `_sic_to_sector()`, stores Polygon's
+    `primary_exchange` MIC, and persists both values to the tickers table.
 
-    Results are cached in .cache/ticker_sectors.json so re-fetches are skipped on
-    subsequent runs.  Polygon free-tier rate limit is ~5 req/min; the function
-    sleeps 13 s between calls to stay safe.
+    Sectors and exchanges have separate caches. `target_symbols` restricts a call
+    to a requested subset, such as the current exported signal window.
 
     Args:
         priority_symbols: iterable of symbols to process first (e.g. buy-signal symbols)
         max_fetches:      cap on total Polygon API calls this run (default MAX_SECTOR_FETCHES_PER_RUN)
 
     Returns:
-        int — number of sectors updated in the DB this run
+        int — number of tickers updated in the DB this run
     """
     if not POLYGON_API_KEY:
         logger.warning("POLYGON_API_KEY not set; cannot backfill ticker sectors.")
@@ -387,43 +400,69 @@ def backfill_ticker_sectors(priority_symbols=None, max_fetches=MAX_SECTOR_FETCHE
 
     cache_dir  = ".cache"
     os.makedirs(cache_dir, exist_ok=True)
-    cache_file = os.path.join(cache_dir, "ticker_sectors.json")
+    sector_cache_file = os.path.join(cache_dir, "ticker_sectors.json")
+    exchange_cache_file = os.path.join(cache_dir, "ticker_exchanges.json")
 
     # ── Load persistent sector cache ──────────────────────────────────────────
     sector_cache: dict = {}
-    if os.path.exists(cache_file):
+    if os.path.exists(sector_cache_file):
         try:
-            with open(cache_file, "r", encoding="utf-8") as fh:
+            with open(sector_cache_file, "r", encoding="utf-8") as fh:
                 sector_cache = json.load(fh)
         except Exception as e:
             logger.warning("Failed to load sector cache: %s", e)
+
+    exchange_cache: dict = {}
+    if os.path.exists(exchange_cache_file):
+        try:
+            with open(exchange_cache_file, "r", encoding="utf-8") as fh:
+                exchange_cache = json.load(fh)
+        except Exception as e:
+            logger.warning("Failed to load exchange cache: %s", e)
 
     conn = get_connection()
     cur  = conn.cursor()
 
     # ── Apply any already-cached values immediately ────────────────────────────
-    cur.execute("SELECT symbol, sector FROM tickers WHERE is_active = 1")
+    if target_symbols is None:
+        cur.execute("SELECT symbol, sector, primary_exchange FROM tickers WHERE is_active = 1")
+    else:
+        target_symbols = sorted(set(target_symbols))
+        if target_symbols:
+            placeholders = ",".join(["?"] * len(target_symbols))
+            cur.execute(
+                f"SELECT symbol, sector, primary_exchange FROM tickers WHERE symbol IN ({placeholders})",
+                target_symbols,
+            )
+        else:
+            cur.execute("SELECT symbol, sector, primary_exchange FROM tickers WHERE 1 = 0")
     all_rows = cur.fetchall()
 
     needs_fetch = []
-    for sym, sec in all_rows:
-        if sec is None or sec in _MIC_CODES:
-            if sym in sector_cache:
-                cur.execute(
-                    "UPDATE tickers SET sector = ? WHERE symbol = ?",
-                    (sector_cache[sym], sym)
-                )
-            else:
-                needs_fetch.append(sym)
+    for sym, sec, primary_exchange in all_rows:
+        sector_missing = sec is None or sec in _MIC_CODES
+        exchange_missing = not primary_exchange or not primary_exchange.strip()
+        cached_sector = sector_cache.get(sym)
+        cached_exchange = exchange_cache.get(sym)
+
+        if sector_missing and isinstance(cached_sector, str):
+            cur.execute(
+                "UPDATE tickers SET sector = ? WHERE symbol = ?",
+                (cached_sector, sym)
+            )
+            sector_missing = False
+        if exchange_missing and cached_exchange:
+            cur.execute(
+                "UPDATE tickers SET primary_exchange = ? WHERE symbol = ?",
+                (cached_exchange, sym)
+            )
+            exchange_missing = False
+        if sector_missing or exchange_missing:
+            needs_fetch.append(sym)
     conn.commit()
 
     if needs_fetch:
-        logger.info(
-            "Sector backfill: %d tickers need Polygon lookup (cache hit avoided %d fetches).",
-            len(needs_fetch), len(all_rows) - len(needs_fetch) - sum(
-                1 for _, s in all_rows if s and s not in _MIC_CODES
-            )
-        )
+        logger.info("Ticker metadata backfill: %d tickers need Polygon lookup.", len(needs_fetch))
 
     # ── Prioritise buy-signal symbols ─────────────────────────────────────────
     if priority_symbols:
@@ -458,6 +497,7 @@ def backfill_ticker_sectors(priority_symbols=None, max_fetches=MAX_SECTOR_FETCHE
                     results    = res.json().get("results", {})
                     sic_code   = results.get("sic_code")
                     ticker_type = results.get("type", "CS")
+                    primary_exchange = results.get("primary_exchange")
 
                     if ticker_type in ("ETF", "ETP"):
                         sector = "Index ETF"
@@ -465,22 +505,36 @@ def backfill_ticker_sectors(priority_symbols=None, max_fetches=MAX_SECTOR_FETCHE
                         sector = _sic_to_sector(sic_code)
 
                     sector_cache[sym] = sector
+                    if primary_exchange:
+                        exchange_cache[sym] = primary_exchange
+                    mic_placeholders = ",".join(["?"] * len(_MIC_CODES))
                     cur.execute(
-                        "UPDATE tickers SET sector = ? WHERE symbol = ?",
-                        (sector, sym)
+                        f"""UPDATE tickers
+                            SET sector = CASE
+                                    WHEN sector IS NULL OR sector IN ({mic_placeholders}) THEN ?
+                                    ELSE sector
+                                END,
+                                primary_exchange = CASE
+                                    WHEN primary_exchange IS NULL OR TRIM(primary_exchange) = '' THEN ?
+                                    ELSE primary_exchange
+                                END
+                            WHERE symbol = ?""",
+                        (*sorted(_MIC_CODES), sector, primary_exchange, sym)
                     )
                     conn.commit()
                     # Incremental cache write
                     try:
-                        with open(cache_file, "w", encoding="utf-8") as fh:
+                        with open(sector_cache_file, "w", encoding="utf-8") as fh:
                             json.dump(sector_cache, fh, indent=2)
+                        with open(exchange_cache_file, "w", encoding="utf-8") as fh:
+                            json.dump(exchange_cache, fh, indent=2)
                     except Exception:
                         pass
                     updated += 1
                     fetch_count += 1
                     logger.info(
-                        "Sector backfill: %s -> %s  (SIC %s)",
-                        sym, sector, sic_code or "N/A"
+                        "Ticker metadata backfill: %s -> %s, %s (SIC %s)",
+                        sym, sector, primary_exchange or "exchange unknown", sic_code or "N/A"
                     )
                     success = True
                     break
@@ -507,16 +561,18 @@ def backfill_ticker_sectors(priority_symbols=None, max_fetches=MAX_SECTOR_FETCHE
                 else:
                     time.sleep(5)
 
-    # ── Persist updated cache ─────────────────────────────────────────────────
+    # ── Persist updated caches ────────────────────────────────────────────────
     try:
-        with open(cache_file, "w", encoding="utf-8") as fh:
+        with open(sector_cache_file, "w", encoding="utf-8") as fh:
             json.dump(sector_cache, fh, indent=2)
+        with open(exchange_cache_file, "w", encoding="utf-8") as fh:
+            json.dump(exchange_cache, fh, indent=2)
     except Exception as e:
-        logger.warning("Failed to save sector cache: %s", e)
+        logger.warning("Failed to save ticker metadata caches: %s", e)
 
     conn.close()
     logger.info(
-        "Sector backfill complete: %d updated, %d failed, %d already cached.",
+        "Ticker metadata backfill complete: %d updated, %d failed, %d already cached.",
         updated, failed, len(all_rows) - len(needs_fetch)
     )
     return updated
@@ -1405,6 +1461,7 @@ def process_single_ticker_screener(
         if len(prior_20_bars) < 20:
             return None
         prior_20d_high    = float(prior_20_bars["close"].max())
+        dist_to_20d_high_pct = round(((close_price / prior_20d_high) - 1) * 100, 2)
         is_new_20d_high   = close_price >= (prior_20d_high * 0.99)
 
         if not (is_above_smas and is_rvol_high and is_rsi_valid and is_new_20d_high):
@@ -1503,6 +1560,7 @@ def process_single_ticker_screener(
             "atr_pct":              atr_pct,
             "avg_dollar_vol_20d":   avg_dollar_vol_20d,
             "rs_vs_spy":            rs_vs_spy,
+            "dist_to_20d_high_pct": dist_to_20d_high_pct,
             "dist_to_52w_high_pct": dist_to_52w_high_pct,
             "near_earnings":        near_earnings,
             "earnings_date":        earnings_date,
@@ -1771,7 +1829,10 @@ def get_performance_summary(conn=None):
         close_conn = True
 
     try:
-        df = pd.read_sql("SELECT return_5d_pct, return_10d_pct, return_20d_pct FROM buy_signals", conn)
+        df = pd.read_sql(
+            "SELECT timestamp, return_5d_pct, return_10d_pct, return_20d_pct FROM buy_signals",
+            conn,
+        )
 
         def calc_horizon_stats(series):
             valid = series.dropna()
@@ -1788,11 +1849,55 @@ def get_performance_summary(conn=None):
                 "min_return": round(float(valid.min()),  2)
             }
 
+        breakout_returns = []
+        for returns in df[["return_20d_pct", "return_10d_pct", "return_5d_pct"]].itertuples(
+            index=False, name=None
+        ):
+            value = next((float(item) for item in returns if pd.notna(item)), None)
+            if value is not None:
+                breakout_returns.append(value)
+
+        positive_breakout_returns = [value for value in breakout_returns if value > 0]
+        average_breakout_gain = None
+        if breakout_returns:
+            gain_sample = positive_breakout_returns or breakout_returns
+            average_breakout_gain = round(sum(gain_sample) / len(gain_sample), 2)
+
+        signal_activity = {
+            "as_of": None,
+            "today_count": 0,
+            "avg_per_signal_day_30d": None,
+        }
+        latest_signal_date = conn.execute("SELECT MAX(timestamp) FROM buy_signals").fetchone()[0]
+        if latest_signal_date:
+            window_start = conn.execute(
+                "SELECT date(?, '-30 days')", (latest_signal_date,)
+            ).fetchone()[0]
+            total_30d, signal_days_30d = conn.execute(
+                """SELECT COUNT(*), COUNT(DISTINCT timestamp)
+                   FROM buy_signals
+                   WHERE timestamp >= ? AND timestamp <= ?""",
+                (window_start, latest_signal_date),
+            ).fetchone()
+            today_count = conn.execute(
+                "SELECT COUNT(*) FROM buy_signals WHERE timestamp = ?",
+                (latest_signal_date,),
+            ).fetchone()[0]
+            signal_activity = {
+                "as_of": latest_signal_date,
+                "today_count": int(today_count),
+                "avg_per_signal_day_30d": round(total_30d / signal_days_30d, 1)
+                if signal_days_30d
+                else None,
+            }
+
         return {
             "total_signals": len(df),
             "horizon_5d":    calc_horizon_stats(df["return_5d_pct"]),
             "horizon_10d":   calc_horizon_stats(df["return_10d_pct"]),
             "horizon_20d":   calc_horizon_stats(df["return_20d_pct"]),
+            "signal_activity": signal_activity,
+            "avg_breakout_gain_pct": average_breakout_gain,
             "generated_at":  datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
     finally:
@@ -1814,49 +1919,78 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
     os.makedirs(output_dir, exist_ok=True)
 
     conn = get_connection()
+    cur = conn.cursor()
 
-    # Ensure any signal symbols without proper sector values are resolved before export
-    try:
-        cur_check = conn.cursor()
-        cur_check.execute("""
+    cur.execute(
+        "SELECT DISTINCT timestamp FROM daily_bars ORDER BY timestamp DESC LIMIT ?",
+        (SIGNAL_WINDOW_TRADING_DAYS,),
+    )
+    signal_window_dates = [row[0] for row in cur.fetchall()]
+
+    # Resolve metadata only for symbols in the export window, avoiding unrelated universe lookups.
+    unresolved_symbols = []
+    if signal_window_dates:
+        date_placeholders = ",".join(["?"] * len(signal_window_dates))
+        cur.execute(f"""
             SELECT DISTINCT b.symbol
             FROM buy_signals b
             LEFT JOIN tickers t ON b.symbol = t.symbol
-            WHERE t.sector IS NULL OR t.sector IN ('XNAS','XNYS','XASE','BATS','ARCX','XCIS','US','Unknown')
-        """)
-        unresolved_symbols = [r[0] for r in cur_check.fetchall()]
-        if unresolved_symbols:
-            logger.info("Resolving sectors for %d signal symbols before web export: %s", len(unresolved_symbols), unresolved_symbols)
-            backfill_ticker_sectors(priority_symbols=unresolved_symbols, max_fetches=len(unresolved_symbols) + 5)
-    except Exception as e:
-        logger.warning("Auto sector backfill check in export_web_data encountered an issue: %s", e)
+            WHERE b.timestamp IN ({date_placeholders})
+              AND (
+                    t.sector IS NULL
+                    OR t.sector IN ('XNAS','XNYS','XASE','BATS','ARCX','XCIS','US','Unknown')
+                    OR t.primary_exchange IS NULL
+                    OR TRIM(t.primary_exchange) = ''
+              )
+        """, signal_window_dates)
+        unresolved_symbols = [row[0] for row in cur.fetchall()]
+    if unresolved_symbols:
+        logger.info(
+            "Resolving sector/exchange metadata for %d export-window symbols: %s",
+            len(unresolved_symbols), unresolved_symbols
+        )
+        try:
+            backfill_ticker_sectors(
+                priority_symbols=unresolved_symbols,
+                target_symbols=unresolved_symbols,
+                max_fetches=min(len(unresolved_symbols), MAX_SECTOR_FETCHES_PER_RUN),
+            )
+        except Exception as e:
+            logger.warning("Ticker metadata backfill during web export failed: %s", e)
 
-    # 1. latest_signals.json — full signal list
-    query_signals = """
+    # 1. latest_signals.json — signals from the most recent trading sessions only
+    query_signals = f"""
         SELECT
             b.id, b.timestamp, b.symbol, b.setup_name, b.close_price,
             b.rvol, b.rsi, b.details, b.created_at,
-            t.name, t.market_cap, t.sector,
+            t.name, t.market_cap, t.sector, t.primary_exchange,
             b.price_5d, b.price_10d, b.price_20d,
             b.return_5d_pct, b.return_10d_pct, b.return_20d_pct
         FROM buy_signals b
         LEFT JOIN tickers t ON b.symbol = t.symbol
+        WHERE b.timestamp IN ({','.join(['?'] * len(signal_window_dates))})
         ORDER BY b.timestamp DESC, b.rvol DESC
     """
-    cur = conn.cursor()
-    cur.execute(query_signals)
-    raw_signals = cur.fetchall()
+    raw_signals = []
+    if signal_window_dates:
+        cur.execute(query_signals, signal_window_dates)
+        raw_signals = cur.fetchall()
 
     signals_list  = []
     signal_symbols = set()
+    seen_signal_keys = set()
 
     for row in raw_signals:
         (
             sig_id, timestamp, symbol, setup_name, close_price,
             rvol, rsi, details, created_at,
-            ticker_name, market_cap, sector,
+            ticker_name, market_cap, sector, primary_exchange,
             p5, p10, p20, ret5, ret10, ret20
         ) = row
+        signal_key = (timestamp, symbol)
+        if signal_key in seen_signal_keys:
+            continue
+        seen_signal_keys.add(signal_key)
         signal_symbols.add(symbol)
 
         parsed_details = {}
@@ -1877,6 +2011,7 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
             "symbol":       symbol,
             "name":         ticker_name or symbol,
             "sector":       sector or "Unknown",
+            "primary_exchange": primary_exchange,
             "market_cap":   market_cap,
             "setup_name":   setup_name,
             "close_price":  float(close_price) if close_price is not None else None,
@@ -1897,6 +2032,7 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
             "atr_pct":              parsed_details.get("atr_pct"),
             "avg_dollar_vol_20d":   parsed_details.get("avg_dollar_vol_20d"),
             "rs_vs_spy":            parsed_details.get("rs_vs_spy"),
+            "dist_to_20d_high_pct": parsed_details.get("dist_to_20d_high_pct"),
             "dist_to_52w_high_pct": parsed_details.get("dist_to_52w_high_pct"),
             "near_earnings":        parsed_details.get("near_earnings", False),
             "earnings_date":        parsed_details.get("earnings_date"),
@@ -1946,7 +2082,7 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
         json.dump(signal_bars_data, f, indent=2)
     logger.info("Saved historical bars for %d tickers to %s", len(signal_bars_data), signal_bars_file)
 
-    # 3. performance_summary.json
+    # 3. performance_summary.json uses the full buy_signals table, not the export window.
     perf_summary = get_performance_summary(conn=conn)
     perf_summary_file = os.path.join(output_dir, "performance_summary.json")
     with open(perf_summary_file, "w", encoding="utf-8") as f:

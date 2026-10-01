@@ -224,13 +224,14 @@ export default function StockChart({
   }, [positionShares, closePrice]);
 
   useEffect(() => {
-    if (!chartContainerRef.current || !bars || bars.length === 0) return;
+    const chartContainer = chartContainerRef.current;
+    if (!chartContainer || !bars || bars.length === 0) return;
 
     const sortedBars = [...bars].sort(
       (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
-    const chart = createChart(chartContainerRef.current, {
+    const chart = createChart(chartContainer, {
       layout: {
         background: { type: ColorType.Solid, color: '#0b111e' },
         textColor: '#94a3b8',
@@ -365,20 +366,16 @@ export default function StockChart({
 
     chart.timeScale().fitContent();
 
-    const handleResize = () => {
-      if (chartContainerRef.current) {
-        chart.applyOptions({
-          width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight,
-        });
+    const resizeObserver = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width > 0 && height > 0) {
+        chart.applyOptions({ width, height });
       }
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
+    });
+    resizeObserver.observe(chartContainer);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       chart.remove();
       chartInstanceRef.current = null;
     };
@@ -412,11 +409,11 @@ export default function StockChart({
     {
       name: '20-day High Proximity',
       description: 'Within 1% of 20d high',
-      actual: signal?.dist_to_52w_high_pct != null
-        ? `${signal.dist_to_52w_high_pct.toFixed(1)}%`
-        : '≥ 99% of 20d High',
+      actual: signal?.dist_to_20d_high_pct != null
+        ? `${signal.dist_to_20d_high_pct >= 0 ? '+' : ''}${signal.dist_to_20d_high_pct.toFixed(1)}%`
+        : 'N/A',
       threshold: '≥ 99% of 20d High',
-      passed: true,
+      passed: signal?.dist_to_20d_high_pct == null || signal.dist_to_20d_high_pct >= -1,
     },
     {
       name: 'RS Score ≥ 70',
@@ -726,7 +723,7 @@ export default function StockChart({
         {/* Chart Canvas */}
         <div className="relative flex-1 w-full bg-[#0b111e] min-h-[350px]">
           {bars && bars.length > 0 ? (
-            <div ref={chartContainerRef} className="w-full h-full" />
+            <div ref={chartContainerRef} className="absolute inset-0" />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-slate-500">
               <BarChart2 className="w-12 h-12 mb-2 stroke-[1.5] text-slate-600" />

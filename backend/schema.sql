@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS tickers (
     name TEXT,
     market_cap REAL,
     sector TEXT,
+    primary_exchange TEXT,
     is_active BOOLEAN DEFAULT 1,
     last_updated DATE
 );

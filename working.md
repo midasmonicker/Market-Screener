@@ -41,6 +41,8 @@ A Python-based **daily momentum stock screener** that:
 | Phase 15 | Monorepo Structure: Separation into `frontend/` (Next.js App Router, Tailwind, TypeScript) and `backend/` (Python TA pipeline, SQLite, venv). Restored `globals.css` inside `frontend/app/`, scoped `.gitignore` files, fixed export paths to `../frontend/public/data`, and aligned CI/CD `daily_screener.yml`. | ✅ Complete |
 | Phase 16 | Sector Taxonomy & Backfill: Resolved root cause of exchange MIC codes (`XNAS`, `XNYS`) polluting sector column. Added SIC-to-GICS sector lookup (`_sic_to_sector`), `backfill_ticker_sectors()` using Polygon reference ticker endpoint (`v3/reference/tickers/{sym}`), disk caching (`.cache/ticker_sectors.json`), `ON CONFLICT` sector update fix, and auto-resolution in `export_web_data()`. | ✅ Complete |
 | Phase 17 | Responsive Column Prioritization: Optimized signals table for viewport widths under 768px (`md:`). Collapses to 4 essential columns (Symbol, Price, RVOL, Score) + chevron expand toggle. Expanding a row reveals the full breakdown (Date, 1d Chg, RSI, ATR%, 20d $ Vol, RS vs SPY, Streak, Earnings, 52w High Dist, MA Alignment) in a stacked drawer with direct chart trigger, preventing horizontal scroll on mobile. | ✅ Complete |
+| Phase 18 | Lightweight Charts sizing: positioned the chart host to fill its chart region and added ResizeObserver-based initial sizing and resize handling. | ✅ Complete |
+| Phase 19 | Corrected “20-day High Proximity” detail display: persist and export trigger-date `dist_to_20d_high_pct`; keep 52-week distance under its own label. Verified with a clean production build and `next start`; ROG displays +9.7%. | ✅ Complete |
 | Deployment | GitHub Actions CI/CD (`.github/workflows/daily_screener.yml`) — cron `30 22 * * 1-5` (22:30 UTC Mon–Fri) | ✅ Deployed |
 
 ---
@@ -630,8 +632,19 @@ $env:PATH = "C:\Users\MidasMonicker\AppData\Local\Programs\nodejs;" + $env:PATH
 
 Always prefix Next.js/npm commands with the PATH override above, or call `npm.cmd` explicitly.
 
-## 11. Dashboard Null-Value Handling (2026-10-01)
+## 11. Exchange-Aware Export and Statistics Boundaries (2026-10-01)
+- The watchlist export formats each currently filtered ticker using its `primary_exchange` MIC, mapping known MICs to TradingView exchange prefixes.
+- `latest_signals.json` is limited to signals on the newest 10 distinct dates in `daily_bars`.
+- `performance_summary.json` queries the full `buy_signals` table; its activity average uses the 30 calendar days ending on the latest signal date. `setup_stats.json` uses database outcomes across signal history, independent of the latest-signals window.
+- Verified with a clean Next.js production build; backend syntax checks passed for `screener.py` and `outcomes.py`.
+
+## 12. Dashboard Null-Value Handling (2026-10-01)
 - `frontend/components/TrackRecord.tsx` treats `hit_rate_5d` and `hit_rate_20d` as nullable and renders `—` instead of calling `.toFixed()` on null. `ScorePill` retains its intentional `Pending` fallback.
 - Verified against the live production JSON: `setup_stats.json` has null 5d/20d hit rates with zero completed outcomes. `latest_signals.json` had 29 records total, 18 dated 2026-09-30; both source return fields and the page’s direct numeric-format fields were audited. The page’s other `.toFixed()` calls were guarded or operated on derived values with early exits.
 - Production `npm run build` passed. Browser verification with the live JSON showed signal rows and the Track Record card with `—` hit rates, without an Application error or `.toFixed()` TypeError.
+
+## 13. Live Watchlist Verification (2026-10-01)
+- A trusted browser click on the rebuilt production app at `http://localhost:3001` copied 27 unique tickers, matching the default `Showing 27 of 27 setups` table. ARX resolved to `NYSE:ARX`; ROG and UTZ mapped from XNYS to NYSE, and AMPL mapped from XNAS to NASDAQ.
+- With Min RVOL set to 3.0x, the table showed 2 of 27 and the copy action produced `NYSE:ROG, NYSE:CAAP` (2 tickers).
+- Direct fetch of `latest_signals.json` returned 29 records across two dates, with `primary_exchange` present on every record. The table now keeps the newest signal per symbol, and the dashboard tolerates older `performance_summary.json` files without `signal_activity`.
 
