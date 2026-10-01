@@ -1,5 +1,5 @@
 {
-  "total_signals": 11,
+  "total_signals": 29,
   "horizon_5d": {
     "count": 0,
     "win_rate": null,
@@ -21,5 +21,5 @@
     "max_return": null,
     "min_return": null
   },
-  "generated_at": "2026-09-30T13:31:42.795466+00:00"
+  "generated_at": "2026-10-01T02:13:41.552720+00:00"
 }
