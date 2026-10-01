@@ -1,6 +1,7 @@
 # Market Screener â€” Complete Project Working Context
 
 > **Purpose**: This file preserves full working context across agent, profile, and environment switches. Read this first when resuming work on this project.
+> **Maintenance rule**: Update this file after every project update so it remains the current handoff context.
 
 ---
 
@@ -628,4 +629,9 @@ $env:PATH = "C:\Users\MidasMonicker\AppData\Local\Programs\nodejs;" + $env:PATH
 ```
 
 Always prefix Next.js/npm commands with the PATH override above, or call `npm.cmd` explicitly.
+
+## 11. Dashboard Null-Value Handling (2026-10-01)
+- `frontend/components/TrackRecord.tsx` treats `hit_rate_5d` and `hit_rate_20d` as nullable and renders `—` instead of calling `.toFixed()` on null. `ScorePill` retains its intentional `Pending` fallback.
+- Verified against the live production JSON: `setup_stats.json` has null 5d/20d hit rates with zero completed outcomes. `latest_signals.json` had 29 records total, 18 dated 2026-09-30; both source return fields and the page’s direct numeric-format fields were audited. The page’s other `.toFixed()` calls were guarded or operated on derived values with early exits.
+- Production `npm run build` passed. Browser verification with the live JSON showed signal rows and the Track Record card with `—` hit rates, without an Application error or `.toFixed()` TypeError.
 
