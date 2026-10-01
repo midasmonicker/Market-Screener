@@ -5,7 +5,7 @@
     "symbol": "ROG",
     "name": "Rogers Corporation",
     "sector": "Basic Materials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 152.99,
     "rvol": 5.15,
@@ -28,17 +28,17 @@
     "return_20d_pct": null,
     "pct_change_1d": 10.73,
     "atr_pct": 4.38,
-    "avg_dollar_vol_20d": 35553506.0,
+    "avg_dollar_vol_20d": 35553506,
     "rs_vs_spy": 3.92,
     "dist_to_52w_high_pct": -9.47,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "composite_score": 71.1,
     "score_components": {
-      "rvol_score": 100.0,
+      "rvol_score": 100,
       "rs_score_component": 78.2,
       "breakout_proximity_score": 10.7,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -47,7 +47,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 9.72,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 29,
@@ -55,7 +57,7 @@
     "symbol": "UTZ",
     "name": "Utz Brands, Inc.",
     "sector": "Consumer Defensive",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 14.25,
     "rvol": 2.78,
@@ -76,9 +78,9 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 0.0,
+    "pct_change_1d": 0,
     "atr_pct": 0.39,
-    "avg_dollar_vol_20d": 22568742.0,
+    "avg_dollar_vol_20d": 22568742,
     "rs_vs_spy": 69.91,
     "dist_to_52w_high_pct": -0.56,
     "near_earnings": false,
@@ -88,7 +90,7 @@
       "rvol_score": 44.5,
       "rs_score_component": 97.4,
       "breakout_proximity_score": 0.8,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -97,7 +99,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": -0.21,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 24,
@@ -105,7 +109,7 @@
     "symbol": "PGEN",
     "name": "Precigen, Inc. Common Stock",
     "sector": "Basic Materials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 8.56,
     "rvol": 2.71,
@@ -128,7 +132,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 6.34,
     "atr_pct": 5.1,
-    "avg_dollar_vol_20d": 36337925.0,
+    "avg_dollar_vol_20d": 36337925,
     "rs_vs_spy": 49.38,
     "dist_to_52w_high_pct": -4.68,
     "near_earnings": false,
@@ -138,7 +142,7 @@
       "rvol_score": 42.7,
       "rs_score_component": 96.2,
       "breakout_proximity_score": 7.3,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -147,7 +151,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 6.34,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 19,
@@ -155,7 +161,7 @@
     "symbol": "FPI",
     "name": "Farmland Partners Inc.",
     "sector": "Financials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 11.35,
     "rvol": 2.39,
@@ -178,7 +184,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.34,
     "atr_pct": 2.12,
-    "avg_dollar_vol_20d": 7225236.0,
+    "avg_dollar_vol_20d": 7225236,
     "rs_vs_spy": 14.49,
     "dist_to_52w_high_pct": -14.18,
     "near_earnings": false,
@@ -188,7 +194,7 @@
       "rvol_score": 34.9,
       "rs_score_component": 87.1,
       "breakout_proximity_score": 3.3,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -197,7 +203,9 @@
       }
     },
     "signal_streak": 2,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 2.34,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 23,
@@ -205,7 +213,7 @@
     "symbol": "PD",
     "name": "PagerDuty, Inc.",
     "sector": "Technology",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 15.1,
     "rvol": 2.22,
@@ -226,19 +234,19 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 1.0,
+    "pct_change_1d": 1,
     "atr_pct": 3.95,
-    "avg_dollar_vol_20d": 24399391.0,
+    "avg_dollar_vol_20d": 24399391,
     "rs_vs_spy": 48.91,
     "dist_to_52w_high_pct": -2.96,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
-    "composite_score": 57.0,
+    "composite_score": 57,
     "score_components": {
       "rvol_score": 30.5,
       "rs_score_component": 96.1,
-      "breakout_proximity_score": 2.0,
-      "trend_strength_score": 100.0,
+      "breakout_proximity_score": 2,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -247,7 +255,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 1,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 17,
@@ -255,7 +265,7 @@
     "symbol": "EPRX",
     "name": "Eupraxia Pharmaceuticals Inc. Common Stock",
     "sector": "Unknown",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 9.1,
     "rvol": 2.08,
@@ -278,7 +288,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 9.57,
     "atr_pct": 5.08,
-    "avg_dollar_vol_20d": 5584861.0,
+    "avg_dollar_vol_20d": 5584861,
     "rs_vs_spy": 33.63,
     "dist_to_52w_high_pct": -2.36,
     "near_earnings": false,
@@ -288,7 +298,7 @@
       "rvol_score": 26.9,
       "rs_score_component": 93.6,
       "breakout_proximity_score": 6.3,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -297,7 +307,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 5.32,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 13,
@@ -305,7 +317,7 @@
     "symbol": "AMPL",
     "name": "Amplitude, Inc. Class A Common Stock",
     "sector": "Technology",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 13.85,
     "rvol": 2.05,
@@ -328,7 +340,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 1.54,
     "atr_pct": 4.97,
-    "avg_dollar_vol_20d": 21518437.0,
+    "avg_dollar_vol_20d": 21518437,
     "rs_vs_spy": 54.28,
     "dist_to_52w_high_pct": -6.17,
     "near_earnings": false,
@@ -338,7 +350,7 @@
       "rvol_score": 26.1,
       "rs_score_component": 96.6,
       "breakout_proximity_score": 1.1,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -347,7 +359,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 0.14,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 27,
@@ -355,7 +369,7 @@
     "symbol": "RVTY",
     "name": "Revvity, Inc.",
     "sector": "Healthcare",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 152.89,
     "rvol": 2.03,
@@ -378,8 +392,8 @@
     "return_20d_pct": null,
     "pct_change_1d": 0.08,
     "atr_pct": 3.1,
-    "avg_dollar_vol_20d": 319380262.0,
-    "rs_vs_spy": 32.0,
+    "avg_dollar_vol_20d": 319380262,
+    "rs_vs_spy": 32,
     "dist_to_52w_high_pct": -3.41,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -388,7 +402,7 @@
       "rvol_score": 25.8,
       "rs_score_component": 93.2,
       "breakout_proximity_score": 1.1,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -397,7 +411,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 0.08,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 18,
@@ -405,7 +421,7 @@
     "symbol": "FORM",
     "name": "FormFactor Inc.",
     "sector": "Technology",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 149.31,
     "rvol": 1.97,
@@ -428,7 +444,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 9.59,
     "atr_pct": 5.12,
-    "avg_dollar_vol_20d": 145268072.0,
+    "avg_dollar_vol_20d": 145268072,
     "rs_vs_spy": 18.41,
     "dist_to_52w_high_pct": -6.84,
     "near_earnings": false,
@@ -438,7 +454,7 @@
       "rvol_score": 24.3,
       "rs_score_component": 89.1,
       "breakout_proximity_score": 10.6,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -447,7 +463,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 9.59,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 14,
@@ -455,13 +473,13 @@
     "symbol": "ARX",
     "name": "Accelerant Holdings",
     "sector": "Financials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 19.73,
     "rvol": 1.95,
     "rsi": 69.16,
     "market_regime": "Caution",
-    "rs_score": 95.0,
+    "rs_score": 95,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -476,9 +494,9 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 0.0,
+    "pct_change_1d": 0,
     "atr_pct": 0.92,
-    "avg_dollar_vol_20d": 39419820.0,
+    "avg_dollar_vol_20d": 39419820,
     "rs_vs_spy": 40.89,
     "dist_to_52w_high_pct": -0.85,
     "near_earnings": false,
@@ -486,9 +504,9 @@
     "composite_score": 54.5,
     "score_components": {
       "rvol_score": 23.7,
-      "rs_score_component": 95.0,
+      "rs_score_component": 95,
       "breakout_proximity_score": 0.2,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -497,7 +515,9 @@
       }
     },
     "signal_streak": 2,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": -0.75,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 26,
@@ -505,7 +525,7 @@
     "symbol": "RSKD",
     "name": "Riskified Ltd.",
     "sector": "Unknown",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 7.91,
     "rvol": 1.85,
@@ -528,7 +548,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.59,
     "atr_pct": 4.29,
-    "avg_dollar_vol_20d": 18020437.0,
+    "avg_dollar_vol_20d": 18020437,
     "rs_vs_spy": 51.79,
     "dist_to_52w_high_pct": -3.18,
     "near_earnings": false,
@@ -537,8 +557,8 @@
     "score_components": {
       "rvol_score": 21.3,
       "rs_score_component": 96.4,
-      "breakout_proximity_score": 1.0,
-      "trend_strength_score": 100.0,
+      "breakout_proximity_score": 1,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -547,7 +567,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 0,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 16,
@@ -555,13 +577,13 @@
     "symbol": "DOCS",
     "name": "Doximity, Inc.",
     "sector": "Technology",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 28.34,
     "rvol": 1.8,
     "rsi": 65.03,
     "market_regime": "Caution",
-    "rs_score": 92.0,
+    "rs_score": 92,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -578,17 +600,17 @@
     "return_20d_pct": null,
     "pct_change_1d": 6.86,
     "atr_pct": 4.27,
-    "avg_dollar_vol_20d": 76018623.0,
+    "avg_dollar_vol_20d": 76018623,
     "rs_vs_spy": 27.25,
     "dist_to_52w_high_pct": -39.38,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
-    "composite_score": 54.0,
+    "composite_score": 54,
     "score_components": {
       "rvol_score": 19.9,
-      "rs_score_component": 92.0,
+      "rs_score_component": 92,
       "breakout_proximity_score": 5.6,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -597,7 +619,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 4.58,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 12,
@@ -605,7 +629,7 @@
     "symbol": "AMN",
     "name": "AMN Healthcare Services",
     "sector": "Industrials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 35.87,
     "rvol": 1.78,
@@ -628,17 +652,17 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.63,
     "atr_pct": 3.38,
-    "avg_dollar_vol_20d": 20931879.0,
+    "avg_dollar_vol_20d": 20931879,
     "rs_vs_spy": 0.83,
     "dist_to_52w_high_pct": -3.63,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
-    "composite_score": 48.0,
+    "composite_score": 48,
     "score_components": {
       "rvol_score": 19.4,
       "rs_score_component": 74.2,
       "breakout_proximity_score": 3.6,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -647,7 +671,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 2.63,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 28,
@@ -655,7 +681,7 @@
     "symbol": "SDGR",
     "name": "Schrodinger, Inc. Common Stock",
     "sector": "Basic Materials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 31.05,
     "rvol": 1.69,
@@ -678,7 +704,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.37,
     "atr_pct": 5.78,
-    "avg_dollar_vol_20d": 66571368.0,
+    "avg_dollar_vol_20d": 66571368,
     "rs_vs_spy": 81.55,
     "dist_to_52w_high_pct": -4.31,
     "near_earnings": false,
@@ -688,7 +714,7 @@
       "rvol_score": 17.3,
       "rs_score_component": 97.9,
       "breakout_proximity_score": 2.1,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -697,7 +723,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 1.14,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 15,
@@ -705,7 +733,7 @@
     "symbol": "AVPT",
     "name": "AvePoint, Inc. Class A Common Stock",
     "sector": "Technology",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 14.08,
     "rvol": 1.61,
@@ -728,7 +756,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 3.76,
     "atr_pct": 3.6,
-    "avg_dollar_vol_20d": 26912482.0,
+    "avg_dollar_vol_20d": 26912482,
     "rs_vs_spy": 20.47,
     "dist_to_52w_high_pct": -2.12,
     "near_earnings": false,
@@ -737,8 +765,8 @@
     "score_components": {
       "rvol_score": 15.2,
       "rs_score_component": 89.8,
-      "breakout_proximity_score": 4.0,
-      "trend_strength_score": 100.0,
+      "breakout_proximity_score": 4,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -747,7 +775,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 3,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 22,
@@ -755,13 +785,13 @@
     "symbol": "PAYS",
     "name": "Paysign, Inc. Common Stock",
     "sector": "Industrials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 13.48,
     "rvol": 1.61,
     "rsi": 60.49,
     "market_regime": "Caution",
-    "rs_score": 97.0,
+    "rs_score": 97,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -778,7 +808,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 4.9,
     "atr_pct": 4.55,
-    "avg_dollar_vol_20d": 9800823.0,
+    "avg_dollar_vol_20d": 9800823,
     "rs_vs_spy": 60.8,
     "dist_to_52w_high_pct": -6.58,
     "near_earnings": false,
@@ -786,9 +816,9 @@
     "composite_score": 53.2,
     "score_components": {
       "rvol_score": 15.3,
-      "rs_score_component": 97.0,
+      "rs_score_component": 97,
       "breakout_proximity_score": 1.2,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -797,7 +827,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": 0.22,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 21,
@@ -805,7 +837,7 @@
     "symbol": "LXP",
     "name": "LXP Industrial Trust",
     "sector": "Financials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 60.92,
     "rvol": 1.57,
@@ -828,7 +860,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 0.05,
     "atr_pct": 0.27,
-    "avg_dollar_vol_20d": 57171151.0,
+    "avg_dollar_vol_20d": 57171151,
     "rs_vs_spy": 7.25,
     "dist_to_52w_high_pct": -1.12,
     "near_earnings": false,
@@ -837,8 +869,8 @@
     "score_components": {
       "rvol_score": 14.3,
       "rs_score_component": 82.1,
-      "breakout_proximity_score": 1.0,
-      "trend_strength_score": 100.0,
+      "breakout_proximity_score": 1,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -847,7 +879,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": -0.02,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 20,
@@ -855,7 +889,7 @@
     "symbol": "KMTS",
     "name": "Kestra Medical Technologies, Ltd. Common Stock",
     "sector": "Healthcare",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 28.29,
     "rvol": 1.51,
@@ -878,7 +912,7 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.6,
     "atr_pct": 4.87,
-    "avg_dollar_vol_20d": 10758514.0,
+    "avg_dollar_vol_20d": 10758514,
     "rs_vs_spy": 2.46,
     "dist_to_52w_high_pct": -4.36,
     "near_earnings": false,
@@ -888,7 +922,7 @@
       "rvol_score": 12.7,
       "rs_score_component": 76.3,
       "breakout_proximity_score": 0.4,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -897,7 +931,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-01 02:08:55"
+    "created_at": "2026-10-01 02:08:55",
+    "dist_to_20d_high_pct": -0.6,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 3,
@@ -905,9 +941,9 @@
     "symbol": "CAAP",
     "name": "Corporacion America Airports S.A.",
     "sector": "Unknown",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
-    "close_price": 26.0,
+    "close_price": 26,
     "rvol": 3.38,
     "rsi": 64.06,
     "market_regime": "Bullish",
@@ -928,7 +964,7 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.19,
     "atr_pct": 3.18,
-    "avg_dollar_vol_20d": 6825841.0,
+    "avg_dollar_vol_20d": 6825841,
     "rs_vs_spy": 0.38,
     "dist_to_52w_high_pct": -14.75,
     "near_earnings": false,
@@ -938,7 +974,7 @@
       "rvol_score": 59.4,
       "rs_score_component": 72.4,
       "breakout_proximity_score": 0.8,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -947,7 +983,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": -0.19,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 7,
@@ -955,7 +993,7 @@
     "symbol": "IDT",
     "name": "IDT Corporation Class B",
     "sector": "Communication Services",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 75.56,
     "rvol": 2.92,
@@ -968,7 +1006,7 @@
       "above_sma200": true,
       "ema20": 69.32,
       "sma50": 67.64,
-      "sma200": 56.0
+      "sma200": 56
     },
     "price_5d": null,
     "price_10d": null,
@@ -978,7 +1016,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 8.63,
     "atr_pct": 3.16,
-    "avg_dollar_vol_20d": 21378310.0,
+    "avg_dollar_vol_20d": 21378310,
     "rs_vs_spy": 27.92,
     "dist_to_52w_high_pct": -2.23,
     "near_earnings": false,
@@ -988,7 +1026,7 @@
       "rvol_score": 48.1,
       "rs_score_component": 92.2,
       "breakout_proximity_score": 7.4,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -997,7 +1035,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": 6.39,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 1,
@@ -1005,7 +1045,7 @@
     "symbol": "ARX",
     "name": "Accelerant Holdings",
     "sector": "Financials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 19.73,
     "rvol": 2.52,
@@ -1028,7 +1068,7 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.05,
     "atr_pct": 0.98,
-    "avg_dollar_vol_20d": 37265289.0,
+    "avg_dollar_vol_20d": 37265289,
     "rs_vs_spy": 51.19,
     "dist_to_52w_high_pct": -0.85,
     "near_earnings": false,
@@ -1038,7 +1078,7 @@
       "rvol_score": 38.1,
       "rs_score_component": 96.2,
       "breakout_proximity_score": 0.2,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1047,7 +1087,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": -0.75,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 2,
@@ -1055,7 +1097,7 @@
     "symbol": "BOW",
     "name": "Bowhead Specialty Holdings Inc.",
     "sector": "Financials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 33.77,
     "rvol": 2.34,
@@ -1078,7 +1120,7 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.09,
     "atr_pct": 0.62,
-    "avg_dollar_vol_20d": 10752488.0,
+    "avg_dollar_vol_20d": 10752488,
     "rs_vs_spy": 5.76,
     "dist_to_52w_high_pct": -3.71,
     "near_earnings": false,
@@ -1088,7 +1130,7 @@
       "rvol_score": 33.6,
       "rs_score_component": 79.7,
       "breakout_proximity_score": 0.7,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1097,7 +1139,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": -0.3,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 8,
@@ -1105,7 +1149,7 @@
     "symbol": "ITGR",
     "name": "Integer Holdings Corporation",
     "sector": "Healthcare",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 126.33,
     "rvol": 1.94,
@@ -1128,17 +1172,17 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.04,
     "atr_pct": 0.39,
-    "avg_dollar_vol_20d": 107679792.0,
+    "avg_dollar_vol_20d": 107679792,
     "rs_vs_spy": 31.11,
     "dist_to_52w_high_pct": -0.37,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
-    "composite_score": 54.0,
+    "composite_score": 54,
     "score_components": {
       "rvol_score": 23.4,
       "rs_score_component": 93.1,
       "breakout_proximity_score": 0.9,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1147,7 +1191,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": -0.13,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 6,
@@ -1155,7 +1201,7 @@
     "symbol": "FPI",
     "name": "Farmland Partners Inc.",
     "sector": "Financials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 11.09,
     "rvol": 1.85,
@@ -1178,7 +1224,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 3.26,
     "atr_pct": 2.03,
-    "avg_dollar_vol_20d": 6801168.0,
+    "avg_dollar_vol_20d": 6801168,
     "rs_vs_spy": 12.33,
     "dist_to_52w_high_pct": -16.14,
     "near_earnings": false,
@@ -1188,7 +1234,7 @@
       "rvol_score": 21.3,
       "rs_score_component": 85.2,
       "breakout_proximity_score": 2.3,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1197,7 +1243,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": 1.28,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 5,
@@ -1205,7 +1253,7 @@
     "symbol": "DSGR",
     "name": "Distribution Solutions Group, Inc. Common Stock",
     "sector": "Consumer Cyclical",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 34.95,
     "rvol": 1.84,
@@ -1228,17 +1276,17 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.14,
     "atr_pct": 0.32,
-    "avg_dollar_vol_20d": 8046516.0,
+    "avg_dollar_vol_20d": 8046516,
     "rs_vs_spy": 26.21,
     "dist_to_52w_high_pct": -0.3,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
-    "composite_score": 53.0,
+    "composite_score": 53,
     "score_components": {
       "rvol_score": 21.1,
       "rs_score_component": 91.7,
       "breakout_proximity_score": 0.9,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1247,7 +1295,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": -0.14,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 11,
@@ -1255,7 +1305,7 @@
     "symbol": "TWST",
     "name": "Twist Bioscience Corporation Common Stock",
     "sector": "Basic Materials",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 186.13,
     "rvol": 1.84,
@@ -1278,7 +1328,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 3.64,
     "atr_pct": 5.99,
-    "avg_dollar_vol_20d": 327646594.0,
+    "avg_dollar_vol_20d": 327646594,
     "rs_vs_spy": 79.56,
     "dist_to_52w_high_pct": -2.43,
     "near_earnings": false,
@@ -1288,7 +1338,7 @@
       "rvol_score": 20.9,
       "rs_score_component": 97.8,
       "breakout_proximity_score": 2.1,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1297,7 +1347,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": 1.14,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 4,
@@ -1305,7 +1357,7 @@
     "symbol": "DDS",
     "name": "Dillards Inc.",
     "sector": "Consumer Cyclical",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 677.52,
     "rvol": 1.83,
@@ -1328,7 +1380,7 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.65,
     "atr_pct": 3.18,
-    "avg_dollar_vol_20d": 123000718.0,
+    "avg_dollar_vol_20d": 123000718,
     "rs_vs_spy": 23.18,
     "dist_to_52w_high_pct": -8.69,
     "near_earnings": false,
@@ -1338,7 +1390,7 @@
       "rvol_score": 20.7,
       "rs_score_component": 90.8,
       "breakout_proximity_score": 0.4,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1347,7 +1399,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": -0.65,
+    "primary_exchange": "XNYS"
   },
   {
     "id": 9,
@@ -1355,13 +1409,13 @@
     "symbol": "MGNI",
     "name": "Magnite, Inc. Common Stock",
     "sector": "Technology",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 25.67,
     "rvol": 1.76,
     "rsi": 61.93,
     "market_regime": "Bullish",
-    "rs_score": 91.0,
+    "rs_score": 91,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -1378,7 +1432,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 9.7,
     "atr_pct": 4.39,
-    "avg_dollar_vol_20d": 60857713.0,
+    "avg_dollar_vol_20d": 60857713,
     "rs_vs_spy": 24.11,
     "dist_to_52w_high_pct": -4.36,
     "near_earnings": false,
@@ -1386,9 +1440,9 @@
     "composite_score": 52.3,
     "score_components": {
       "rvol_score": 18.9,
-      "rs_score_component": 91.0,
+      "rs_score_component": 91,
       "breakout_proximity_score": 1.2,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1397,7 +1451,9 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": 0.16,
+    "primary_exchange": "XNAS"
   },
   {
     "id": 10,
@@ -1405,7 +1461,7 @@
     "symbol": "MQ",
     "name": "Marqeta, Inc. Class A Common Stock",
     "sector": "Technology",
-    "market_cap": 0.0,
+    "market_cap": 0,
     "setup_name": "Momentum Breakout",
     "close_price": 17.01,
     "rvol": 1.56,
@@ -1428,7 +1484,7 @@
     "return_20d_pct": null,
     "pct_change_1d": 0.71,
     "atr_pct": 2.91,
-    "avg_dollar_vol_20d": 13081715.0,
+    "avg_dollar_vol_20d": 13081715,
     "rs_vs_spy": -0.13,
     "dist_to_52w_high_pct": -17.27,
     "near_earnings": false,
@@ -1438,7 +1494,7 @@
       "rvol_score": 14.1,
       "rs_score_component": 71.2,
       "breakout_proximity_score": 1.2,
-      "trend_strength_score": 100.0,
+      "trend_strength_score": 100,
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -1447,6 +1503,8 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-09-30 13:28:19"
+    "created_at": "2026-09-30 13:28:19",
+    "dist_to_20d_high_pct": 0.18,
+    "primary_exchange": "XNAS"
   }
 ]
