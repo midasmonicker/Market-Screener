@@ -6,9 +6,9 @@ import { Trophy, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 interface SetupStat {
   signal_count: number;
   completed_5d_count: number;
-  hit_rate_5d: number;
+  hit_rate_5d: number | null;
   completed_20d_count: number;
-  hit_rate_20d: number;
+  hit_rate_20d: number | null;
   median_excess_5d: number;
   avg_excess_5d: number;
   median_excess_20d: number;
@@ -71,7 +71,9 @@ function StatCell({
   );
 }
 
-function HitRate({ rate, n }: { rate: number; n: number }) {
+function HitRate({ rate, n }: { rate: number | null; n: number }) {
+  if (rate == null) return <span className="text-slate-500 font-mono">—</span>;
+
   const colour =
     rate >= 60
       ? 'text-emerald-400'
