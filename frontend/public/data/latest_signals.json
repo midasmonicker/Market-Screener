@@ -1,6 +1,6 @@
 [
   {
-    "id": 25,
+    "id": 43,
     "timestamp": "2026-09-30",
     "symbol": "ROG",
     "name": "Rogers Corporation",
@@ -28,7 +28,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 10.73,
     "atr_pct": 4.38,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 35553506,
+=======
+    "avg_dollar_vol_20d": 35550378.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 3.92,
     "dist_to_52w_high_pct": -9.47,
     "near_earnings": false,
@@ -47,12 +51,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 9.72,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 29,
+    "id": 47,
     "timestamp": "2026-09-30",
     "symbol": "UTZ",
     "name": "Utz Brands, Inc.",
@@ -80,7 +88,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 0,
     "atr_pct": 0.39,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 22568742,
+=======
+    "avg_dollar_vol_20d": 22568727.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 69.91,
     "dist_to_52w_high_pct": -0.56,
     "near_earnings": false,
@@ -99,12 +111,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": -0.21,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 24,
+    "id": 42,
     "timestamp": "2026-09-30",
     "symbol": "PGEN",
     "name": "Precigen, Inc. Common Stock",
@@ -115,7 +131,7 @@
     "rvol": 2.71,
     "rsi": 71.58,
     "market_regime": "Caution",
-    "rs_score": 96.2,
+    "rs_score": 96.1,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -132,15 +148,19 @@
     "return_20d_pct": null,
     "pct_change_1d": 6.34,
     "atr_pct": 5.1,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 36337925,
+=======
+    "avg_dollar_vol_20d": 36337864.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 49.38,
     "dist_to_52w_high_pct": -4.68,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
-    "composite_score": 61.4,
+    "composite_score": 61.3,
     "score_components": {
       "rvol_score": 42.7,
-      "rs_score_component": 96.2,
+      "rs_score_component": 96.1,
       "breakout_proximity_score": 7.3,
       "trend_strength_score": 100,
       "weights": {
@@ -151,12 +171,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 6.34,
     "primary_exchange": "XNAS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 19,
+    "id": 37,
     "timestamp": "2026-09-30",
     "symbol": "FPI",
     "name": "Farmland Partners Inc.",
@@ -184,7 +208,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.34,
     "atr_pct": 2.12,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 7225236,
+=======
+    "avg_dollar_vol_20d": 7225208.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 14.49,
     "dist_to_52w_high_pct": -14.18,
     "near_earnings": false,
@@ -203,12 +231,16 @@
       }
     },
     "signal_streak": 2,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 2.34,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 23,
+    "id": 41,
     "timestamp": "2026-09-30",
     "symbol": "PD",
     "name": "PagerDuty, Inc.",
@@ -236,7 +268,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 1,
     "atr_pct": 3.95,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 24399391,
+=======
+    "avg_dollar_vol_20d": 24399305.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 48.91,
     "dist_to_52w_high_pct": -2.96,
     "near_earnings": false,
@@ -255,12 +291,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 1,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 17,
+    "id": 35,
     "timestamp": "2026-09-30",
     "symbol": "EPRX",
     "name": "Eupraxia Pharmaceuticals Inc. Common Stock",
@@ -288,7 +328,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 9.57,
     "atr_pct": 5.08,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 5584861,
+=======
+    "avg_dollar_vol_20d": 5584853.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 33.63,
     "dist_to_52w_high_pct": -2.36,
     "near_earnings": false,
@@ -307,12 +351,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 5.32,
     "primary_exchange": "XNAS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 13,
+    "id": 31,
     "timestamp": "2026-09-30",
     "symbol": "AMPL",
     "name": "Amplitude, Inc. Class A Common Stock",
@@ -340,7 +388,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 1.54,
     "atr_pct": 4.97,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 21518437,
+=======
+    "avg_dollar_vol_20d": 21518333.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 54.28,
     "dist_to_52w_high_pct": -6.17,
     "near_earnings": false,
@@ -359,12 +411,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 0.14,
     "primary_exchange": "XNAS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 27,
+    "id": 45,
     "timestamp": "2026-09-30",
     "symbol": "RVTY",
     "name": "Revvity, Inc.",
@@ -375,7 +431,7 @@
     "rvol": 2.03,
     "rsi": 74.91,
     "market_regime": "Caution",
-    "rs_score": 93.2,
+    "rs_score": 93.1,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -392,15 +448,20 @@
     "return_20d_pct": null,
     "pct_change_1d": 0.08,
     "atr_pct": 3.1,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 319380262,
     "rs_vs_spy": 32,
+=======
+    "avg_dollar_vol_20d": 319378814.0,
+    "rs_vs_spy": 32.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "dist_to_52w_high_pct": -3.41,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "composite_score": 54.7,
     "score_components": {
       "rvol_score": 25.8,
-      "rs_score_component": 93.2,
+      "rs_score_component": 93.1,
       "breakout_proximity_score": 1.1,
       "trend_strength_score": 100,
       "weights": {
@@ -411,12 +472,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 0.08,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 18,
+    "id": 36,
     "timestamp": "2026-09-30",
     "symbol": "FORM",
     "name": "FormFactor Inc.",
@@ -427,7 +492,7 @@
     "rvol": 1.97,
     "rsi": 73.48,
     "market_regime": "Caution",
-    "rs_score": 89.1,
+    "rs_score": 89.0,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -444,15 +509,19 @@
     "return_20d_pct": null,
     "pct_change_1d": 9.59,
     "atr_pct": 5.12,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 145268072,
+=======
+    "avg_dollar_vol_20d": 145262641.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 18.41,
     "dist_to_52w_high_pct": -6.84,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "composite_score": 55.4,
     "score_components": {
-      "rvol_score": 24.3,
-      "rs_score_component": 89.1,
+      "rvol_score": 24.2,
+      "rs_score_component": 89.0,
       "breakout_proximity_score": 10.6,
       "trend_strength_score": 100,
       "weights": {
@@ -463,12 +532,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 9.59,
     "primary_exchange": "XNAS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 14,
+    "id": 32,
     "timestamp": "2026-09-30",
     "symbol": "ARX",
     "name": "Accelerant Holdings",
@@ -496,7 +569,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 0,
     "atr_pct": 0.92,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 39419820,
+=======
+    "avg_dollar_vol_20d": 39419804.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 40.89,
     "dist_to_52w_high_pct": -0.85,
     "near_earnings": false,
@@ -515,12 +592,16 @@
       }
     },
     "signal_streak": 2,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": -0.75,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 26,
+    "id": 44,
     "timestamp": "2026-09-30",
     "symbol": "RSKD",
     "name": "Riskified Ltd.",
@@ -531,7 +612,7 @@
     "rvol": 1.85,
     "rsi": 73.77,
     "market_regime": "Caution",
-    "rs_score": 96.4,
+    "rs_score": 96.3,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -548,7 +629,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.59,
     "atr_pct": 4.29,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 18020437,
+=======
+    "avg_dollar_vol_20d": 18020402.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 51.79,
     "dist_to_52w_high_pct": -3.18,
     "near_earnings": false,
@@ -556,9 +641,15 @@
     "composite_score": 54.5,
     "score_components": {
       "rvol_score": 21.3,
+<<<<<<< HEAD
       "rs_score_component": 96.4,
       "breakout_proximity_score": 1,
       "trend_strength_score": 100,
+=======
+      "rs_score_component": 96.3,
+      "breakout_proximity_score": 1.0,
+      "trend_strength_score": 100.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -567,12 +658,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 0,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 16,
+    "id": 34,
     "timestamp": "2026-09-30",
     "symbol": "DOCS",
     "name": "Doximity, Inc.",
@@ -583,7 +678,11 @@
     "rvol": 1.8,
     "rsi": 65.03,
     "market_regime": "Caution",
+<<<<<<< HEAD
     "rs_score": 92,
+=======
+    "rs_score": 91.9,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -600,7 +699,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 6.86,
     "atr_pct": 4.27,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 76018623,
+=======
+    "avg_dollar_vol_20d": 76018346.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 27.25,
     "dist_to_52w_high_pct": -39.38,
     "near_earnings": false,
@@ -608,7 +711,11 @@
     "composite_score": 54,
     "score_components": {
       "rvol_score": 19.9,
+<<<<<<< HEAD
       "rs_score_component": 92,
+=======
+      "rs_score_component": 91.9,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
       "breakout_proximity_score": 5.6,
       "trend_strength_score": 100,
       "weights": {
@@ -619,12 +726,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 4.58,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 12,
+    "id": 30,
     "timestamp": "2026-09-30",
     "symbol": "AMN",
     "name": "AMN Healthcare Services",
@@ -652,7 +763,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.63,
     "atr_pct": 3.38,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 20931879,
+=======
+    "avg_dollar_vol_20d": 20931805.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 0.83,
     "dist_to_52w_high_pct": -3.63,
     "near_earnings": false,
@@ -671,12 +786,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 2.63,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 28,
+    "id": 46,
     "timestamp": "2026-09-30",
     "symbol": "SDGR",
     "name": "Schrodinger, Inc. Common Stock",
@@ -687,7 +806,7 @@
     "rvol": 1.69,
     "rsi": 74.12,
     "market_regime": "Caution",
-    "rs_score": 97.9,
+    "rs_score": 97.8,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -704,7 +823,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.37,
     "atr_pct": 5.78,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 66571368,
+=======
+    "avg_dollar_vol_20d": 66571024.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 81.55,
     "dist_to_52w_high_pct": -4.31,
     "near_earnings": false,
@@ -712,7 +835,7 @@
     "composite_score": 54.2,
     "score_components": {
       "rvol_score": 17.3,
-      "rs_score_component": 97.9,
+      "rs_score_component": 97.8,
       "breakout_proximity_score": 2.1,
       "trend_strength_score": 100,
       "weights": {
@@ -723,12 +846,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 1.14,
     "primary_exchange": "XNAS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 15,
+    "id": 33,
     "timestamp": "2026-09-30",
     "symbol": "AVPT",
     "name": "AvePoint, Inc. Class A Common Stock",
@@ -739,7 +866,7 @@
     "rvol": 1.61,
     "rsi": 61.27,
     "market_regime": "Caution",
-    "rs_score": 89.8,
+    "rs_score": 89.7,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -756,7 +883,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 3.76,
     "atr_pct": 3.6,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 26912482,
+=======
+    "avg_dollar_vol_20d": 26912453.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 20.47,
     "dist_to_52w_high_pct": -2.12,
     "near_earnings": false,
@@ -764,9 +895,15 @@
     "composite_score": 51.7,
     "score_components": {
       "rvol_score": 15.2,
+<<<<<<< HEAD
       "rs_score_component": 89.8,
       "breakout_proximity_score": 4,
       "trend_strength_score": 100,
+=======
+      "rs_score_component": 89.7,
+      "breakout_proximity_score": 4.0,
+      "trend_strength_score": 100.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -775,12 +912,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 3,
     "primary_exchange": "XNAS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 22,
+    "id": 40,
     "timestamp": "2026-09-30",
     "symbol": "PAYS",
     "name": "Paysign, Inc. Common Stock",
@@ -791,7 +932,11 @@
     "rvol": 1.61,
     "rsi": 60.49,
     "market_regime": "Caution",
+<<<<<<< HEAD
     "rs_score": 97,
+=======
+    "rs_score": 96.9,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -808,7 +953,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 4.9,
     "atr_pct": 4.55,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 9800823,
+=======
+    "avg_dollar_vol_20d": 9800794.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 60.8,
     "dist_to_52w_high_pct": -6.58,
     "near_earnings": false,
@@ -816,7 +965,11 @@
     "composite_score": 53.2,
     "score_components": {
       "rvol_score": 15.3,
+<<<<<<< HEAD
       "rs_score_component": 97,
+=======
+      "rs_score_component": 96.9,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
       "breakout_proximity_score": 1.2,
       "trend_strength_score": 100,
       "weights": {
@@ -827,12 +980,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": 0.22,
     "primary_exchange": "XNAS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 21,
+    "id": 39,
     "timestamp": "2026-09-30",
     "symbol": "LXP",
     "name": "LXP Industrial Trust",
@@ -843,7 +1000,7 @@
     "rvol": 1.57,
     "rsi": 61.76,
     "market_regime": "Caution",
-    "rs_score": 82.1,
+    "rs_score": 82.0,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -860,7 +1017,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 0.05,
     "atr_pct": 0.27,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 57171151,
+=======
+    "avg_dollar_vol_20d": 57171016.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 7.25,
     "dist_to_52w_high_pct": -1.12,
     "near_earnings": false,
@@ -868,9 +1029,15 @@
     "composite_score": 48.4,
     "score_components": {
       "rvol_score": 14.3,
+<<<<<<< HEAD
       "rs_score_component": 82.1,
       "breakout_proximity_score": 1,
       "trend_strength_score": 100,
+=======
+      "rs_score_component": 82.0,
+      "breakout_proximity_score": 1.0,
+      "trend_strength_score": 100.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
       "weights": {
         "rvol": 0.25,
         "rs": 0.3,
@@ -879,12 +1046,16 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": -0.02,
     "primary_exchange": "XNYS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
-    "id": 20,
+    "id": 38,
     "timestamp": "2026-09-30",
     "symbol": "KMTS",
     "name": "Kestra Medical Technologies, Ltd. Common Stock",
@@ -895,7 +1066,7 @@
     "rvol": 1.51,
     "rsi": 64.54,
     "market_regime": "Caution",
-    "rs_score": 76.3,
+    "rs_score": 76.2,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -912,15 +1083,19 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.6,
     "atr_pct": 4.87,
+<<<<<<< HEAD
     "avg_dollar_vol_20d": 10758514,
+=======
+    "avg_dollar_vol_20d": 10758467.0,
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
     "rs_vs_spy": 2.46,
     "dist_to_52w_high_pct": -4.36,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
-    "composite_score": 46.2,
+    "composite_score": 46.1,
     "score_components": {
-      "rvol_score": 12.7,
-      "rs_score_component": 76.3,
+      "rvol_score": 12.6,
+      "rs_score_component": 76.2,
       "breakout_proximity_score": 0.4,
       "trend_strength_score": 100,
       "weights": {
@@ -931,9 +1106,13 @@
       }
     },
     "signal_streak": 1,
+<<<<<<< HEAD
     "created_at": "2026-10-01 02:08:55",
     "dist_to_20d_high_pct": -0.6,
     "primary_exchange": "XNAS"
+=======
+    "created_at": "2026-10-01 06:40:15"
+>>>>>>> aa43b3e1d4e0b2fdfde4544039e96c6a5560cd8e
   },
   {
     "id": 3,
