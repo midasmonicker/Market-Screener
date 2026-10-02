@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "date": "2026-10-01",
   "regime": "Bullish",
   "spy_close": 763.99,
@@ -8,14 +7,4 @@
   "pct_universe_above_sma50": 27.0,
   "universe_breadth_n": 5150,
   "generated_at": "2026-10-02T02:35:33.507651+00:00"
-=======
-  "date": "2026-09-30",
-  "regime": "Caution",
-  "spy_close": 762.63,
-  "spy_sma_200": 719.62,
-  "spy_pct_vs_sma200": 5.98,
-  "pct_universe_above_sma50": 26.3,
-  "universe_breadth_n": 5147,
-  "generated_at": "2026-10-01T02:13:50.901386+00:00"
->>>>>>> 6e4abeb (Update with News & other improvements)
 }

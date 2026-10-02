@@ -3626,7 +3626,6 @@
       "high": 36.24,
       "low": 34.96,
       "close": 35.87,
-<<<<<<< HEAD
       "volume": 1042321,
       "vwap": 35.76
     },
@@ -3638,10 +3637,6 @@
       "close": 35.86,
       "volume": 733070,
       "vwap": 35.85
-=======
-      "volume": 1042363,
-      "vwap": 35.78
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "AMPL": [
@@ -16335,7 +16330,6 @@
       "high": 26.31,
       "low": 25.4,
       "close": 25.44,
-<<<<<<< HEAD
       "volume": 552838,
       "vwap": 25.67
     },
@@ -21807,10 +21801,6 @@
       "close": 161.74,
       "volume": 193195,
       "vwap": 160.39
-=======
-      "volume": 552861,
-      "vwap": 25.62
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "DDS": [
@@ -23620,7 +23610,6 @@
       "high": 702.3,
       "low": 669.97,
       "close": 669.99,
-<<<<<<< HEAD
       "volume": 256884,
       "vwap": 682.32
     },
@@ -23632,10 +23621,6 @@
       "close": 646.35,
       "volume": 404055,
       "vwap": 655.69
-=======
-      "volume": 257019,
-      "vwap": 682.53
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "DOCS": [
@@ -25445,7 +25430,6 @@
       "high": 28.63,
       "low": 26.68,
       "close": 28.34,
-<<<<<<< HEAD
       "volume": 4955432,
       "vwap": 28.22
     },
@@ -25457,10 +25441,6 @@
       "close": 28.5,
       "volume": 3340808,
       "vwap": 28.41
-=======
-      "volume": 4955628,
-      "vwap": 28.23
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "DSGR": [
@@ -31911,7 +31891,6 @@
       "high": 9.21,
       "low": 8.12,
       "close": 9.1,
-<<<<<<< HEAD
       "volume": 1279354,
       "vwap": 8.93
     },
@@ -33743,10 +33722,6 @@
       "close": 69.9,
       "volume": 943163,
       "vwap": 69.54
-=======
-      "volume": 1279371,
-      "vwap": 8.94
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "FORM": [
@@ -35556,7 +35531,6 @@
       "high": 150.65,
       "low": 140.14,
       "close": 149.31,
-<<<<<<< HEAD
       "volume": 2289678,
       "vwap": 147.65
     },
@@ -35568,10 +35542,6 @@
       "close": 148.44,
       "volume": 1201207,
       "vwap": 147.66
-=======
-      "volume": 2290406,
-      "vwap": 147.78
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "FPI": [
@@ -42841,7 +42811,6 @@
       "high": 80.63,
       "low": 73.42,
       "close": 79.97,
-<<<<<<< HEAD
       "volume": 783527,
       "vwap": 78.85
     },
@@ -42853,10 +42822,6 @@
       "close": 79.98,
       "volume": 562822,
       "vwap": 79.45
-=======
-      "volume": 783578,
-      "vwap": 78.88
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "ITGR": [
@@ -48306,7 +48271,6 @@
       "high": 29.58,
       "low": 28.17,
       "close": 28.29,
-<<<<<<< HEAD
       "volume": 616808,
       "vwap": 28.82
     },
@@ -53778,10 +53742,6 @@
       "close": 43.64,
       "volume": 351207,
       "vwap": 43.63
-=======
-      "volume": 616842,
-      "vwap": 28.81
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "LXP": [
@@ -59231,7 +59191,6 @@
       "high": 26.11,
       "low": 25.17,
       "close": 25.26,
-<<<<<<< HEAD
       "volume": 2520302,
       "vwap": 25.49
     },
@@ -59243,10 +59202,6 @@
       "close": 25.44,
       "volume": 1743531,
       "vwap": 25.39
-=======
-      "volume": 2520382,
-      "vwap": 25.5
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "MQ": [
@@ -77436,7 +77391,6 @@
       "high": 165.94,
       "low": 138.7,
       "close": 152.99,
-<<<<<<< HEAD
       "volume": 1092058,
       "vwap": 154.42
     },
@@ -77448,10 +77402,6 @@
       "close": 155.8,
       "volume": 316886,
       "vwap": 154.47
-=======
-      "volume": 1092467,
-      "vwap": 154.31
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "RSKD": [
@@ -81081,7 +81031,6 @@
       "high": 158.28,
       "low": 152.81,
       "close": 152.89,
-<<<<<<< HEAD
       "volume": 4456010,
       "vwap": 155.26
     },
@@ -82913,10 +82862,6 @@
       "close": 62.22,
       "volume": 660999,
       "vwap": 61.79
-=======
-      "volume": 4456200,
-      "vwap": 155.29
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "SDGR": [
@@ -84726,7 +84671,6 @@
       "high": 32.45,
       "low": 30.18,
       "close": 31.05,
-<<<<<<< HEAD
       "volume": 3894109,
       "vwap": 31.49
     },
@@ -86558,10 +86502,6 @@
       "close": 490.54,
       "volume": 6669947,
       "vwap": 484.65
-=======
-      "volume": 3894331,
-      "vwap": 31.48
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "TWST": [
@@ -88371,7 +88311,6 @@
       "high": 197.19,
       "low": 187.05,
       "close": 193.24,
-<<<<<<< HEAD
       "volume": 3254951,
       "vwap": 193.27
     },
@@ -90203,10 +90142,6 @@
       "close": 571.38,
       "volume": 1692487,
       "vwap": 575.55
-=======
-      "volume": 3255894,
-      "vwap": 193.24
->>>>>>> 6e4abeb (Update with News & other improvements)
     }
   ],
   "UTZ": [
