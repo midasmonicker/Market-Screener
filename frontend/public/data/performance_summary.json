@@ -21,6 +21,7 @@
     "max_return": null,
     "min_return": null
   },
+<<<<<<< HEAD
   "signal_activity": {
     "as_of": "2026-10-01",
     "today_count": 27,
@@ -28,4 +29,7 @@
   },
   "avg_breakout_gain_pct": null,
   "generated_at": "2026-10-02T02:35:24.121038+00:00"
+=======
+  "generated_at": "2026-10-01T02:13:41.552720+00:00"
+>>>>>>> 6e4abeb (Update with News & other improvements)
 }

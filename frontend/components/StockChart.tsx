@@ -23,6 +23,9 @@ import {
   XCircle,
   AlertTriangle,
   Info,
+  Newspaper,
+  UsersRound,
+  Gauge,
 } from 'lucide-react';
 
 export interface BarData {
@@ -45,6 +48,21 @@ export interface StockChartProps {
   bars: BarData[];
   onClose: () => void;
   signal?: any;
+}
+
+function newsCategoryClass(category: string): string {
+  switch (category) {
+    case 'Earnings/Guidance':
+      return 'bg-amber-500/10 text-amber-300 border-amber-500/30';
+    case 'M&A':
+      return 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30';
+    case 'Analyst Rating':
+      return 'bg-blue-500/10 text-blue-300 border-blue-500/30';
+    case 'Regulatory/FDA':
+      return 'bg-rose-500/10 text-rose-300 border-rose-500/30';
+    default:
+      return 'bg-slate-800 text-slate-300 border-slate-700';
+  }
 }
 
 function calculateSMA(data: BarData[], period: number) {
@@ -155,6 +173,65 @@ function calculateATRStop(data: BarData[], period = 14, multiplier = 2) {
   return result;
 }
 
+export function computeAtrValueFromBars(
+  data: BarData[] | undefined,
+  closePrice: number,
+  atrPercentOverride?: number | null,
+): number {
+  if (Array.isArray(data) && data.length >= 15) {
+    const sorted = [...data].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+    const trs: number[] = [];
+    for (let i = 1; i < sorted.length; i++) {
+      const hl = sorted[i].high - sorted[i].low;
+      const hpc = Math.abs(sorted[i].high - sorted[i - 1].close);
+      const lpc = Math.abs(sorted[i].low - sorted[i - 1].close);
+      trs.push(Math.max(hl, hpc, lpc));
+    }
+    const last14 = trs.slice(-14);
+    if (last14.length > 0) {
+      return last14.reduce((sum, value) => sum + value, 0) / last14.length;
+    }
+  }
+
+  if (atrPercentOverride != null) {
+    return (atrPercentOverride / 100) * closePrice;
+  }
+
+  return closePrice * 0.03;
+}
+
+export function calculateRiskSizing({
+  closePrice,
+  bars,
+  atrPercentOverride,
+  accountSize,
+  riskPct,
+}: {
+  closePrice: number;
+  bars?: BarData[];
+  atrPercentOverride?: number | null;
+  accountSize: number;
+  riskPct: number;
+}) {
+  const atrValue = computeAtrValueFromBars(bars, closePrice, atrPercentOverride);
+  const stopPrice = Math.max(0, closePrice - 2 * atrValue);
+  const riskPerShare = Math.max(0.01, closePrice - stopPrice);
+  const maxDollarRisk = (accountSize * riskPct) / 100;
+  const positionShares = Math.floor(maxDollarRisk / riskPerShare);
+  const positionNotional = positionShares * closePrice;
+
+  return {
+    atrValue,
+    stopPrice,
+    riskPerShare,
+    maxDollarRisk,
+    positionShares,
+    positionNotional,
+  };
+}
+
 export default function StockChart({
   symbol,
   name,
@@ -179,49 +256,38 @@ export default function StockChart({
 
   // Collapsible panels
   const [showWhyTriggered, setShowWhyTriggered] = useState(false);
+  const [showRecentNews, setShowRecentNews] = useState(false);
+  const [showInsiderActivity, setShowInsiderActivity] = useState(false);
+  const [showShortInterest, setShowShortInterest] = useState(false);
   const [showRiskCalc, setShowRiskCalc] = useState(false);
+  const recentNews = Array.isArray(signal?.news) ? signal.news.slice(0, 3) : [];
+  const insiderActivity = Array.isArray(signal?.insider_activity)
+    ? signal.insider_activity
+    : [];
+  const shortInterest = signal?.short_interest || null;
 
   // Risk Calculator inputs
   const [accountSize, setAccountSize] = useState<number>(10000);
   const [riskPct, setRiskPct] = useState<number>(1.0);
 
-  // Compute ATR in dollars from bars or from signal.atr_pct
-  const atrValue = useMemo(() => {
-    if (!bars || bars.length < 15) {
-      if (signal?.atr_pct != null) {
-        return (signal.atr_pct / 100) * closePrice;
-      }
-      return closePrice * 0.03; // fallback 3%
-    }
-    const sorted = [...bars].sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-    const trs: number[] = [];
-    for (let i = 1; i < sorted.length; i++) {
-      const hl = sorted[i].high - sorted[i].low;
-      const hpc = Math.abs(sorted[i].high - sorted[i - 1].close);
-      const lpc = Math.abs(sorted[i].low - sorted[i - 1].close);
-      trs.push(Math.max(hl, hpc, lpc));
-    }
-    const last14 = trs.slice(-14);
-    return last14.reduce((a, b) => a + b, 0) / last14.length;
-  }, [bars, closePrice, signal]);
+  // Shared ATR + sizing logic used by both the chart Risk Box and the portfolio summary.
+  const riskSizing = useMemo(
+    () =>
+      calculateRiskSizing({
+        closePrice,
+        bars,
+        atrPercentOverride: signal?.atr_pct ?? null,
+        accountSize,
+        riskPct,
+      }),
+    [bars, closePrice, signal?.atr_pct, accountSize, riskPct]
+  );
 
-  // Risk values
-  const stopPrice = useMemo(() => {
-    return Math.max(0, closePrice - 2 * atrValue);
-  }, [closePrice, atrValue]);
-
-  const riskPerShare = useMemo(() => {
-    return Math.max(0.01, closePrice - stopPrice);
-  }, [closePrice, stopPrice]);
-
-  const positionShares = useMemo(() => {
-    const maxDollarRisk = (accountSize * riskPct) / 100;
-    return Math.floor(maxDollarRisk / riskPerShare);
-  }, [accountSize, riskPct, riskPerShare]);
-
-  const positionDollars = useMemo(() => {
-    return positionShares * closePrice;
-  }, [positionShares, closePrice]);
+  const atrValue = riskSizing.atrValue;
+  const stopPrice = riskSizing.stopPrice;
+  const riskPerShare = riskSizing.riskPerShare;
+  const positionShares = riskSizing.positionShares;
+  const positionDollars = riskSizing.positionNotional;
 
   useEffect(() => {
     const chartContainer = chartContainerRef.current;
@@ -423,6 +489,15 @@ export default function StockChart({
       passed: (signal?.rs_score ?? 70) >= 70,
     },
     {
+      name: 'RS vs Sector',
+      description: '63-day relative return vs sector ETF',
+      actual: signal?.rs_vs_sector != null
+        ? `${signal.rs_vs_sector >= 0 ? '+' : ''}${signal.rs_vs_sector.toFixed(1)}pp`
+        : '—',
+      threshold: 'Outperforming (≥ 0pp)',
+      passed: signal?.rs_vs_sector == null || signal.rs_vs_sector >= 0,
+    },
+    {
       name: 'Earnings Flag',
       description: 'Proximity to earnings report',
       actual: signal?.near_earnings
@@ -554,9 +629,10 @@ export default function StockChart({
           </div>
 
           {/* Panel Toggle Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setShowWhyTriggered((v) => !v)}
+              aria-expanded={showWhyTriggered}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded border text-xs font-medium transition ${
                 showWhyTriggered
                   ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
@@ -566,6 +642,65 @@ export default function StockChart({
               <Info className="w-3.5 h-3.5" />
               <span>Why It Triggered</span>
               {showWhyTriggered ? (
+                <ChevronUp className="w-3 h-3 ml-0.5" />
+              ) : (
+                <ChevronDown className="w-3 h-3 ml-0.5" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setShowRecentNews((v) => !v)}
+              aria-expanded={showRecentNews}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded border text-xs font-medium transition ${
+                showRecentNews
+                  ? 'border-cyan-500/50 bg-cyan-500/10 text-cyan-300'
+                  : 'border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white'
+              }`}
+            >
+              <Newspaper className="w-3.5 h-3.5" />
+              <span>Recent News</span>
+              <span className="text-[10px] text-slate-400">{recentNews.length}</span>
+              {showRecentNews ? (
+                <ChevronUp className="w-3 h-3 ml-0.5" />
+              ) : (
+                <ChevronDown className="w-3 h-3 ml-0.5" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setShowInsiderActivity((v) => !v)}
+              aria-expanded={showInsiderActivity}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded border text-xs font-medium transition ${
+                showInsiderActivity
+                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300'
+                  : 'border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white'
+              }`}
+            >
+              <UsersRound className="w-3.5 h-3.5" />
+              <span>Insider Activity</span>
+              <span className="text-[10px] text-slate-400">{insiderActivity.length}</span>
+              {showInsiderActivity ? (
+                <ChevronUp className="w-3 h-3 ml-0.5" />
+              ) : (
+                <ChevronDown className="w-3 h-3 ml-0.5" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setShowShortInterest((v) => !v)}
+              aria-expanded={showShortInterest}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded border text-xs font-medium transition ${
+                showShortInterest
+                  ? 'border-indigo-500/50 bg-indigo-500/10 text-indigo-300'
+                  : 'border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white'
+              }`}
+            >
+              <Gauge className="w-3.5 h-3.5" />
+              <span>Short Interest</span>
+              {shortInterest?.days_to_cover != null && (
+                <span className="text-[10px] text-slate-400 font-mono">{shortInterest.days_to_cover.toFixed(1)}d</span>
+              )}
+              {showShortInterest ? (
                 <ChevronUp className="w-3 h-3 ml-0.5" />
               ) : (
                 <ChevronDown className="w-3 h-3 ml-0.5" />
@@ -639,6 +774,198 @@ export default function StockChart({
               ))}
             </div>
           </div>
+        )}
+
+        {showRecentNews && (
+          <section
+            aria-label="Recent News"
+            className="px-5 py-3 bg-[#0a0e1a] border-b border-slate-800 text-xs animate-in slide-in-from-top-1 duration-150"
+          >
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <h4 className="font-semibold text-slate-300 uppercase tracking-wider text-[10px]">
+                Recent News
+              </h4>
+              <span className="text-[10px] text-slate-500">Most recent headlines</span>
+            </div>
+            {recentNews.length === 0 ? (
+              <p className="py-3 text-center text-slate-500">
+                No recent company news found for {symbol}.
+              </p>
+            ) : (
+              <ul className="divide-y divide-slate-800/80">
+                {recentNews.map((article: any, index: number) => (
+                  <li key={`${article.url || article.headline}-${index}`} className="py-2 first:pt-0 last:pb-0">
+                    <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
+                      <span className={`inline-flex border rounded px-1.5 py-0.5 text-[9px] font-semibold ${newsCategoryClass(article.category)}`}>
+                        {article.category || 'Other'}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        {article.url ? (
+                          <a
+                            href={article.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-slate-100 hover:text-cyan-300 underline decoration-slate-600 underline-offset-2"
+                          >
+                            {article.headline}
+                          </a>
+                        ) : (
+                          <span className="text-slate-100">{article.headline}</span>
+                        )}
+                        <p className="mt-1 text-[10px] text-slate-500">
+                          {[article.source, article.date].filter(Boolean).join(' · ')}
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+
+        {showInsiderActivity && (
+          <section
+            id="insider-activity-panel"
+            aria-label="Insider Activity"
+            className="px-5 py-3 bg-[#0a0e1a] border-b border-slate-800 text-xs animate-in slide-in-from-top-1 duration-150"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <h4 className="font-semibold text-slate-300 uppercase tracking-wider text-[10px]">
+                Insider Activity
+              </h4>
+              {signal?.insider_cluster && insiderActivity.length > 1 && (
+                <span className="inline-flex items-center gap-1 border border-amber-500/40 rounded px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 bg-amber-500/10">
+                  Multiple insiders bought
+                </span>
+              )}
+            </div>
+            {insiderActivity.length === 0 ? (
+              <p className="py-3 text-center text-slate-500">
+                No qualifying open-market purchases found for {symbol} in the last 21 calendar days.
+              </p>
+            ) : (
+              <ul className="divide-y divide-slate-800/80">
+                {insiderActivity.map((purchase: any, index: number) => {
+                  const roles = Array.isArray(purchase.relationships)
+                    ? purchase.relationships
+                    : [];
+                  const roleLabel = [purchase.title, ...roles].filter(Boolean).join(' · ') || 'Insider';
+                  const purchaseValue = purchase.total_value == null
+                    ? 'Value unavailable'
+                    : new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                      }).format(purchase.total_value);
+
+                  return (
+                    <li
+                      key={`${purchase.name || 'insider'}-${purchase.transaction_date}-${index}`}
+                      className="py-2 first:pt-0 last:pb-0"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-100">
+                            {purchase.name || 'Reporting insider'}
+                          </p>
+                          <p className="mt-0.5 text-[10px] text-slate-400">{roleLabel}</p>
+                        </div>
+                        <div className="text-right font-mono text-[10px] text-slate-300">
+                          <p>{purchase.transaction_date}</p>
+                          <p className="mt-0.5">
+                            {Number(purchase.shares).toLocaleString('en-US', { maximumFractionDigits: 2 })} shares
+                            {purchase.price_per_share == null
+                              ? ''
+                              : ` at $${Number(purchase.price_per_share).toFixed(2)}`}
+                          </p>
+                          <p className="mt-0.5 text-amber-300">{purchaseValue}</p>
+                        </div>
+                      </div>
+                      {purchase.filing_url && (
+                        <a
+                          href={purchase.filing_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-block text-[10px] text-cyan-300 hover:text-cyan-200 underline decoration-slate-600 underline-offset-2"
+                        >
+                          SEC Form 4{purchase.filing_date ? ` · Filed ${purchase.filing_date}` : ''}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        )}
+
+        {showShortInterest && (
+          <section
+            id="short-interest-panel"
+            aria-label="Short Interest"
+            className="px-5 py-3 bg-[#0a0e1a] border-b border-slate-800 text-xs animate-in slide-in-from-top-1 duration-150"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <h4 className="font-semibold text-slate-300 uppercase tracking-wider text-[10px]">
+                  Short Interest Overview
+                </h4>
+                {shortInterest?.settlement_date && (
+                  <span className="inline-flex items-center gap-1 border border-indigo-500/30 rounded px-1.5 py-0.5 text-[9px] font-medium text-indigo-300 bg-indigo-500/10">
+                    As of {shortInterest.settlement_date} (data lags ~1–2 weeks)
+                  </span>
+                )}
+              </div>
+              {shortInterest?.days_to_cover != null && shortInterest.days_to_cover >= 5.0 && (
+                <span className="inline-flex items-center gap-1 border border-amber-500/40 rounded px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 bg-amber-500/10">
+                  Elevated short squeeze risk (DTC ≥ 5d)
+                </span>
+              )}
+            </div>
+
+            {!shortInterest ? (
+              <p className="py-3 text-center text-slate-500">
+                No short interest data available for {symbol}.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Days to Cover */}
+                <div className="bg-[#0c121e] border border-slate-800 rounded p-2.5">
+                  <span className="text-[10px] uppercase text-slate-500 block mb-0.5">Days to Cover</span>
+                  <span className="font-mono font-bold text-slate-100 text-sm">
+                    {shortInterest.days_to_cover != null ? `${shortInterest.days_to_cover.toFixed(2)} days` : 'N/A'}
+                  </span>
+                  <span className="text-[9px] text-slate-500 block font-mono mt-0.5">
+                    Shares short / Avg daily vol
+                  </span>
+                </div>
+
+                {/* Shares Short */}
+                <div className="bg-[#0c121e] border border-slate-800 rounded p-2.5">
+                  <span className="text-[10px] uppercase text-slate-500 block mb-0.5">Shares Short</span>
+                  <span className="font-mono font-bold text-slate-100 text-sm">
+                    {Number(shortInterest.shares_short).toLocaleString('en-US')}
+                  </span>
+                  <span className="text-[9px] text-slate-500 block font-mono mt-0.5">
+                    {shortInterest.change_pct != null
+                      ? `${shortInterest.change_pct >= 0 ? '+' : ''}${shortInterest.change_pct.toFixed(2)}% vs prior period`
+                      : 'Total open positions'}
+                  </span>
+                </div>
+
+                {/* Settlement Date & Staleness */}
+                <div className="bg-[#0c121e] border border-slate-800 rounded p-2.5">
+                  <span className="text-[10px] uppercase text-slate-500 block mb-0.5">Settlement Date</span>
+                  <span className="font-mono font-bold text-amber-300 text-sm">
+                    {shortInterest.settlement_date}
+                  </span>
+                  <span className="text-[9px] text-slate-400 block font-sans mt-0.5">
+                    Official FINRA report (~1–2 wk lag)
+                  </span>
+                </div>
+              </div>
+            )}
+          </section>
         )}
 
         {/* Collapsible Panel: Risk Calculator */}

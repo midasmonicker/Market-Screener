@@ -43,6 +43,7 @@ A Python-based **daily momentum stock screener** that:
 | Phase 17 | Responsive Column Prioritization: Optimized signals table for viewport widths under 768px (`md:`). Collapses to 4 essential columns (Symbol, Price, RVOL, Score) + chevron expand toggle. Expanding a row reveals the full breakdown (Date, 1d Chg, RSI, ATR%, 20d $ Vol, RS vs SPY, Streak, Earnings, 52w High Dist, MA Alignment) in a stacked drawer with direct chart trigger, preventing horizontal scroll on mobile. | ✅ Complete |
 | Phase 18 | Lightweight Charts sizing: positioned the chart host to fill its chart region and added ResizeObserver-based initial sizing and resize handling. | ✅ Complete |
 | Phase 19 | Corrected “20-day High Proximity” detail display: persist and export trigger-date `dist_to_20d_high_pct`; keep 52-week distance under its own label. Verified with a clean production build and `next start`; ROG displays +9.7%. | ✅ Complete |
+| Phase 20 | Frontend Bug Fixes & Dashboard Data Accuracy: symbol deduplication on fetch, performance metrics sourced from `performance_summary.json`, exchange-aware watchlist copy, ResizeObserver chart resize, stable container ref, `absolute inset-0` chart host, 20d-high-proximity detail fix. | ✅ Complete |
 | Deployment | GitHub Actions CI/CD (`.github/workflows/daily_screener.yml`) — cron `30 22 * * 1-5` (22:30 UTC Mon–Fri) | ✅ Deployed |
 
 ---
@@ -648,3 +649,45 @@ Always prefix Next.js/npm commands with the PATH override above, or call `npm.cm
 - With Min RVOL set to 3.0x, the table showed 2 of 27 and the copy action produced `NYSE:ROG, NYSE:CAAP` (2 tickers).
 - Direct fetch of `latest_signals.json` returned 29 records across two dates, with `primary_exchange` present on every record. The table now keeps the newest signal per symbol, and the dashboard tolerates older `performance_summary.json` files without `signal_activity`.
 
+## 14. Disclaimer and Company News (2026-10-01)
+- Added an always-visible, non-dismissible financial disclaimer inside the sticky dashboard header.
+- Added Finnhub `/company-news` enrichment for signal-producing symbols only: seven-day lookback, three headlines maximum, per-symbol four-hour cache, heuristic catalyst categories, 40-lookup cap, and 45-second budget. Earnings and news now share one paced request helper with a 1.1-second minimum interval and the existing 429 retry/backoff.
+- Exported headline, source, URL, date, and category on each signal. Added the Recent News disclosure beside Why It Triggered, including linked category-tagged items and a no-news empty state.
+- A real 27-symbol refresh returned 58 headlines for 22 symbols; five had no news. Browser verification on the clean production build showed three real AMPL articles with `Other`, `Earnings/Guidance`, and `Analyst Rating` categories; ROG rendered the empty state in an earlier no-news check. The disclaimer was visible on the dashboard.
+- Resolved 43 committed conflict blocks in `latest_signals.json` by keeping the current HEAD side; validated 29 records, 27 symbols, and all exchange/high-proximity fields before enriching the snapshot with news.
+- Deleted `.next` before the final production build. Build passed compilation, lint/type checks, static generation, and build-trace collection.
+
+## 15. Generated Web Data Policy (2026-10-01)
+- `frontend/public/data/*.json` files are generated outputs from the backend export and are committed by the scheduled Actions workflow for static frontend rendering. They are not source files; do not hand-edit them for changes that will be committed.
+- For one-off local tests, prefer fixtures or an in-memory Playwright response override. If a local payload must be changed, keep it out of commits and restore it before pushing.
+- `frontend/scripts/validate-data-json.mjs` recursively parses every JSON payload and rejects literal Git conflict markers. It runs before the daily bot commit and in frontend push/PR CI. The repository has no existing pre-commit hook or contributor guide.
+- The repository has no Vercel configuration or deployment workflow. Replacing committed static payloads with deploy-time artifacts would require adding an authenticated deployment/upload path and coordinating it with frontend builds; defer that larger change until deployment ownership and target are established.
+
+## 16. SEC Insider Activity (2026-10-01)
+- SEC source paths: `https://www.sec.gov/files/company_tickers.json`, `https://data.sec.gov/submissions/CIK##########.json`, and the raw filing submission at `/Archives/edgar/data/{CIK}/{accession-without-dashes}/{accession}.txt`. The raw `.txt` contains the parseable `<ownershipDocument>`; the corresponding primary `.xml` path may be served as rendered HTML.
+- All SEC requests use `User-Agent: Market Screener michaelonyeweke@yahoo.com` and a 0.35-second minimum inter-request delay. CIK associations persist in `backend/.cache`; per-symbol insider results cache for four hours.
+- Only screened signals are queried. The default lookback is 21 calendar days; only non-derivative transaction code `P` with acquired/disposed code `A` is included. The export carries `insider_activity` and `insider_cluster`; SEC failures leave empty activity without blocking signal persistence.
+- Real SEC PGEN Form 4 check: Director AGEE NANCY H bought 3,411 shares on 2026-08-21 at $7.23 ($24,661.53), filed 2026-08-25. This predates the production lookback; it was injected only through an in-memory browser response to verify the populated panel. PGEN is empty in the live 21-day lookup; ROG’s real browser modal showed the empty state.
+- After deleting `frontend/.next`, the clean Next.js production build passed compilation, lint/type checks, static generation, and trace collection. Browser verification used `http://localhost:3001`; no changes were made to the existing Finnhub news or earnings helpers.
+
+## 17. FINRA Consolidated Short Interest (2026-10-01)
+- FINRA Regulation Short Interest file (bi-monthly settlement, EoD) is parsed and stored. The consolidated file (~22,595 securities per settlement date) is ingested into the `short_interest` SQLite table (`symbol`, `settlement_date`, `current_short_position`, `previous_short_position`, `avg_daily_volume`, `days_to_cover`, `change_pct`, `market_class`). Signal enrichment performs an instant local SQLite indexed query (`idx_short_interest_sym_date`).
+- **Conditional Refresh**: `refresh_short_interest_data(as_of_date)` compares `MAX(settlement_date)` in SQLite against the latest available published FINRA date (e.g. 2026-09-15). Re-downloads only when a new settlement period is published; skips download when already up to date.
+- **Frontend Panel**: Added `Short Interest` disclosure panel in `frontend/components/StockChart.tsx` displaying Days to Cover (DTC), Shares Short (with % change vs prior period), % Float Short, and prominently displays the settlement date with an explicit staleness disclaimer: `As of YYYY-MM-DD (data lags ~1–2 weeks)`. Displays an alert pill when DTC >= 5.0d indicating elevated squeeze risk. Renders a clean empty state (`No short interest data available for {symbol}`) if no record exists.
+- **Production Build & Browser Verification**: Next.js production build succeeded with 0 errors after deleting `.next`. Automated Chrome CDP verification at `http://localhost:3001` confirmed both populated rendering (ROG: DTC 4.05d, 629,013 shares short, +9.19%, as of 2026-09-15) and clean empty state rendering.
+
+## 18. Frontend Bug Fixes & Dashboard Data Accuracy (2026-10-02)
+Resolved a suite of frontend rendering bugs in `frontend/app/page.tsx` and `frontend/components/StockChart.tsx`:
+
+### `page.tsx` Fixes
+- **Deduplication on load**: Signals are now deduplicated by symbol client-side on fetch — only the most recent signal per ticker (by `timestamp`) is kept in state. Previously all historical signals were rendered, inflating the "Showing N of N setups" count.
+- **Performance metrics sourced from backend**: `todayCount`, `avg30Count`, and `avgBreakoutGain` now come from `performance_summary.json` (`signal_activity.today_count`, `signal_activity.avg_per_signal_day_30d`, `avg_breakout_gain_pct`) rather than being re-derived client-side from the limited `latest_signals.json` window. The `performance_summary.json` fetch was added to the parallel load block.
+- **Watchlist copy deduplication**: `handleCopyTradingViewWatchlist` now filters duplicates from `displaySignals` using a `Set` before formatting, preventing repeated tickers in the clipboard output.
+- **Exchange-aware watchlist**: `formatTradingViewSymbol` is now called with `signal.primary_exchange` (the Polygon MIC code) rather than `signal.sector`, fixing incorrect exchange prefix mapping.
+- **Null-safe metric cards**: `todayCount` and `avg30Count` are guarded for `null`/undefined before rendering; the signal summary line now reads from `performanceSummary.total_signals` with a fallback message.
+
+### `StockChart.tsx` Fixes
+- **Chart resize via ResizeObserver**: Replaced `window.addEventListener('resize', ...)` with a `ResizeObserver` on the chart container `div`, giving accurate resize events without relying on the window-level event. The observer is disconnected on cleanup.
+- **Stable container ref in closure**: The `chartContainerRef.current` value is captured into a local `chartContainer` variable at the top of the `useEffect` to prevent stale-ref issues in the cleanup function.
+- **Chart host uses `absolute inset-0`**: Changed `className="w-full h-full"` to `className="absolute inset-0"` on the chart container `div`, ensuring the chart fills its absolutely-positioned host region correctly.
+- **20-day High Proximity fix**: `dist_to_20d_high_pct` is now used for the "20-day High Proximity" trigger detail (was incorrectly using `dist_to_52w_high_pct`). Sign-formatted as `+X.X%` / `-X.X%`; `passed` reflects whether the value is ≥ -1 (within 1% of 20d high), or defaults `true` when null.

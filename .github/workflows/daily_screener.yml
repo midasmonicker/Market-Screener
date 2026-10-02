@@ -113,6 +113,9 @@ jobs:
         run: |
           cd backend && python run_daily.py
 
+      - name: Validate generated web data
+        run: node frontend/scripts/validate-data-json.mjs
+
       - name: Commit and push web data to main
         run: |
           git config user.name "github-actions[bot]"

@@ -21,8 +21,11 @@ import {
   AlertTriangle,
   Bookmark,
   Trash2,
+  ShieldAlert,
+  DollarSign,
+  PieChart,
 } from 'lucide-react';
-import type { BarData } from '../components/StockChart';
+import { calculateRiskSizing, type BarData } from '../components/StockChart';
 
 // Dynamic imports to prevent SSR issues
 const StockChart = dynamic(() => import('../components/StockChart'), { ssr: false });
@@ -35,6 +38,28 @@ interface MAAlignment {
   ema20?: number | null;
   sma50?: number | null;
   sma200?: number | null;
+}
+
+interface InsiderPurchase {
+  name: string | null;
+  title: string | null;
+  relationships: string[];
+  transaction_date: string;
+  shares: number;
+  price_per_share: number | null;
+  total_value: number | null;
+  security?: string | null;
+  filing_date?: string;
+  filing_url?: string;
+}
+
+interface ShortInterest {
+  shares_short: number;
+  days_to_cover: number | null;
+  short_percent_of_float: number | null;
+  settlement_date: string;
+  change_pct?: number | null;
+  market_class?: string | null;
 }
 
 interface Signal {
@@ -61,9 +86,13 @@ interface Signal {
   atr_pct?: number | null;
   avg_dollar_vol_20d?: number | null;
   rs_vs_spy?: number | null;
+  rs_vs_sector?: number | null;
   dist_to_20d_high_pct?: number | null;
   dist_to_52w_high_pct?: number | null;
   primary_exchange?: string | null;
+  insider_activity?: InsiderPurchase[];
+  insider_cluster?: boolean;
+  short_interest?: ShortInterest | null;
   near_earnings?: boolean;
   earnings_date?: string | null;
   composite_score?: number | null;
@@ -134,6 +163,7 @@ type SortColumn =
   | 'atr_pct'
   | 'avg_dollar_vol_20d'
   | 'rs_vs_spy'
+  | 'rs_vs_sector'
   | 'composite_score'
   | 'signal_streak'
   | 'near_earnings';
@@ -241,6 +271,27 @@ export default function DashboardPage() {
       }
       return next;
     });
+  };
+
+  // Feature 2: Portfolio-level risk management & selection state
+  const [selectedSignalKeys, setSelectedSignalKeys] = useState<Set<string>>(new Set());
+  const [portfolioAccountSize, setPortfolioAccountSize] = useState<number>(10000);
+  const [portfolioRiskPct, setPortfolioRiskPct] = useState<number>(1.0);
+
+  const toggleSignalSelection = (rowKey: string) => {
+    setSelectedSignalKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(rowKey)) {
+        next.delete(rowKey);
+      } else {
+        next.add(rowKey);
+      }
+      return next;
+    });
+  };
+
+  const clearSignalSelection = () => {
+    setSelectedSignalKeys(new Set());
   };
 
   // Load presets from localStorage
@@ -427,6 +478,76 @@ export default function DashboardPage() {
     });
   }, [signals, searchQuery, selectedSector, minRVOL, minScore, hideEarnings, sortCol, sortDir]);
 
+  // Feature 2: Running tally and sector breakdown across selected signals
+  const portfolioRiskStats = useMemo(() => {
+    // Map signal keys to all signals
+    const allSignalsMap = new Map<string, Signal>();
+    signals.forEach((s) => {
+      const key = `${s.symbol}-${s.id}-${s.timestamp}`;
+      allSignalsMap.set(key, s);
+    });
+
+    const displayKeys = new Set(displaySignals.map((s) => `${s.symbol}-${s.id}-${s.timestamp}`));
+
+    let totalDollarRisk = 0;
+    let totalPositionNotional = 0;
+    let totalPositionShares = 0;
+    const sectorNotionals: Record<string, number> = {};
+    const selectedSignals: Signal[] = [];
+    let hiddenCount = 0;
+
+    selectedSignalKeys.forEach((key) => {
+      const sig = allSignalsMap.get(key);
+      if (!sig) return;
+      selectedSignals.push(sig);
+
+      if (!displayKeys.has(key)) {
+        hiddenCount += 1;
+      }
+
+      const closePrice = sig.close_price || 0;
+      const barsForSignal = barsMap[sig.symbol] ?? [];
+      const sizing = calculateRiskSizing({
+        closePrice,
+        bars: barsForSignal,
+        atrPercentOverride: sig.atr_pct ?? null,
+        accountSize: portfolioAccountSize,
+        riskPct: portfolioRiskPct,
+      });
+
+      totalDollarRisk += sizing.maxDollarRisk;
+      totalPositionNotional += sizing.positionNotional;
+      totalPositionShares += sizing.positionShares;
+
+      const sec = sig.sector || 'Unknown';
+      sectorNotionals[sec] = (sectorNotionals[sec] || 0) + sizing.positionNotional;
+    });
+
+    // Sector breakdown percentages
+    const sectorBreakdown: Array<{ sector: string; notional: number; pct: number }> = [];
+    if (totalPositionNotional > 0) {
+      for (const [sec, notional] of Object.entries(sectorNotionals)) {
+        sectorBreakdown.push({
+          sector: sec,
+          notional,
+          pct: (notional / totalPositionNotional) * 100,
+        });
+      }
+      sectorBreakdown.sort((a, b) => b.notional - a.notional);
+    }
+
+    return {
+      selectedCount: selectedSignals.length,
+      hiddenCount,
+      totalDollarRisk,
+      totalRiskPct: portfolioAccountSize > 0 ? (totalDollarRisk / portfolioAccountSize) * 100 : 0,
+      totalPositionNotional,
+      totalPositionShares,
+      sectorBreakdown,
+      selectedSignals,
+    };
+  }, [signals, displaySignals, selectedSignalKeys, portfolioAccountSize, portfolioRiskPct]);
+
   // Copy TradingView Watchlist
   const handleCopyTradingViewWatchlist = async () => {
     const seenSymbols = new Set<string>();
@@ -561,6 +682,11 @@ export default function DashboardPage() {
               <span className="font-semibold text-xs">Automated</span>
             </div>
           </div>
+        </div>
+        <div className="border-t border-slate-800/60">
+          <p className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1 text-[10px] leading-4 text-slate-400">
+            Not financial advice. Signals are for informational and educational purposes only.
+          </p>
         </div>
       </header>
 
@@ -826,6 +952,194 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        {/* Feature 2: Portfolio-Level Risk Panel */}
+        {portfolioRiskStats.selectedCount > 0 && (
+          <section className="bg-gradient-to-r from-slate-900 via-[#0e1628] to-slate-900 border border-slate-700/80 rounded-xl p-4 shadow-xl text-xs animate-in slide-in-from-top-2 duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+              <div className="flex items-center space-x-2">
+                <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                  <ShieldAlert className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                    Portfolio Risk View
+                    <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                      {portfolioRiskStats.selectedCount} signal{portfolioRiskStats.selectedCount > 1 ? 's' : ''} selected
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    Running risk aggregate & sector concentration across planned positions
+                  </p>
+                </div>
+              </div>
+
+              {/* Account Size & Risk % Inputs */}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-slate-400">Account:</span>
+                  <div className="flex items-center bg-[#090d16] border border-slate-700 rounded-lg px-2 py-1">
+                    <span className="text-slate-500 mr-1">$</span>
+                    <input
+                      type="number"
+                      value={portfolioAccountSize}
+                      onChange={(e) => setPortfolioAccountSize(Math.max(100, Number(e.target.value) || 0))}
+                      className="bg-transparent text-slate-100 w-20 text-xs font-mono focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-slate-400">Risk/Trade:</span>
+                  <div className="flex items-center bg-[#090d16] border border-slate-700 rounded-lg px-2 py-1">
+                    <input
+                      type="number"
+                      step="0.25"
+                      value={portfolioRiskPct}
+                      onChange={(e) => setPortfolioRiskPct(Math.max(0.1, Number(e.target.value) || 0))}
+                      className="bg-transparent text-slate-100 w-12 text-xs font-mono focus:outline-none"
+                    />
+                    <span className="text-slate-500 ml-1">%</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={clearSignalSelection}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium transition"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+
+            {/* Hidden Signals Warning Banner if current filters hide selected setups */}
+            {portfolioRiskStats.hiddenCount > 0 && (
+              <div className="mt-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                  <span>
+                    <strong>{portfolioRiskStats.hiddenCount}</strong> selected signal{portfolioRiskStats.hiddenCount > 1 ? 's are' : ' is'} hidden by active table filters, but retained in risk tally.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedSector('ALL');
+                    setMinRVOL(1.5);
+                    setMinScore(0);
+                    setHideEarnings(false);
+                    setSearchQuery('');
+                  }}
+                  className="text-amber-300 underline hover:text-amber-200 text-[11px] whitespace-nowrap ml-2"
+                >
+                  Reset filters to reveal
+                </button>
+              </div>
+            )}
+
+            {/* Key Totals Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+              <div className="bg-[#090d16]/80 p-2.5 rounded-lg border border-slate-800/80">
+                <span className="text-[10px] uppercase text-slate-400 block font-medium">Total \$ Risk</span>
+                <span className="text-base font-bold font-mono text-rose-400">
+                  \${portfolioRiskStats.totalDollarRisk.toFixed(2)}
+                </span>
+                <span className="text-[10px] text-slate-500 block font-mono">
+                  {portfolioRiskStats.totalRiskPct.toFixed(1)}% of account
+                </span>
+              </div>
+
+              <div className="bg-[#090d16]/80 p-2.5 rounded-lg border border-slate-800/80">
+                <span className="text-[10px] uppercase text-slate-400 block font-medium">Total Notional</span>
+                <span className="text-base font-bold font-mono text-slate-100">
+                  \${portfolioRiskStats.totalPositionNotional.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                <span className="text-[10px] text-slate-500 block font-mono">
+                  {portfolioAccountSize > 0
+                    ? `${((portfolioRiskStats.totalPositionNotional / portfolioAccountSize) * 100).toFixed(0)}% leverage/capital`
+                    : '—'}
+                </span>
+              </div>
+
+              <div className="bg-[#090d16]/80 p-2.5 rounded-lg border border-slate-800/80">
+                <span className="text-[10px] uppercase text-slate-400 block font-medium">Total Shares</span>
+                <span className="text-base font-bold font-mono text-cyan-400">
+                  {portfolioRiskStats.totalPositionShares.toLocaleString()}
+                </span>
+                <span className="text-[10px] text-slate-500 block font-mono">
+                  Across {portfolioRiskStats.selectedCount} positions
+                </span>
+              </div>
+
+              <div className="bg-[#090d16]/80 p-2.5 rounded-lg border border-slate-800/80">
+                <span className="text-[10px] uppercase text-slate-400 block font-medium">Top Concentration</span>
+                {portfolioRiskStats.sectorBreakdown.length > 0 ? (
+                  <>
+                    <span className="text-base font-bold font-mono text-amber-400 truncate block">
+                      {portfolioRiskStats.sectorBreakdown[0].pct.toFixed(0)}% {portfolioRiskStats.sectorBreakdown[0].sector}
+                    </span>
+                    <span className="text-[10px] text-slate-500 block font-mono truncate">
+                      \${portfolioRiskStats.sectorBreakdown[0].notional.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-slate-600 font-mono">—</span>
+                )}
+              </div>
+            </div>
+
+            {/* Sector Concentration Breakdown Bar & Chips */}
+            {portfolioRiskStats.sectorBreakdown.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-slate-800/80">
+                <div className="flex items-center justify-between text-[11px] mb-1.5">
+                  <span className="text-slate-400 flex items-center gap-1 font-medium">
+                    <PieChart className="w-3.5 h-3.5 text-slate-400" /> Sector Exposure Breakdown:
+                  </span>
+                  <span className="text-slate-500 font-mono text-[10px]">
+                    {portfolioRiskStats.sectorBreakdown.length} sector{portfolioRiskStats.sectorBreakdown.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                <div
+                  role="img"
+                  aria-label={portfolioRiskStats.sectorBreakdown
+                    .map((item) => `${item.sector} ${item.pct.toFixed(1)}%`)
+                    .join(', ')}
+                  className="flex h-2 w-full overflow-hidden rounded-full bg-slate-800/80 mb-2"
+                >
+                  {portfolioRiskStats.sectorBreakdown.map((item) => (
+                    <span
+                      key={item.sector}
+                      title={`${item.sector}: ${item.pct.toFixed(1)}%`}
+                      className={item.pct >= 50 ? 'bg-amber-400' : 'bg-slate-500'}
+                      style={{ width: `${item.pct}%` }}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {portfolioRiskStats.sectorBreakdown.map((item) => (
+                    <div
+                      key={item.sector}
+                      className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md border text-xs font-mono ${
+                        item.pct >= 50
+                          ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
+                          : 'bg-slate-800/60 border-slate-700/80 text-slate-300'
+                      }`}
+                    >
+                      <span className="font-sans font-medium text-slate-200">{item.sector}:</span>
+                      <span className="font-bold">{item.pct.toFixed(1)}%</span>
+                      <span className="text-slate-400 text-[10px]">
+                        (\${item.notional.toLocaleString(undefined, { maximumFractionDigits: 0 })})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
         {/* Signals Table */}
         <section className="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden shadow-lg">
           {hasUnscoredSignals && (
@@ -892,6 +1206,36 @@ export default function DashboardPage() {
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="bg-[#0a0f1d] text-slate-400 border-b border-slate-800 text-[11px] uppercase tracking-wider font-semibold">
+                    <th className="py-3 px-3 w-8 text-center" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        aria-label="Select all visible signals"
+                        checked={
+                          displaySignals.length > 0 &&
+                          displaySignals.every((s) =>
+                            selectedSignalKeys.has(`${s.symbol}-${s.id}-${s.timestamp}`)
+                          )
+                        }
+                        onChange={(e) => {
+                          const allChecked = displaySignals.every((s) =>
+                            selectedSignalKeys.has(`${s.symbol}-${s.id}-${s.timestamp}`)
+                          );
+                          setSelectedSignalKeys((prev) => {
+                            const next = new Set(prev);
+                            displaySignals.forEach((s) => {
+                              const key = `${s.symbol}-${s.id}-${s.timestamp}`;
+                              if (allChecked) {
+                                next.delete(key);
+                              } else {
+                                next.add(key);
+                              }
+                            });
+                            return next;
+                          });
+                        }}
+                        className="w-3.5 h-3.5 accent-emerald-500 rounded bg-[#090d16] border-slate-700 cursor-pointer"
+                      />
+                    </th>
                     <SortHeader col="symbol" label="Ticker" />
                     <SortHeader col="timestamp" label="Date" className="hidden md:table-cell" />
                     <SortHeader col="close_price" label="Price" align="right" />
@@ -901,6 +1245,7 @@ export default function DashboardPage() {
                     <SortHeader col="atr_pct" label="ATR%" align="right" className="hidden md:table-cell" />
                     <SortHeader col="avg_dollar_vol_20d" label="$ Vol (20d)" align="right" className="hidden md:table-cell" />
                     <SortHeader col="rs_vs_spy" label="RS vs SPY" align="center" className="hidden md:table-cell" />
+                    <SortHeader col="rs_vs_sector" label="RS vs Sector" align="center" className="hidden md:table-cell" />
                     <SortHeader col="composite_score" label="Score" align="center" />
                     <SortHeader col="signal_streak" label="Streak" align="center" className="hidden md:table-cell" />
                     <SortHeader col="near_earnings" label="Earnings" align="center" className="hidden md:table-cell" />
@@ -927,6 +1272,24 @@ export default function DashboardPage() {
                             isExpanded ? 'bg-slate-800/20' : ''
                           }`}
                         >
+                          {/* 0. Row Selection Checkbox */}
+                          <td
+                            className="py-3 px-3 text-center"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSignalSelection(rowKey);
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              aria-label={`Select ${sig.symbol}`}
+                              checked={selectedSignalKeys.has(rowKey)}
+                              onChange={() => toggleSignalSelection(rowKey)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-3.5 h-3.5 accent-emerald-500 rounded bg-[#090d16] border-slate-700 cursor-pointer"
+                            />
+                          </td>
+
                           {/* 1. Ticker / Company (Mobile: always visible) */}
                           <td className="py-3 px-3 font-sans">
                             <div className="flex items-center space-x-2">
@@ -1012,6 +1375,24 @@ export default function DashboardPage() {
                               >
                                 {sig.rs_vs_spy >= 0 ? '+' : ''}
                                 {sig.rs_vs_spy.toFixed(1)}pp
+                              </span>
+                            ) : (
+                              <span className="text-slate-600">—</span>
+                            )}
+                          </td>
+
+                          {/* 9b. RS vs Sector (Desktop only) */}
+                          <td className="py-3 px-3 text-center hidden md:table-cell">
+                            {sig.rs_vs_sector != null ? (
+                              <span
+                                className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold ${
+                                  sig.rs_vs_sector >= 0
+                                    ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-rose-950/60 text-rose-300 border border-rose-500/30'
+                                }`}
+                              >
+                                {sig.rs_vs_sector >= 0 ? '+' : ''}
+                                {sig.rs_vs_sector.toFixed(1)}pp
                               </span>
                             ) : (
                               <span className="text-slate-600">—</span>
@@ -1109,7 +1490,7 @@ export default function DashboardPage() {
                         {/* Mobile Expanded Details Drawer (<768px only) */}
                         {isExpanded && (
                           <tr className="md:hidden bg-[#090d16]/95 border-b border-slate-800 font-sans">
-                            <td colSpan={5} className="p-3">
+                            <td colSpan={6} className="p-3">
                               <div className="bg-[#0c1322] border border-slate-800/90 rounded-lg p-3.5 space-y-3">
                                 <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                                   <div>
@@ -1193,6 +1574,20 @@ export default function DashboardPage() {
                                       {sig.rs_vs_spy != null ? (
                                         <span className={sig.rs_vs_spy >= 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
                                           {sig.rs_vs_spy >= 0 ? '+' : ''}{sig.rs_vs_spy.toFixed(1)}pp
+                                        </span>
+                                      ) : (
+                                        <span className="text-slate-600">—</span>
+                                      )}
+                                    </span>
+                                  </div>
+
+                                  {/* RS vs Sector */}
+                                  <div className="flex justify-between items-center py-0.5 border-b border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px]">RS vs Sector</span>
+                                    <span className="font-mono text-[11px]">
+                                      {sig.rs_vs_sector != null ? (
+                                        <span className={sig.rs_vs_sector >= 0 ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
+                                          {sig.rs_vs_sector >= 0 ? '+' : ''}{sig.rs_vs_sector.toFixed(1)}pp
                                         </span>
                                       ) : (
                                         <span className="text-slate-600">—</span>

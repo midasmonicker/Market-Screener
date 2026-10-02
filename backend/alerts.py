@@ -85,6 +85,7 @@ def get_recent_signals(date_str=None, limit=20):
             "pct_change_1d":        parsed_details.get("pct_change_1d"),
             "atr_pct":              parsed_details.get("atr_pct"),
             "rs_vs_spy":            parsed_details.get("rs_vs_spy"),
+            "rs_vs_sector":         parsed_details.get("rs_vs_sector"),
             "dist_to_52w_high_pct": parsed_details.get("dist_to_52w_high_pct"),
         })
     return signals
