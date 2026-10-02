@@ -1,5 +1,5 @@
 {
-  "total_signals": 29,
+  "total_signals": 56,
   "horizon_5d": {
     "count": 0,
     "win_rate": null,
@@ -22,10 +22,10 @@
     "min_return": null
   },
   "signal_activity": {
-    "as_of": "2026-09-30",
-    "today_count": 18,
-    "avg_per_signal_day_30d": 14.5
+    "as_of": "2026-10-01",
+    "today_count": 27,
+    "avg_per_signal_day_30d": 18.7
   },
   "avg_breakout_gain_pct": null,
-  "generated_at": "2026-10-01T11:08:48.874877+00:00"
+  "generated_at": "2026-10-02T02:35:24.121038+00:00"
 }
