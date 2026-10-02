@@ -5,6 +5,10 @@ import datetime
 import sqlite3
 import json
 import logging
+import re
+import xml.etree.ElementTree as ET
+import csv
+import io
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import pandas as pd
@@ -44,8 +48,46 @@ WEIGHT_TREND_STRENGTH    = 0.20
 EARNINGS_PROXIMITY_DAYS = 1
 EARNINGS_ENRICHMENT_MAX_LOOKUPS = 25
 EARNINGS_ENRICHMENT_BUDGET_SECONDS = 45.0
+NEWS_CACHE_TTL_HOURS = 4
+NEWS_ENRICHMENT_MAX_LOOKUPS = 40
+NEWS_ENRICHMENT_BUDGET_SECONDS = 45.0
+FINNHUB_MIN_REQUEST_INTERVAL_SECONDS = 1.1
+_FINNHUB_LAST_REQUEST_AT = None
+SEC_USER_AGENT = "Market Screener michaelonyeweke@yahoo.com"
+SEC_MIN_REQUEST_INTERVAL_SECONDS = 0.35
+SEC_CIK_CACHE_TTL_DAYS = 30
+SEC_INSIDER_CACHE_TTL_HOURS = 4
+SEC_INSIDER_LOOKBACK_CALENDAR_DAYS = 21
+SEC_INSIDER_MAX_FILINGS_PER_SYMBOL = 8
+SEC_INSIDER_ENRICHMENT_BUDGET_SECONDS = 45.0
+_SEC_LAST_REQUEST_AT = None
 # Finnhub omits report dates in this response, so this lag is an approximation.
 EARNINGS_REPORT_LAG_DAYS_DEFAULT = 35
+
+# ── Sector Relative Strength Mapping ──────────────────────────────────────────
+# Standard GICS sector ETF mapping plus SIC/Polygon fallback aliases
+SECTOR_TO_ETF = {
+    "Technology": "XLK",
+    "Healthcare": "XLV",
+    "Financials": "XLF",
+    "Energy": "XLE",
+    "Consumer Discretionary": "XLY",
+    "Consumer Cyclical": "XLY",       # SIC/Polygon taxonomy compatibility
+    "Consumer Staples": "XLP",
+    "Consumer Defensive": "XLP",      # SIC/Polygon taxonomy compatibility
+    "Industrials": "XLI",
+    "Basic Materials": "XLB",
+    "Materials": "XLB",
+    "Utilities": "XLU",
+    "Real Estate": "XLRE",
+    "Communication Services": "XLC",
+}
+SECTOR_ETFS = ("XLK", "XLV", "XLF", "XLE", "XLY", "XLP", "XLI", "XLB", "XLU", "XLRE", "XLC")
+
+# ── Short Interest Ingestion Constants (FINRA bi-weekly bulk file) ─────────────
+FINRA_SHORT_INTEREST_URL_BASE = "https://cdn.finra.org/equity/otcmarket/biweekly/shrt{date_str}.csv"
+FINRA_SHORT_INTEREST_FILES_CATALOG_URL = "https://www.finra.org/finra-data/browse-catalog/equity-short-interest/files"
+FINRA_HTTP_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 # Max Polygon ticker-details API calls per pipeline run for sector backfill
 # (respects free-tier rate limit; priority symbols are always processed first)
@@ -341,6 +383,18 @@ def refresh_ticker_universe():
         ("TSLA", "Tesla Inc.", 800000000000.0, "Consumer Cyclical", None, 1),
         ("AMD", "Advanced Micro Devices Inc.", 300000000000.0, "Technology", None, 1),
         ("SPY", "SPDR S&P 500 ETF Trust", 550000000000.0, "Index ETF", None, 1),
+        # Sector ETFs for Sector Relative Strength computation
+        ("XLK", "Technology Select Sector SPDR Fund", 70000000000.0, "Sector ETF", None, 1),
+        ("XLV", "Health Care Select Sector SPDR Fund", 40000000000.0, "Sector ETF", None, 1),
+        ("XLF", "Financial Select Sector SPDR Fund", 45000000000.0, "Sector ETF", None, 1),
+        ("XLE", "Energy Select Sector SPDR Fund", 35000000000.0, "Sector ETF", None, 1),
+        ("XLY", "Consumer Discretionary Select Sector SPDR Fund", 22000000000.0, "Sector ETF", None, 1),
+        ("XLP", "Consumer Staples Select Sector SPDR Fund", 18000000000.0, "Sector ETF", None, 1),
+        ("XLI", "Industrial Select Sector SPDR Fund", 20000000000.0, "Sector ETF", None, 1),
+        ("XLB", "Materials Select Sector SPDR Fund", 6000000000.0, "Sector ETF", None, 1),
+        ("XLU", "Utilities Select Sector SPDR Fund", 17000000000.0, "Sector ETF", None, 1),
+        ("XLRE", "Real Estate Select Sector SPDR Fund", 6000000000.0, "Sector ETF", None, 1),
+        ("XLC", "Communication Services Select Sector SPDR Fund", 19000000000.0, "Sector ETF", None, 1),
     ]
     tickers.extend(core_stocks)
 
@@ -1080,6 +1134,48 @@ def compute_regime_detail(date_str, grouped, conn=None):
 # ── Earnings Calendar / Company Earnings ───────────────────────────────────────
 
 
+def _finnhub_get_json(url, symbol, endpoint):
+    """Make a paced Finnhub request with the retry/backoff used by enrichment."""
+    global _FINNHUB_LAST_REQUEST_AT
+
+    for attempt in range(2):
+        if _FINNHUB_LAST_REQUEST_AT is not None:
+            elapsed = time.monotonic() - _FINNHUB_LAST_REQUEST_AT
+            remaining = FINNHUB_MIN_REQUEST_INTERVAL_SECONDS - elapsed
+            if remaining > 0:
+                time.sleep(remaining)
+
+        try:
+            response = requests.get(url, timeout=5)
+            _FINNHUB_LAST_REQUEST_AT = time.monotonic()
+            raw_body = response.text[:2000] if hasattr(response, "text") else str(response)
+            if response.status_code == 200:
+                return response.json()
+            if response.status_code == 429:
+                logger.warning(
+                    "Finnhub 429 rate limit on %s request for %s (attempt %d).",
+                    endpoint, symbol, attempt + 1
+                )
+                if attempt == 0:
+                    time.sleep(2)
+                    continue
+            else:
+                logger.warning(
+                    "Finnhub %s returned HTTP %d for %s: %s",
+                    endpoint, response.status_code, symbol, raw_body
+                )
+            break
+        except Exception as e:
+            logger.warning(
+                "Finnhub %s request failed for %s (attempt %d): %s",
+                endpoint, symbol, attempt + 1, e
+            )
+            if attempt == 0:
+                time.sleep(1)
+
+    return None
+
+
 def fetch_finnhub_symbol_earnings(
     symbol, cache_dir=".cache", ttl_hours=168, stats=None, max_api_lookups=None
 ):
@@ -1127,56 +1223,780 @@ def fetch_finnhub_symbol_earnings(
         stats["api_lookups"] += 1
 
     url = f"https://finnhub.io/api/v1/stock/earnings?symbol={sym}&token={FINNHUB_API_KEY}"
-    for attempt in range(2):
+    payload = _finnhub_get_json(url, sym, "stock/earnings")
+    if isinstance(payload, list):
+        records = {}
+        for item in payload:
+            period = item.get("period")
+            if not period:
+                continue
+            try:
+                parsed_date = datetime.date.fromisoformat(period)
+            except Exception:
+                continue
+            records[parsed_date.isoformat()] = {
+                "symbol": item.get("symbol", sym),
+                "period": parsed_date.isoformat(),
+                "estimate": item.get("estimate"),
+                "actual": item.get("actual"),
+                "surprise": item.get("surprise"),
+                "surprisePercent": item.get("surprisePercent"),
+                "year": item.get("year"),
+                "quarter": item.get("quarter"),
+            }
+        cache_payload = {"fetched_at": now_ts.isoformat(), "records": records}
         try:
-            res = requests.get(url, timeout=5)
-            raw_body = res.text[:2000] if hasattr(res, "text") else str(res)
-            if res.status_code == 200:
-                payload = res.json()
-                if not isinstance(payload, list):
-                    return {}
-
-                records = {}
-                for item in payload:
-                    period = item.get("period")
-                    if not period:
-                        continue
-                    try:
-                        parsed_date = datetime.date.fromisoformat(period)
-                    except Exception:
-                        continue
-                    records[parsed_date.isoformat()] = {
-                        "symbol": item.get("symbol", sym),
-                        "period": parsed_date.isoformat(),
-                        "estimate": item.get("estimate"),
-                        "actual": item.get("actual"),
-                        "surprise": item.get("surprise"),
-                        "surprisePercent": item.get("surprisePercent"),
-                        "year": item.get("year"),
-                        "quarter": item.get("quarter"),
-                    }
-                cache_payload = {"fetched_at": now_ts.isoformat(), "records": records}
-                try:
-                    with open(cache_file, "w", encoding="utf-8") as f:
-                        json.dump(cache_payload, f, indent=2)
-                except Exception as e:
-                    logger.warning("Failed to write symbol earnings cache for %s: %s", sym, e)
-                logger.info("Fetched and cached %d earnings periods for %s from Finnhub.", len(records), sym)
-                return records
-            elif res.status_code == 429:
-                logger.warning("Finnhub 429 rate limit on %s earnings request (attempt %d).", sym, attempt + 1)
-                if attempt == 0:
-                    time.sleep(2)
-            else:
-                logger.warning("Finnhub stock/earnings returned HTTP %d for %s: %s", res.status_code, sym, raw_body)
-                break
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(cache_payload, f, indent=2)
         except Exception as e:
-            logger.warning("Finnhub earnings request failed for %s (attempt %d): %s", sym, attempt + 1, e)
-            if attempt == 0:
-                time.sleep(1)
+            logger.warning("Failed to write symbol earnings cache for %s: %s", sym, e)
+        logger.info("Fetched and cached %d earnings periods for %s from Finnhub.", len(records), sym)
+        return records
 
     logger.warning("Proceeding without fresh earnings data for %s.", sym)
     return cached_records
+
+
+def classify_news_catalyst(headline):
+    """Assign a rough catalyst label from common headline keywords."""
+    text = str(headline or "").lower()
+    if any(word in text for word in (
+        "merger", "acquisition", "acquire", "acquired", "buyout", "takeover", "to combine"
+    )):
+        return "M&A"
+    if any(word in text for word in (
+        "analyst", "price target", "upgrade", "downgrade", "initiates coverage",
+        "overweight", "underweight", "buy rating", "sell rating"
+    )):
+        return "Analyst Rating"
+    if any(word in text for word in (
+        "fda", "regulatory", "regulator", "approval", "cleared", "clearance",
+        "clinical trial", "sec charges", "doj", "ftc", "antitrust", "recall", "probe"
+    )):
+        return "Regulatory/FDA"
+    if any(word in text for word in (
+        "earnings", "quarterly results", "financial results", "guidance", "outlook",
+        "revenue", "eps", "profit", "sales forecast"
+    )):
+        return "Earnings/Guidance"
+    return "Other"
+
+
+def fetch_finnhub_company_news(
+    symbol,
+    to_date=None,
+    cache_dir=".cache",
+    ttl_hours=NEWS_CACHE_TTL_HOURS,
+    stats=None,
+    max_api_lookups=None,
+    lookback_days=7,
+):
+    """Fetch and cache up to three recent company-news headlines for a symbol."""
+    sym = str(symbol).upper()
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, f"news_{sym}.json")
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cached_articles = []
+
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cached = json.load(f)
+            fetched_at = cached.get("fetched_at")
+            cached_articles = cached.get("articles", [])
+            age_hours = (now - datetime.datetime.fromisoformat(fetched_at)).total_seconds() / 3600.0
+            if age_hours < ttl_hours:
+                if stats is not None:
+                    stats["cache_hits"] = stats.get("cache_hits", 0) + 1
+                return cached_articles[:3] if isinstance(cached_articles, list) else []
+            if stats is not None:
+                stats["stale_cache"] = stats.get("stale_cache", 0) + 1
+        except Exception as e:
+            logger.warning("Failed to read company-news cache %s: %s", cache_file, e)
+            if stats is not None:
+                stats["cache_misses"] = stats.get("cache_misses", 0) + 1
+    elif stats is not None:
+        stats["cache_misses"] = stats.get("cache_misses", 0) + 1
+
+    if not FINNHUB_API_KEY:
+        logger.warning("Finnhub API key not configured; skipping company-news lookup for %s.", sym)
+        return cached_articles[:3] if isinstance(cached_articles, list) else []
+
+    if max_api_lookups is not None and stats is not None:
+        if stats.get("api_lookups", 0) >= max_api_lookups:
+            stats["deferred"] = stats.get("deferred", 0) + 1
+            return cached_articles[:3] if isinstance(cached_articles, list) else []
+        stats["api_lookups"] = stats.get("api_lookups", 0) + 1
+
+    try:
+        end_date = datetime.date.fromisoformat(to_date) if to_date else now.date()
+    except ValueError:
+        end_date = now.date()
+    start_date = end_date - datetime.timedelta(days=max(lookback_days - 1, 0))
+    url = (
+        "https://finnhub.io/api/v1/company-news"
+        f"?symbol={sym}&from={start_date.isoformat()}&to={end_date.isoformat()}&token={FINNHUB_API_KEY}"
+    )
+    payload = _finnhub_get_json(url, sym, "company-news")
+    if not isinstance(payload, list):
+        logger.warning("Proceeding without fresh company news for %s.", sym)
+        return cached_articles[:3] if isinstance(cached_articles, list) else []
+
+    dated_articles = []
+    for item in payload:
+        headline = str(item.get("headline") or "").strip()
+        if not headline:
+            continue
+        try:
+            published_at = datetime.datetime.fromtimestamp(
+                float(item.get("datetime")), tz=datetime.timezone.utc
+            )
+        except (TypeError, ValueError, OSError):
+            try:
+                published_at = datetime.datetime.fromisoformat(
+                    str(item.get("publishedAt")).replace("Z", "+00:00")
+                )
+            except Exception:
+                continue
+        article = {
+            "headline": headline,
+            "source": str(item.get("source") or ""),
+            "url": str(item.get("url") or ""),
+            "date": published_at.date().isoformat(),
+            "category": classify_news_catalyst(headline),
+        }
+        dated_articles.append((published_at, article))
+
+    dated_articles.sort(key=lambda value: value[0], reverse=True)
+    articles = [article for _, article in dated_articles[:3]]
+    try:
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump({"fetched_at": now.isoformat(), "articles": articles}, f, indent=2)
+    except Exception as e:
+        logger.warning("Failed to write company-news cache for %s: %s", sym, e)
+    logger.info("Fetched and cached %d recent news headlines for %s from Finnhub.", len(articles), sym)
+    return articles
+
+
+def _sec_get(url, symbol, endpoint):
+    """Fetch one SEC resource with a descriptive User-Agent and conservative pacing."""
+    global _SEC_LAST_REQUEST_AT
+
+    headers = {
+        "User-Agent": SEC_USER_AGENT,
+        "Accept-Encoding": "gzip, deflate",
+    }
+    for attempt in range(2):
+        if _SEC_LAST_REQUEST_AT is not None:
+            elapsed = time.monotonic() - _SEC_LAST_REQUEST_AT
+            remaining = SEC_MIN_REQUEST_INTERVAL_SECONDS - elapsed
+            if remaining > 0:
+                time.sleep(remaining)
+
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
+            _SEC_LAST_REQUEST_AT = time.monotonic()
+        except Exception as e:
+            _SEC_LAST_REQUEST_AT = time.monotonic()
+            logger.warning("SEC %s request failed for %s (attempt %d): %s", endpoint, symbol, attempt + 1, e)
+            if attempt == 0:
+                time.sleep(1)
+                continue
+            return None
+
+        if response.status_code == 200:
+            return response
+        if response.status_code == 429 and attempt == 0:
+            retry_after = response.headers.get("Retry-After")
+            try:
+                delay = min(max(float(retry_after), 1.0), 10.0) if retry_after else 2.0
+            except (TypeError, ValueError):
+                delay = 2.0
+            logger.warning("SEC 429 rate limit on %s for %s; retrying after %.1fs.", endpoint, symbol, delay)
+            time.sleep(delay)
+            continue
+
+        logger.warning("SEC %s returned HTTP %d for %s.", endpoint, response.status_code, symbol)
+        return None
+
+    return None
+
+
+def _load_sec_company_tickers(cache_dir=".cache"):
+    """Load the SEC ticker/CIK directory, refreshing its persistent 30-day cache."""
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, "sec_company_tickers.json")
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cached_companies = None
+
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cached = json.load(f)
+            cached_companies = cached.get("companies")
+            fetched_at = cached.get("fetched_at")
+            if fetched_at and isinstance(cached_companies, dict):
+                age_days = (now - datetime.datetime.fromisoformat(fetched_at)).total_seconds() / 86400.0
+                if age_days < SEC_CIK_CACHE_TTL_DAYS:
+                    return cached_companies
+        except Exception as e:
+            logger.warning("Failed to read SEC company ticker cache %s: %s", cache_file, e)
+
+    response = _sec_get(
+        "https://www.sec.gov/files/company_tickers.json",
+        "company directory",
+        "company_tickers.json",
+    )
+    if response is None:
+        return cached_companies if isinstance(cached_companies, dict) else {}
+
+    try:
+        companies = response.json()
+        if not isinstance(companies, dict):
+            raise ValueError("SEC company ticker file was not a JSON object")
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump({"fetched_at": now.isoformat(), "companies": companies}, f)
+        return companies
+    except Exception as e:
+        logger.warning("Failed to parse or cache SEC company ticker file: %s", e)
+        return cached_companies if isinstance(cached_companies, dict) else {}
+
+
+def _company_name_tokens(value):
+    ignored = {"INC", "INCORPORATED", "CORP", "CORPORATION", "CO", "COMPANY", "THE", "LTD", "LIMITED"}
+    return {token for token in re.findall(r"[A-Z0-9]+", str(value or "").upper()) if token not in ignored}
+
+
+def _sec_cik_for_symbol(symbol, company_name=None, cache_dir=".cache"):
+    """Resolve and persist the SEC CIK for one ticker without scanning the universe."""
+    sym = str(symbol).upper()
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, f"sec_cik_{sym}.json")
+    now = datetime.datetime.now(datetime.timezone.utc)
+
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cached = json.load(f)
+            fetched_at = cached.get("fetched_at")
+            if fetched_at:
+                age_days = (now - datetime.datetime.fromisoformat(fetched_at)).total_seconds() / 86400.0
+                if age_days < SEC_CIK_CACHE_TTL_DAYS:
+                    return str(cached.get("cik") or "") or None
+        except Exception as e:
+            logger.warning("Failed to read SEC CIK cache %s: %s", cache_file, e)
+
+    rows = _load_sec_company_tickers(cache_dir).values()
+    candidates = [
+        row for row in rows
+        if isinstance(row, dict) and str(row.get("ticker", "")).upper() == sym and row.get("cik_str")
+    ]
+    if not candidates:
+        return None
+
+    company_tokens = _company_name_tokens(company_name)
+    if company_tokens and len(candidates) > 1:
+        candidates.sort(
+            key=lambda row: len(company_tokens & _company_name_tokens(row.get("title"))),
+            reverse=True,
+        )
+    chosen = candidates[0]
+    cik = str(chosen["cik_str"]).zfill(10)
+    try:
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "ticker": sym,
+                "cik": cik,
+                "company_name": chosen.get("title"),
+                "fetched_at": now.isoformat(),
+            }, f)
+    except Exception as e:
+        logger.warning("Failed to cache SEC CIK for %s: %s", sym, e)
+    return cik
+
+
+def _parse_sec_form4(raw_submission, symbol, as_of_date, start_date, filing_date, filing_url):
+    """Extract only acquired, non-derivative open-market P transactions from a filing."""
+    purchases = []
+    ownership_documents = re.findall(
+        r"<ownershipDocument\b[^>]*>.*?</ownershipDocument\s*>",
+        raw_submission,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    for xml_document in ownership_documents:
+        try:
+            root = ET.fromstring(xml_document)
+        except ET.ParseError as e:
+            logger.warning("Could not parse SEC Form 4 XML for %s: %s", symbol, e)
+            continue
+
+        owners = root.findall("./reportingOwner") or [None]
+        for transaction in root.findall("./nonDerivativeTable/nonDerivativeTransaction"):
+            if transaction.findtext("./transactionCoding/transactionCode") != "P":
+                continue
+            if transaction.findtext("./transactionAmounts/transactionAcquiredDisposedCode/value") != "A":
+                continue
+
+            transaction_date = transaction.findtext("./transactionDate/value")
+            try:
+                parsed_date = datetime.date.fromisoformat(transaction_date)
+            except (TypeError, ValueError):
+                continue
+            if parsed_date < start_date or parsed_date > as_of_date:
+                continue
+
+            shares_text = transaction.findtext("./transactionAmounts/transactionShares/value")
+            price_text = transaction.findtext("./transactionAmounts/transactionPricePerShare/value")
+            try:
+                shares = float(shares_text)
+            except (TypeError, ValueError):
+                continue
+            try:
+                price_per_share = float(price_text)
+            except (TypeError, ValueError):
+                price_per_share = None
+
+            security_title = transaction.findtext("./securityTitle/value")
+            for owner in owners:
+                owner_id = owner.find("./reportingOwnerId") if owner is not None else None
+                relationship = owner.find("./reportingOwnerRelationship") if owner is not None else None
+                relationships = []
+                if relationship is not None:
+                    if relationship.findtext("isOfficer") == "1":
+                        relationships.append("Officer")
+                    if relationship.findtext("isDirector") == "1":
+                        relationships.append("Director")
+                    if relationship.findtext("isTenPercentOwner") == "1":
+                        relationships.append("10% owner")
+                purchases.append({
+                    "name": owner_id.findtext("rptOwnerName") if owner_id is not None else None,
+                    "title": relationship.findtext("officerTitle") if relationship is not None else None,
+                    "relationships": relationships,
+                    "transaction_date": parsed_date.isoformat(),
+                    "shares": shares,
+                    "price_per_share": price_per_share,
+                    "total_value": round(shares * price_per_share, 2) if price_per_share is not None else None,
+                    "security": security_title,
+                    "filing_date": filing_date,
+                    "filing_url": filing_url,
+                })
+
+    return purchases
+
+
+def fetch_sec_insider_activity(
+    symbol,
+    as_of_date,
+    company_name=None,
+    cache_dir=".cache",
+    lookback_days=SEC_INSIDER_LOOKBACK_CALENDAR_DAYS,
+    max_filings=SEC_INSIDER_MAX_FILINGS_PER_SYMBOL,
+    stats=None,
+):
+    """Fetch recent Form 4 open-market purchases for one screened signal symbol."""
+    sym = str(symbol).upper()
+    empty_result = {"purchases": [], "insider_cluster": False}
+    try:
+        signal_date = datetime.date.fromisoformat(as_of_date)
+    except (TypeError, ValueError):
+        return empty_result
+
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, f"sec_insider_{sym}.json")
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cached_result = None
+    if os.path.exists(cache_file):
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                cached = json.load(f)
+            cached_result = {
+                "purchases": cached.get("purchases", []),
+                "insider_cluster": bool(cached.get("insider_cluster", False)),
+            }
+            fetched_at = cached.get("fetched_at")
+            age_hours = (now - datetime.datetime.fromisoformat(fetched_at)).total_seconds() / 3600.0
+            if (
+                cached.get("as_of_date") == signal_date.isoformat()
+                and cached.get("lookback_days") == lookback_days
+                and age_hours < SEC_INSIDER_CACHE_TTL_HOURS
+            ):
+                if stats is not None:
+                    stats["cache_hits"] += 1
+                return cached_result
+            if stats is not None:
+                stats["stale_cache"] += 1
+        except Exception as e:
+            logger.warning("Failed to read SEC insider cache %s: %s", cache_file, e)
+            if stats is not None:
+                stats["cache_misses"] += 1
+    elif stats is not None:
+        stats["cache_misses"] += 1
+
+    try:
+        cik = _sec_cik_for_symbol(sym, company_name=company_name, cache_dir=cache_dir)
+        if not cik:
+            logger.info("No SEC CIK mapping found for signal symbol %s.", sym)
+            return cached_result or empty_result
+
+        submissions_url = f"https://data.sec.gov/submissions/CIK{cik}.json"
+        submissions_response = _sec_get(submissions_url, sym, "submissions")
+        if submissions_response is None:
+            return cached_result or empty_result
+        submissions = submissions_response.json()
+        recent = submissions.get("filings", {}).get("recent", {})
+        start_date = signal_date - datetime.timedelta(days=lookback_days - 1)
+        purchases = []
+        filings_checked = 0
+
+        for index, form in enumerate(recent.get("form", [])):
+            if form != "4":
+                continue
+            filing_date_text = recent.get("filingDate", [])[index]
+            try:
+                filing_date = datetime.date.fromisoformat(filing_date_text)
+            except (TypeError, ValueError):
+                continue
+            if filing_date < start_date:
+                break
+            if filing_date > signal_date:
+                continue
+
+            accession = recent.get("accessionNumber", [])[index]
+            if not accession:
+                continue
+            accession_path = accession.replace("-", "")
+            filing_url = (
+                f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/"
+                f"{accession_path}/{accession}.txt"
+            )
+            filing_response = _sec_get(filing_url, sym, "Form 4 filing")
+            filings_checked += 1
+            if filing_response is None:
+                continue
+            purchases.extend(_parse_sec_form4(
+                filing_response.text,
+                sym,
+                signal_date,
+                start_date,
+                filing_date.isoformat(),
+                filing_url,
+            ))
+            if filings_checked >= max_filings:
+                break
+
+        deduplicated = {}
+        for purchase in purchases:
+            dedupe_key = (
+                purchase.get("name"), purchase["transaction_date"],
+                purchase["shares"], purchase.get("price_per_share"), purchase.get("security"),
+            )
+            deduplicated.setdefault(dedupe_key, purchase)
+        purchases = sorted(
+            deduplicated.values(),
+            key=lambda purchase: (purchase["transaction_date"], purchase["filing_date"]),
+            reverse=True,
+        )
+        buyer_names = {str(purchase.get("name") or "").strip().casefold() for purchase in purchases}
+        buyer_names.discard("")
+        result = {"purchases": purchases, "insider_cluster": len(buyer_names) > 1}
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "fetched_at": now.isoformat(),
+                "as_of_date": signal_date.isoformat(),
+                "lookback_days": lookback_days,
+                **result,
+            }, f, indent=2)
+        if stats is not None:
+            stats["symbols_fetched"] = stats.get("symbols_fetched", 0) + 1
+        logger.info(
+            "SEC insider lookup for %s completed: %d P-code purchases across %d Form 4 filings.",
+            sym, len(purchases), filings_checked
+        )
+        return result
+    except Exception as e:
+        logger.warning("SEC insider lookup failed for %s; continuing without insider data: %s", sym, e)
+        return cached_result or empty_result
+
+
+# ── FINRA Short Interest Bulk Ingestion & Lookup ────────────────────────────────
+
+def get_latest_stored_short_interest_settlement_date(conn=None) -> str | None:
+    """Return the newest settlement_date present in short_interest table, or None."""
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT MAX(settlement_date) FROM short_interest")
+        row = cur.fetchone()
+        return row[0] if row and row[0] else None
+    except Exception as e:
+        logger.warning("Failed to query latest short interest settlement date: %s", e)
+        return None
+    finally:
+        if close_conn:
+            conn.close()
+
+
+def discover_available_finra_settlement_date(as_of_date: str | None = None) -> str | None:
+    """
+    Find the newest available FINRA short interest settlement date on or before as_of_date.
+    First checks the official catalog files page at FINRA_SHORT_INTEREST_FILES_CATALOG_URL.
+    If that fails or catalog cannot be reached, probes recent candidate settlement dates
+    (15th / last calendar day and nearby weekdays) going back 45 days.
+    Returns: 'YYYY-MM-DD' or None.
+    """
+    headers = {"User-Agent": FINRA_HTTP_USER_AGENT}
+    ref_date = datetime.date.today()
+    if as_of_date:
+        try:
+            ref_date = datetime.date.fromisoformat(as_of_date)
+        except Exception:
+            pass
+
+    # 1. Try parsing the catalog files page
+    try:
+        resp = requests.get(FINRA_SHORT_INTEREST_FILES_CATALOG_URL, headers=headers, timeout=10)
+        if resp.status_code == 200:
+            # Look for shrtYYYYMMDD.csv in the page HTML
+            dates_found = re.findall(r"shrt(\d{8})\.csv", resp.text)
+            if dates_found:
+                parsed_dates = []
+                for d_str in dates_found:
+                    try:
+                        d = datetime.date(int(d_str[:4]), int(d_str[4:6]), int(d_str[6:8]))
+                        if d <= ref_date:
+                            parsed_dates.append(d)
+                    except Exception:
+                        continue
+                if parsed_dates:
+                    newest = max(parsed_dates)
+                    logger.info("Discovered newest FINRA settlement date from files catalog: %s", newest.isoformat())
+                    return newest.isoformat()
+    except Exception as e:
+        logger.warning("Error fetching FINRA files catalog: %s; falling back to candidate date probes.", e)
+
+    # 2. Candidate date probe fallback (check 15th, 14th, 13th, and end-of-month dates backwards)
+    for i in range(45):
+        cand = ref_date - datetime.timedelta(days=i)
+        if cand.day in (13, 14, 15, 16, 28, 29, 30, 31):
+            cand_str = cand.strftime("%Y%m%d")
+            url = FINRA_SHORT_INTEREST_URL_BASE.format(date_str=cand_str)
+            try:
+                head_resp = requests.head(url, headers=headers, timeout=5)
+                if head_resp.status_code == 200:
+                    logger.info("Discovered active FINRA short interest file via probe: %s (%s)", cand.isoformat(), url)
+                    return cand.isoformat()
+            except Exception:
+                continue
+
+    return None
+
+
+def ingest_finra_short_interest_bulk(settlement_date_str: str, conn=None) -> int:
+    """
+    Downloads the bulk pipe-delimited FINRA CSV for settlement_date_str and inserts or
+    replaces records into the short_interest table.
+    Returns the count of records ingested.
+    """
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    try:
+        clean_date_str = settlement_date_str.replace("-", "")
+        url = FINRA_SHORT_INTEREST_URL_BASE.format(date_str=clean_date_str)
+        headers = {"User-Agent": FINRA_HTTP_USER_AGENT}
+        logger.info("Fetching bulk FINRA short interest file from %s...", url)
+        
+        t0 = time.perf_counter()
+        resp = requests.get(url, headers=headers, timeout=30)
+        if resp.status_code != 200:
+            logger.error("Failed to download FINRA short interest file (HTTP %d) from %s", resp.status_code, url)
+            return 0
+
+        text = resp.text
+        reader = csv.DictReader(io.StringIO(text), delimiter="|")
+        
+        rows_to_insert = []
+        for row in reader:
+            sym = row.get("symbolCode", "").strip().upper()
+            if not sym:
+                continue
+            
+            raw_settlement = row.get("settlementDate", "").strip() or settlement_date_str
+            # normalize settlement date to YYYY-MM-DD
+            if len(raw_settlement) == 8 and raw_settlement.isdigit():
+                norm_settlement = f"{raw_settlement[:4]}-{raw_settlement[4:6]}-{raw_settlement[6:]}"
+            else:
+                norm_settlement = raw_settlement
+
+            try:
+                curr_pos = int(row.get("currentShortPositionQuantity") or 0)
+            except Exception:
+                curr_pos = None
+
+            try:
+                prev_pos = int(row.get("previousShortPositionQuantity") or 0)
+            except Exception:
+                prev_pos = None
+
+            try:
+                avg_vol = int(row.get("averageDailyVolumeQuantity") or 0)
+            except Exception:
+                avg_vol = None
+
+            try:
+                dtc = float(row.get("daysToCoverQuantity") or 0.0)
+            except Exception:
+                dtc = None
+
+            try:
+                chg_pct = float(row.get("changePercent") or 0.0)
+            except Exception:
+                chg_pct = None
+
+            mkt_class = row.get("marketClassCode", "").strip() or None
+
+            rows_to_insert.append((
+                sym, norm_settlement, curr_pos, prev_pos, avg_vol, dtc, chg_pct, mkt_class
+            ))
+
+        if not rows_to_insert:
+            logger.warning("FINRA short interest file contained 0 valid rows.")
+            return 0
+
+        cur = conn.cursor()
+        cur.executemany("""
+            INSERT INTO short_interest (
+                symbol, settlement_date, current_short_position, previous_short_position,
+                avg_daily_volume, days_to_cover, change_pct, market_class
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(symbol, settlement_date) DO UPDATE SET
+                current_short_position = excluded.current_short_position,
+                previous_short_position = excluded.previous_short_position,
+                avg_daily_volume = excluded.avg_daily_volume,
+                days_to_cover = excluded.days_to_cover,
+                change_pct = excluded.change_pct,
+                market_class = excluded.market_class,
+                updated_at = CURRENT_TIMESTAMP
+        """, rows_to_insert)
+        conn.commit()
+
+        elapsed = time.perf_counter() - t0
+        logger.info(
+            "Ingested %d short interest rows for settlement date %s in %.2fs.",
+            len(rows_to_insert), settlement_date_str, elapsed
+        )
+        return len(rows_to_insert)
+
+    except Exception as e:
+        logger.exception("Unexpected error during FINRA short interest ingestion: %s", e)
+        return 0
+    finally:
+        if close_conn:
+            conn.close()
+
+
+def refresh_short_interest_data(as_of_date: str | None = None, conn=None) -> dict:
+    """
+    Conditional refresh: checks if the bulk short-interest file needs updating.
+    Discovers the latest available publication/settlement date from FINRA. If a newer
+    settlement date exists than the latest stored one in SQLite, downloads and stores it.
+    Returns: dict with status ('up_to_date', 'downloaded', or 'failed'), settlement_date, and row_count.
+    """
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    try:
+        latest_stored = get_latest_stored_short_interest_settlement_date(conn=conn)
+        available_date = discover_available_finra_settlement_date(as_of_date=as_of_date)
+
+        logger.info(
+            "[Short Interest] Latest stored settlement date: %s | Newest available: %s",
+            latest_stored, available_date
+        )
+
+        if not available_date:
+            logger.warning("[Short Interest] Could not discover any available FINRA settlement date.")
+            return {"status": "skipped", "settlement_date": latest_stored, "row_count": 0}
+
+        if latest_stored and available_date <= latest_stored:
+            logger.info(
+                "[Short Interest] Data is up-to-date (stored %s >= available %s). Skipping download.",
+                latest_stored, available_date
+            )
+            return {"status": "up_to_date", "settlement_date": latest_stored, "row_count": 0}
+
+        # Need to download new settlement date file
+        logger.info(
+            "[Short Interest] New settlement date available (%s > %s). Initiating bulk download...",
+            available_date, latest_stored
+        )
+        count = ingest_finra_short_interest_bulk(available_date, conn=conn)
+        return {"status": "downloaded", "settlement_date": available_date, "row_count": count}
+
+    except Exception as e:
+        logger.exception("Error during short interest refresh: %s", e)
+        return {"status": "failed", "error": str(e), "settlement_date": None, "row_count": 0}
+    finally:
+        if close_conn:
+            conn.close()
+
+
+def get_symbol_short_interest(symbol: str, conn=None) -> dict | None:
+    """
+    Fast local DB lookup for a symbol's most recent short interest data.
+    Does NOT make any network calls.
+    Returns: {
+        'shares_short': int,
+        'days_to_cover': float,
+        'short_percent_of_float': float | None,
+        'settlement_date': str,
+        'change_pct': float | None,
+        'market_class': str | None
+    } or None if not found.
+    """
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT s.settlement_date, s.current_short_position, s.days_to_cover,
+                   s.change_pct, s.market_class, t.market_cap
+            FROM short_interest s
+            LEFT JOIN tickers t ON s.symbol = t.symbol
+            WHERE s.symbol = ?
+            ORDER BY s.settlement_date DESC
+            LIMIT 1
+        """, (symbol.upper(),))
+        row = cur.fetchone()
+        if not row:
+            return None
+
+        settlement_date, shares_short, dtc, chg_pct, mkt_class, mkt_cap = row
+
+        return {
+            "shares_short": shares_short,
+            "days_to_cover": round(float(dtc), 2) if dtc is not None else None,
+            "short_percent_of_float": None,
+            "settlement_date": settlement_date,
+            "change_pct": round(float(chg_pct), 2) if chg_pct is not None else None,
+            "market_class": mkt_class
+        }
+    except Exception as e:
+        logger.warning("Error fetching short interest for %s: %s", symbol, e)
+        return None
+    finally:
+        if close_conn:
+            conn.close()
 
 
 def fetch_finnhub_earnings_calendar(from_date, to_date, cache_dir=".cache"):
@@ -1392,7 +2212,8 @@ def compute_composite_score(rvol, rs_score, proximity_pct, trend_strength_pct):
 def process_single_ticker_screener(
     symbol, df_symbol, date_str,
     rs_score=None, market_regime="Unknown",
-    spy_return_63d=None, earnings_map=None, trading_days=None
+    spy_return_63d=None, earnings_map=None, trading_days=None,
+    ticker_sector=None, sector_returns_63d=None
 ):
     """
     Compute technical indicators for a single symbol and evaluate Momentum Breakout rules.
@@ -1402,6 +2223,7 @@ def process_single_ticker_screener(
       - atr_pct:               ATR(14) as % of close price
       - avg_dollar_vol_20d:    20-day average dollar volume
       - rs_vs_spy:             63-day return minus SPY's 63-day return (percentage points)
+      - rs_vs_sector:          63-day return minus sector ETF's 63-day return (percentage points)
       - dist_to_52w_high_pct:  % distance below 52-week high (negative = below, 0 = at high)
       - near_earnings:         bool — report within EARNINGS_PROXIMITY_DAYS trading days
       - earnings_date:         YYYY-MM-DD of upcoming/recent report (or null)
@@ -1494,20 +2316,31 @@ def process_single_ticker_screener(
 
         # 4. RS vs SPY: 63-day return minus SPY's 63-day return
         rs_vs_spy = None
-        if spy_return_63d is not None and len(df) >= 63:
+        ticker_return_63d = None
+        if len(df) >= 63:
             try:
-                ticker_return_63d = ((float(df["close"].iloc[-1]) - float(df["close"].iloc[-63])) /
-                                     float(df["close"].iloc[-63])) * 100.0
-                rs_vs_spy = round(ticker_return_63d - spy_return_63d, 2)
+                base_close_63 = float(df["close"].iloc[-63])
+                if base_close_63 > 0:
+                    ticker_return_63d = ((float(df["close"].iloc[-1]) - base_close_63) / base_close_63) * 100.0
             except Exception:
                 pass
-        elif spy_return_63d is not None and len(df) >= 2:
+        elif len(df) >= 2:
             try:
-                ticker_return_63d = ((float(df["close"].iloc[-1]) - float(df["close"].iloc[0])) /
-                                     float(df["close"].iloc[0])) * 100.0
-                rs_vs_spy = round(ticker_return_63d - spy_return_63d, 2)
+                base_close_0 = float(df["close"].iloc[0])
+                if base_close_0 > 0:
+                    ticker_return_63d = ((float(df["close"].iloc[-1]) - base_close_0) / base_close_0) * 100.0
             except Exception:
                 pass
+
+        if spy_return_63d is not None and ticker_return_63d is not None:
+            rs_vs_spy = round(ticker_return_63d - spy_return_63d, 2)
+
+        # 4b. RS vs Sector: 63-day return minus sector ETF's 63-day return (point-in-time)
+        rs_vs_sector = None
+        if ticker_sector and sector_returns_63d and ticker_return_63d is not None:
+            sector_etf = SECTOR_TO_ETF.get(ticker_sector)
+            if sector_etf and sector_etf in sector_returns_63d and sector_returns_63d[sector_etf] is not None:
+                rs_vs_sector = round(ticker_return_63d - sector_returns_63d[sector_etf], 2)
 
         # 5. Distance to 52-week high (as % — negative means below high)
         dist_to_52w_high_pct = None
@@ -1560,6 +2393,7 @@ def process_single_ticker_screener(
             "atr_pct":              atr_pct,
             "avg_dollar_vol_20d":   avg_dollar_vol_20d,
             "rs_vs_spy":            rs_vs_spy,
+            "rs_vs_sector":         rs_vs_sector,
             "dist_to_20d_high_pct": dist_to_20d_high_pct,
             "dist_to_52w_high_pct": dist_to_52w_high_pct,
             "near_earnings":        near_earnings,
@@ -1610,6 +2444,24 @@ def run_screener_engine(date_str, max_workers=4):
     grouped    = {sym: group for sym, group in df_all.groupby("symbol") if sym in active_set}
     logger.info("Loaded historical bars for %d active universe tickers.", len(grouped))
 
+    # Load ticker sector mapping from tickers table
+    ticker_sectors = dict(pd.read_sql("SELECT symbol, sector FROM tickers WHERE is_active = 1", conn).itertuples(index=False, name=None))
+
+    # Pre-compute point-in-time 63-day returns for sector ETFs as of date_str
+    sector_returns_63d = {}
+    for etf_sym in SECTOR_ETFS:
+        if etf_sym in grouped:
+            etf_df = grouped[etf_sym]
+            if len(etf_df) >= 2:
+                try:
+                    n = min(63, len(etf_df))
+                    base_close = float(etf_df["close"].iloc[-n])
+                    if base_close > 0:
+                        ret = ((float(etf_df["close"].iloc[-1]) - base_close) / base_close) * 100.0
+                        sector_returns_63d[etf_sym] = ret
+                except Exception:
+                    pass
+
     # Phase 7: Compute Market Regime & Universe RS Scores
     market_regime = check_market_regime(date_str, conn=conn)
     rs_scores     = calculate_universe_rs_scores(grouped, date_str)
@@ -1644,7 +2496,9 @@ def run_screener_engine(date_str, max_workers=4):
                 market_regime,
                 spy_return_63d,
                 {},
-                all_trading_days
+                all_trading_days,
+                ticker_sectors.get(sym),
+                sector_returns_63d
             ): sym
             for sym, df_sym in grouped.items()
         }
@@ -1700,6 +2554,71 @@ def run_screener_engine(date_str, max_workers=4):
         "%d cache misses, %d API lookups, %d deferred.",
         earnings_seconds, len(signals), earnings_stats["cache_hits"], earnings_stats["stale_cache"],
         earnings_stats["cache_misses"], earnings_stats["api_lookups"], earnings_deferred
+    )
+
+    news_started = time.perf_counter()
+    news_stats = {"cache_hits": 0, "stale_cache": 0, "cache_misses": 0, "api_lookups": 0, "deferred": 0}
+    news_deferred = 0
+    for index, signal in enumerate(signals):
+        if time.perf_counter() - news_started >= NEWS_ENRICHMENT_BUDGET_SECONDS:
+            news_deferred += len(signals) - index
+            break
+
+        symbol = signal[1]
+        try:
+            news = fetch_finnhub_company_news(
+                symbol,
+                to_date=date_str,
+                stats=news_stats,
+                max_api_lookups=NEWS_ENRICHMENT_MAX_LOOKUPS,
+            )
+        except Exception as e:
+            logger.warning("Company-news enrichment failed for %s; continuing without news: %s", symbol, e)
+            news = []
+
+        try:
+            details = json.loads(signal[6]) if signal[6] else {}
+            details["news"] = news[:3]
+            signals[index] = (*signal[:6], json.dumps(details))
+        except Exception as e:
+            logger.warning("Could not enrich company-news fields for %s: %s", symbol, e)
+
+    news_seconds = time.perf_counter() - news_started
+    news_deferred += news_stats["deferred"]
+    if news_deferred:
+        logger.warning(
+            "Company-news enrichment stopped/deferred for %d signal(s); the remaining pipeline will continue.",
+            news_deferred
+        )
+    logger.info(
+        "Company-news enrichment completed in %.2fs for %d signal(s): %d cache hits, %d stale cache, "
+        "%d cache misses, %d API lookups, %d deferred.",
+        news_seconds, len(signals), news_stats["cache_hits"], news_stats["stale_cache"],
+        news_stats["cache_misses"], news_stats["api_lookups"], news_deferred
+    )
+
+    # Short interest enrichment (fast local SQLite lookup, no per-symbol network calls)
+    si_started = time.perf_counter()
+    si_found = 0
+    si_conn = get_connection()
+    try:
+        for index, signal in enumerate(signals):
+            symbol = signal[1]
+            try:
+                si_data = get_symbol_short_interest(symbol, conn=si_conn)
+                if si_data:
+                    si_found += 1
+                details = json.loads(signal[6]) if signal[6] else {}
+                details["short_interest"] = si_data
+                signals[index] = (*signal[:6], json.dumps(details))
+            except Exception as e:
+                logger.warning("Could not attach short interest for %s: %s", symbol, e)
+    finally:
+        si_conn.close()
+
+    logger.info(
+        "Short interest enrichment completed in %.4fs for %d signal(s) (%d matched in DB).",
+        time.perf_counter() - si_started, len(signals), si_found
     )
 
     if signals:
@@ -1976,6 +2895,33 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
         cur.execute(query_signals, signal_window_dates)
         raw_signals = cur.fetchall()
 
+    # Load bars for SPY and all sector ETFs to compute point-in-time returns for signals
+    benchmark_symbols = list(SECTOR_ETFS) + ["SPY"]
+    bench_placeholders = ",".join(["?"] * len(benchmark_symbols))
+    cur.execute(f"""
+        SELECT symbol, timestamp, close
+        FROM daily_bars
+        WHERE symbol IN ({bench_placeholders})
+        ORDER BY symbol, timestamp ASC
+    """, benchmark_symbols)
+    bench_rows = cur.fetchall()
+    bench_bars_by_symbol = {}
+    for b_sym, b_ts, b_close in bench_rows:
+        if b_sym not in bench_bars_by_symbol:
+            bench_bars_by_symbol[b_sym] = []
+        bench_bars_by_symbol[b_sym].append((b_ts, float(b_close)))
+
+    def _calc_pit_return_63d(bars_list, as_of_date):
+        # Filter bars up to as_of_date
+        sub = [c for (t, c) in bars_list if t <= as_of_date]
+        if len(sub) < 2:
+            return None
+        n = min(63, len(sub))
+        base = sub[-n]
+        if base <= 0:
+            return None
+        return ((sub[-1] - base) / base) * 100.0
+
     signals_list  = []
     signal_symbols = set()
     seen_signal_keys = set()
@@ -2005,6 +2951,19 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
             "ema20": None, "sma50": None, "sma200": None
         }
 
+        # Resolve point-in-time rs_vs_sector
+        rs_vs_sector = parsed_details.get("rs_vs_sector")
+        if rs_vs_sector is None and sector and sector in SECTOR_TO_ETF:
+            sec_etf = SECTOR_TO_ETF[sector]
+            if sec_etf in bench_bars_by_symbol and "SPY" in bench_bars_by_symbol:
+                etf_ret = _calc_pit_return_63d(bench_bars_by_symbol[sec_etf], timestamp)
+                spy_ret = _calc_pit_return_63d(bench_bars_by_symbol["SPY"], timestamp)
+                rs_vs_spy_val = parsed_details.get("rs_vs_spy")
+                if etf_ret is not None and spy_ret is not None and rs_vs_spy_val is not None:
+                    # ticker_ret_63d = rs_vs_spy + spy_ret_63d
+                    ticker_ret = rs_vs_spy_val + spy_ret
+                    rs_vs_sector = round(ticker_ret - etf_ret, 2)
+
         signal_obj = {
             "id":           sig_id,
             "timestamp":    timestamp,
@@ -2032,10 +2991,15 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
             "atr_pct":              parsed_details.get("atr_pct"),
             "avg_dollar_vol_20d":   parsed_details.get("avg_dollar_vol_20d"),
             "rs_vs_spy":            parsed_details.get("rs_vs_spy"),
+            "rs_vs_sector":         rs_vs_sector,
             "dist_to_20d_high_pct": parsed_details.get("dist_to_20d_high_pct"),
             "dist_to_52w_high_pct": parsed_details.get("dist_to_52w_high_pct"),
             "near_earnings":        parsed_details.get("near_earnings", False),
             "earnings_date":        parsed_details.get("earnings_date"),
+            "news":                 parsed_details.get("news", [])[:3],
+            "insider_activity":     parsed_details.get("insider_activity", []),
+            "insider_cluster":      bool(parsed_details.get("insider_cluster", False)),
+            "short_interest":       parsed_details.get("short_interest") or get_symbol_short_interest(symbol, conn=conn),
             "composite_score":      parsed_details.get("composite_score"),
             "score_components":     parsed_details.get("score_components"),
             "signal_streak":        parsed_details.get("signal_streak", 1),

@@ -16,6 +16,7 @@ from screener import (
     get_performance_summary,
     export_web_data,
     backfill_ticker_sectors,
+    refresh_short_interest_data,
     get_connection,
     DB_PATH
 )
@@ -207,6 +208,18 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
             "Universe active tickers: %d (refresh %.2fs).",
             universe_size, time.perf_counter() - stage_started
         )
+
+        # Step 2.5: Short Interest Conditional Bulk Refresh
+        current_step = "[Step 2.5/8] Checking FINRA consolidated short interest data"
+        logger.info(current_step)
+        try:
+            si_refresh = refresh_short_interest_data(as_of_date=date_str)
+            logger.info(
+                "[Short Interest] Status: %s | Settlement Date: %s | Rows Ingested: %d",
+                si_refresh.get("status"), si_refresh.get("settlement_date"), si_refresh.get("row_count", 0)
+            )
+        except Exception as si_err:
+            logger.warning("[Short Interest] Refresh check failed; continuing pipeline: %s", si_err)
 
         # Step 3: Daily Bars Ingestion with multi-layer failover
         current_step = f"[Step 3/8] Ingesting daily market bars for {date_str}"

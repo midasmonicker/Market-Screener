@@ -35,6 +35,9 @@ jobs:
           cd frontend
           npm ci
 
+      - name: Validate generated web data
+        run: node frontend/scripts/validate-data-json.mjs
+
       - name: Build Next.js app
         run: |
           cd frontend
