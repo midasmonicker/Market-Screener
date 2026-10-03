@@ -1,6 +1,6 @@
 [
   {
-    "id": 102,
+    "id": 118,
     "timestamp": "2026-10-02",
     "symbol": "MAT",
     "name": "Mattel, Inc.",
@@ -10,9 +10,9 @@
     "setup_name": "Momentum Breakout",
     "close_price": 15.27,
     "rvol": 2.99,
-    "rsi": 64.91,
+    "rsi": 64.95,
     "market_regime": "Bullish",
-    "rs_score": 84.2,
+    "rs_score": 84.3,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -27,13 +27,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 1.5,
-    "atr_pct": 4.8,
-    "avg_dollar_vol_20d": 99911663.0,
-    "rs_vs_spy": 10.81,
-    "rs_vs_sector": 20.01,
-    "dist_to_20d_high_pct": 1.5,
-    "dist_to_52w_high_pct": -32.1,
+    "pct_change_1d": 1.53,
+    "atr_pct": 4.83,
+    "avg_dollar_vol_20d": 99918115.0,
+    "rs_vs_spy": 10.85,
+    "rs_vs_sector": 20.05,
+    "dist_to_20d_high_pct": 1.53,
+    "dist_to_52w_high_pct": -32.07,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -69,10 +69,10 @@
       "change_pct": 1.64,
       "market_class": "NNM"
     },
-    "composite_score": 51.6,
+    "composite_score": 51.7,
     "score_components": {
       "rvol_score": 49.7,
-      "rs_score_component": 84.2,
+      "rs_score_component": 84.3,
       "breakout_proximity_score": 2.5,
       "trend_strength_score": 66.7,
       "weights": {
@@ -83,10 +83,10 @@
       }
     },
     "signal_streak": 2,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 99,
+    "id": 115,
     "timestamp": "2026-10-02",
     "symbol": "IBRX",
     "name": "ImmunityBio, Inc. Common Stock",
@@ -95,10 +95,10 @@
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
     "close_price": 10.29,
-    "rvol": 2.67,
-    "rsi": 70.28,
+    "rvol": 2.68,
+    "rsi": 70.25,
     "market_regime": "Bullish",
-    "rs_score": 86.9,
+    "rs_score": 86.7,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -113,13 +113,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 10.88,
-    "atr_pct": 5.89,
-    "avg_dollar_vol_20d": 114228452.0,
-    "rs_vs_spy": 14.53,
-    "rs_vs_sector": 22.57,
-    "dist_to_20d_high_pct": 9.0,
-    "dist_to_52w_high_pct": -17.22,
+    "pct_change_1d": 10.83,
+    "atr_pct": 5.9,
+    "avg_dollar_vol_20d": 114318734.0,
+    "rs_vs_spy": 14.48,
+    "rs_vs_sector": 22.55,
+    "dist_to_20d_high_pct": 8.95,
+    "dist_to_52w_high_pct": -17.26,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -157,8 +157,8 @@
     },
     "composite_score": 59.0,
     "score_components": {
-      "rvol_score": 41.7,
-      "rs_score_component": 86.9,
+      "rvol_score": 42.1,
+      "rs_score_component": 86.7,
       "breakout_proximity_score": 10.0,
       "trend_strength_score": 100.0,
       "weights": {
@@ -169,10 +169,10 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 104,
+    "id": 120,
     "timestamp": "2026-10-02",
     "symbol": "QGEN",
     "name": "QIAGEN N.V.",
@@ -180,9 +180,9 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 44.74,
+    "close_price": 44.75,
     "rvol": 2.36,
-    "rsi": 55.39,
+    "rsi": 55.43,
     "market_regime": "Bullish",
     "rs_score": 85.4,
     "ma_alignment": {
@@ -199,13 +199,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 6.42,
+    "pct_change_1d": 6.45,
     "atr_pct": 3.1,
-    "avg_dollar_vol_20d": 90929702.0,
-    "rs_vs_spy": 12.61,
+    "avg_dollar_vol_20d": 90935193.0,
+    "rs_vs_spy": 12.64,
     "rs_vs_sector": null,
-    "dist_to_20d_high_pct": -0.6,
-    "dist_to_52w_high_pct": -22.62,
+    "dist_to_20d_high_pct": -0.58,
+    "dist_to_52w_high_pct": -22.6,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -255,10 +255,10 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 107,
+    "id": 124,
     "timestamp": "2026-10-02",
     "symbol": "VECO",
     "name": "Veeco Instruments Inc",
@@ -266,17 +266,17 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 57.35,
+    "close_price": 57.38,
     "rvol": 2.22,
-    "rsi": 73.03,
+    "rsi": 73.07,
     "market_regime": "Bullish",
     "rs_score": 77.8,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
       "above_sma200": true,
-      "ema20": 48.17,
-      "sma50": 47.65,
+      "ema20": 48.18,
+      "sma50": 47.66,
       "sma200": 45.41
     },
     "price_5d": null,
@@ -285,13 +285,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 7.82,
-    "atr_pct": 5.01,
-    "avg_dollar_vol_20d": 33026739.0,
-    "rs_vs_spy": 4.56,
-    "rs_vs_sector": 14.32,
-    "dist_to_20d_high_pct": 7.82,
-    "dist_to_52w_high_pct": -33.8,
+    "pct_change_1d": 7.88,
+    "atr_pct": 5.02,
+    "avg_dollar_vol_20d": 33029920.0,
+    "rs_vs_spy": 4.62,
+    "rs_vs_sector": 14.37,
+    "dist_to_20d_high_pct": 7.88,
+    "dist_to_52w_high_pct": -33.76,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -327,11 +327,11 @@
       "change_pct": 0.8,
       "market_class": "NNM"
     },
-    "composite_score": 53.1,
+    "composite_score": 53.2,
     "score_components": {
       "rvol_score": 30.4,
       "rs_score_component": 77.8,
-      "breakout_proximity_score": 8.8,
+      "breakout_proximity_score": 8.9,
       "trend_strength_score": 100.0,
       "weights": {
         "rvol": 0.25,
@@ -341,10 +341,10 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 94,
+    "id": 110,
     "timestamp": "2026-10-02",
     "symbol": "ARW",
     "name": "Arrow Electronics, Inc.",
@@ -352,16 +352,16 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 242.19,
+    "close_price": 242.01,
     "rvol": 2.1,
-    "rsi": 69.1,
+    "rsi": 69.01,
     "market_regime": "Bullish",
-    "rs_score": 90.2,
+    "rs_score": 90.1,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
       "above_sma200": true,
-      "ema20": 224.1,
+      "ema20": 224.09,
       "sma50": 215.47,
       "sma200": 180.19
     },
@@ -371,13 +371,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 4.56,
-    "atr_pct": 3.26,
-    "avg_dollar_vol_20d": 129547972.0,
-    "rs_vs_spy": 21.98,
-    "rs_vs_sector": 31.18,
-    "dist_to_20d_high_pct": 4.03,
-    "dist_to_52w_high_pct": -1.8,
+    "pct_change_1d": 4.48,
+    "atr_pct": 3.28,
+    "avg_dollar_vol_20d": 129579571.0,
+    "rs_vs_spy": 21.89,
+    "rs_vs_sector": 31.09,
+    "dist_to_20d_high_pct": 3.96,
+    "dist_to_52w_high_pct": -2.12,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -415,8 +415,8 @@
     },
     "composite_score": 55.2,
     "score_components": {
-      "rvol_score": 27.4,
-      "rs_score_component": 90.2,
+      "rvol_score": 27.6,
+      "rs_score_component": 90.1,
       "breakout_proximity_score": 5.0,
       "trend_strength_score": 100.0,
       "weights": {
@@ -427,10 +427,10 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 93,
+    "id": 109,
     "timestamp": "2026-10-02",
     "symbol": "ARHS",
     "name": "Arhaus, Inc. Class A Common Stock",
@@ -438,11 +438,11 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 10.23,
+    "close_price": 10.24,
     "rvol": 1.98,
-    "rsi": 66.96,
+    "rsi": 67.0,
     "market_regime": "Bullish",
-    "rs_score": 90.4,
+    "rs_score": 90.5,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -457,13 +457,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 3.7,
-    "atr_pct": 4.75,
-    "avg_dollar_vol_20d": 13378977.0,
-    "rs_vs_spy": 22.8,
-    "rs_vs_sector": 32.0,
-    "dist_to_20d_high_pct": 3.7,
-    "dist_to_52w_high_pct": -15.27,
+    "pct_change_1d": 3.75,
+    "atr_pct": 4.76,
+    "avg_dollar_vol_20d": 13379690.0,
+    "rs_vs_spy": 22.87,
+    "rs_vs_sector": 32.06,
+    "dist_to_20d_high_pct": 3.75,
+    "dist_to_52w_high_pct": -15.23,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -499,10 +499,10 @@
       "change_pct": -0.26,
       "market_class": "NNM"
     },
-    "composite_score": 54.4,
+    "composite_score": 54.5,
     "score_components": {
       "rvol_score": 24.5,
-      "rs_score_component": 90.4,
+      "rs_score_component": 90.5,
       "breakout_proximity_score": 4.7,
       "trend_strength_score": 100.0,
       "weights": {
@@ -513,10 +513,89 @@
       }
     },
     "signal_streak": 2,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 106,
+    "id": 111,
+    "timestamp": "2026-10-02",
+    "symbol": "ATKR",
+    "name": "Atkore Inc.",
+    "sector": "Technology",
+    "primary_exchange": "XNYS",
+    "market_cap": 0.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 94.62,
+    "rvol": 1.79,
+    "rsi": 69.65,
+    "market_regime": "Bullish",
+    "rs_score": 93.5,
+    "ma_alignment": {
+      "above_ema20": true,
+      "above_sma50": true,
+      "above_sma200": true,
+      "ema20": 94.17,
+      "sma50": 91.61,
+      "sma200": 75.38
+    },
+    "price_5d": null,
+    "price_10d": null,
+    "price_20d": null,
+    "return_5d_pct": null,
+    "return_10d_pct": null,
+    "return_20d_pct": null,
+    "pct_change_1d": -0.16,
+    "atr_pct": 0.4,
+    "avg_dollar_vol_20d": 76200158.0,
+    "rs_vs_spy": 33.68,
+    "rs_vs_sector": 25.1,
+    "dist_to_20d_high_pct": -0.16,
+    "dist_to_52w_high_pct": -0.27,
+    "near_earnings": false,
+    "earnings_date": "2026-06-30",
+    "news": [
+      {
+        "headline": "Is Atkore (ATKR) Stock Outpacing Its Industrial Products Peers This Year?",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=8ca55422ebdb5c1ce84070102c77be28bb1dfad824560d838caaa0cae0cb24e8",
+        "date": "2026-09-30",
+        "category": "Other"
+      },
+      {
+        "headline": "9 Green Days In A Row: nVent Electric Stock Is Up 12%",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=b38b72235bb93957ab2986d6e39783ef2700f84f7c58d5c21a1bfaaf6b059298",
+        "date": "2026-09-28",
+        "category": "Other"
+      }
+    ],
+    "insider_activity": [],
+    "insider_cluster": false,
+    "short_interest": {
+      "shares_short": 1325633,
+      "days_to_cover": 1.6,
+      "short_percent_of_float": null,
+      "settlement_date": "2026-09-15",
+      "change_pct": 16.75,
+      "market_class": "NYSE"
+    },
+    "composite_score": 53.2,
+    "score_components": {
+      "rvol_score": 19.9,
+      "rs_score_component": 93.5,
+      "breakout_proximity_score": 0.8,
+      "trend_strength_score": 100.0,
+      "weights": {
+        "rvol": 0.25,
+        "rs": 0.3,
+        "breakout_proximity": 0.25,
+        "trend_strength": 0.2
+      }
+    },
+    "signal_streak": 1,
+    "created_at": "2026-10-03 01:21:51"
+  },
+  {
+    "id": 122,
     "timestamp": "2026-10-02",
     "symbol": "SILC",
     "name": "Silicom Ltd",
@@ -524,17 +603,17 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 59.34,
+    "close_price": 60.03,
     "rvol": 1.79,
-    "rsi": 73.53,
+    "rsi": 74.21,
     "market_regime": "Bullish",
-    "rs_score": 95.6,
+    "rs_score": 95.8,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
       "above_sma200": true,
-      "ema20": 49.09,
-      "sma50": 44.53,
+      "ema20": 49.15,
+      "sma50": 44.55,
       "sma200": 32.78
     },
     "price_5d": null,
@@ -543,13 +622,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 10.65,
-    "atr_pct": 5.73,
-    "avg_dollar_vol_20d": 7181343.0,
-    "rs_vs_spy": 47.03,
+    "pct_change_1d": 11.93,
+    "atr_pct": 5.72,
+    "avg_dollar_vol_20d": 7192033.0,
+    "rs_vs_spy": 48.77,
     "rs_vs_sector": null,
-    "dist_to_20d_high_pct": 10.65,
-    "dist_to_52w_high_pct": -1.56,
+    "dist_to_20d_high_pct": 11.93,
+    "dist_to_52w_high_pct": -1.15,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -571,11 +650,11 @@
       "change_pct": -18.09,
       "market_class": "NNM"
     },
-    "composite_score": 56.5,
+    "composite_score": 56.9,
     "score_components": {
-      "rvol_score": 19.8,
-      "rs_score_component": 95.6,
-      "breakout_proximity_score": 11.6,
+      "rvol_score": 19.9,
+      "rs_score_component": 95.8,
+      "breakout_proximity_score": 12.9,
       "trend_strength_score": 100.0,
       "weights": {
         "rvol": 0.25,
@@ -585,10 +664,10 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 108,
+    "id": 125,
     "timestamp": "2026-10-02",
     "symbol": "VIAV",
     "name": "Viavi Solutions Inc. Common Stock",
@@ -596,11 +675,11 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 47.09,
+    "close_price": 47.1,
     "rvol": 1.73,
-    "rsi": 72.62,
+    "rsi": 72.63,
     "market_regime": "Bullish",
-    "rs_score": 86.5,
+    "rs_score": 86.3,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -615,13 +694,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 5.16,
+    "pct_change_1d": 5.18,
     "atr_pct": 5.56,
-    "avg_dollar_vol_20d": 233597235.0,
-    "rs_vs_spy": 14.15,
-    "rs_vs_sector": 5.54,
-    "dist_to_20d_high_pct": 5.16,
-    "dist_to_52w_high_pct": -22.08,
+    "avg_dollar_vol_20d": 233619242.0,
+    "rs_vs_spy": 14.17,
+    "rs_vs_sector": 5.59,
+    "dist_to_20d_high_pct": 5.18,
+    "dist_to_52w_high_pct": -22.06,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -657,10 +736,10 @@
       "change_pct": 16.71,
       "market_class": "NNM"
     },
-    "composite_score": 52.1,
+    "composite_score": 52.0,
     "score_components": {
       "rvol_score": 18.3,
-      "rs_score_component": 86.5,
+      "rs_score_component": 86.3,
       "breakout_proximity_score": 6.2,
       "trend_strength_score": 100.0,
       "weights": {
@@ -671,10 +750,182 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 101,
+    "id": 116,
+    "timestamp": "2026-10-02",
+    "symbol": "LQDT",
+    "name": "Liquidity Services, Inc.",
+    "sector": "Industrials",
+    "primary_exchange": "XNAS",
+    "market_cap": 0.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 43.23,
+    "rvol": 1.71,
+    "rsi": 55.59,
+    "market_regime": "Bullish",
+    "rs_score": 84.2,
+    "ma_alignment": {
+      "above_ema20": true,
+      "above_sma50": true,
+      "above_sma200": true,
+      "ema20": 42.82,
+      "sma50": 41.75,
+      "sma200": 35.72
+    },
+    "price_5d": null,
+    "price_10d": null,
+    "price_20d": null,
+    "return_5d_pct": null,
+    "return_10d_pct": null,
+    "return_20d_pct": null,
+    "pct_change_1d": -0.94,
+    "atr_pct": 2.86,
+    "avg_dollar_vol_20d": 10212498.0,
+    "rs_vs_spy": 10.74,
+    "rs_vs_sector": 20.49,
+    "dist_to_20d_high_pct": -0.94,
+    "dist_to_52w_high_pct": -3.93,
+    "near_earnings": false,
+    "earnings_date": "2026-06-30",
+    "news": [
+      {
+        "headline": "Liquidity Services Acquires Invaluable Marketplace",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=5a2a322902413b490511b62920fb60e2768e7f1d726c95d98df65636621d7fb8",
+        "date": "2026-10-01",
+        "category": "M&A"
+      },
+      {
+        "headline": "Liquidity Services Acquires Auction Holdings For $80M In Cash",
+        "source": "Benzinga",
+        "url": "https://finnhub.io/api/news?id=47bf8164644988d7cbec95fb70d4bb3c4ffbfd2357f78d95d95139638522010b",
+        "date": "2026-10-01",
+        "category": "M&A"
+      },
+      {
+        "headline": "Amazon, Walmart Surplus Auctioneer Climbs Toward A Breakout; Stock Up 45%",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=c20de7e6f4ba5d903ec120634700aefd46ee4b3b586840fcc69da9e07a070e3f",
+        "date": "2026-09-29",
+        "category": "Other"
+      }
+    ],
+    "insider_activity": [],
+    "insider_cluster": false,
+    "short_interest": {
+      "shares_short": 1016722,
+      "days_to_cover": 4.65,
+      "short_percent_of_float": null,
+      "settlement_date": "2026-09-15",
+      "change_pct": 11.22,
+      "market_class": "NNM"
+    },
+    "composite_score": 49.7,
+    "score_components": {
+      "rvol_score": 17.8,
+      "rs_score_component": 84.2,
+      "breakout_proximity_score": 0.1,
+      "trend_strength_score": 100.0,
+      "weights": {
+        "rvol": 0.25,
+        "rs": 0.3,
+        "breakout_proximity": 0.25,
+        "trend_strength": 0.2
+      }
+    },
+    "signal_streak": 2,
+    "created_at": "2026-10-03 01:21:51"
+  },
+  {
+    "id": 114,
+    "timestamp": "2026-10-02",
+    "symbol": "FORM",
+    "name": "FormFactor Inc.",
+    "sector": "Technology",
+    "primary_exchange": "XNAS",
+    "market_cap": 0.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 149.15,
+    "rvol": 1.67,
+    "rsi": 72.8,
+    "market_regime": "Bullish",
+    "rs_score": 94.3,
+    "ma_alignment": {
+      "above_ema20": true,
+      "above_sma50": true,
+      "above_sma200": true,
+      "ema20": 127.21,
+      "sma50": 115.28,
+      "sma200": 108.54
+    },
+    "price_5d": null,
+    "price_10d": null,
+    "price_20d": null,
+    "return_5d_pct": null,
+    "return_10d_pct": null,
+    "return_20d_pct": null,
+    "pct_change_1d": 0.48,
+    "atr_pct": 4.88,
+    "avg_dollar_vol_20d": 159885861.0,
+    "rs_vs_spy": 37.71,
+    "rs_vs_sector": 29.13,
+    "dist_to_20d_high_pct": -0.11,
+    "dist_to_52w_high_pct": -6.94,
+    "near_earnings": false,
+    "earnings_date": "2026-06-30",
+    "news": [
+      {
+        "headline": "Twilio to join S&P 500 as S&P Dow Jones reshuffles indices",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=886e0b29e200daaaea6ab20d3e7d0c0c85666aa3c0aef814797ac3555d303456",
+        "date": "2026-10-01",
+        "category": "Other"
+      },
+      {
+        "headline": "Vylor Added to the S&P 500; Twilio Set to Join S&P 500; Others to Join S&P MidCap 400 and S&P SmallCap 600",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=be89aee2288d6614a53782ba2b6c34882131c83567eb46ef4c9e32fd0d200f25",
+        "date": "2026-10-01",
+        "category": "Other"
+      },
+      {
+        "headline": "Micron Q4 Earnings Beat Estimates on Strong Pricing and AI Demand",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=42d4bc1cb8d1af1a5eaec00db301fadd13e7dbbc78c851fd78af098f43f40150",
+        "date": "2026-10-01",
+        "category": "Earnings/Guidance"
+      }
+    ],
+    "insider_activity": [],
+    "insider_cluster": false,
+    "short_interest": {
+      "shares_short": 3217345,
+      "days_to_cover": 2.99,
+      "short_percent_of_float": null,
+      "settlement_date": "2026-09-15",
+      "change_pct": 8.93,
+      "market_class": "NNM"
+    },
+    "composite_score": 52.7,
+    "score_components": {
+      "rvol_score": 16.6,
+      "rs_score_component": 94.3,
+      "breakout_proximity_score": 0.9,
+      "trend_strength_score": 100.0,
+      "weights": {
+        "rvol": 0.25,
+        "rs": 0.3,
+        "breakout_proximity": 0.25,
+        "trend_strength": 0.2
+      }
+    },
+    "signal_streak": 1,
+    "created_at": "2026-10-03 01:21:51"
+  },
+  {
+    "id": 117,
     "timestamp": "2026-10-02",
     "symbol": "LSCC",
     "name": "Lattice Semiconductor Corp",
@@ -682,11 +933,11 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 133.99,
-    "rvol": 1.66,
+    "close_price": 134.0,
+    "rvol": 1.67,
     "rsi": 65.57,
     "market_regime": "Bullish",
-    "rs_score": 70.5,
+    "rs_score": 70.4,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
@@ -701,12 +952,12 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 3.98,
+    "pct_change_1d": 3.99,
     "atr_pct": 4.15,
-    "avg_dollar_vol_20d": 212109390.0,
-    "rs_vs_spy": -0.34,
-    "rs_vs_sector": -8.95,
-    "dist_to_20d_high_pct": 3.98,
+    "avg_dollar_vol_20d": 212120195.0,
+    "rs_vs_spy": -0.33,
+    "rs_vs_sector": -8.91,
+    "dist_to_20d_high_pct": 3.99,
     "dist_to_52w_high_pct": -14.66,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -743,10 +994,10 @@
       "change_pct": 5.37,
       "market_class": "NNM"
     },
-    "composite_score": 46.6,
+    "composite_score": 46.5,
     "score_components": {
       "rvol_score": 16.6,
-      "rs_score_component": 70.5,
+      "rs_score_component": 70.4,
       "breakout_proximity_score": 5.0,
       "trend_strength_score": 100.0,
       "weights": {
@@ -757,261 +1008,10 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 95,
-    "timestamp": "2026-10-02",
-    "symbol": "ATKR",
-    "name": "Atkore Inc.",
-    "sector": "Technology",
-    "primary_exchange": "XNYS",
-    "market_cap": 0.0,
-    "setup_name": "Momentum Breakout",
-    "close_price": 94.78,
-    "rvol": 1.65,
-    "rsi": 73.48,
-    "market_regime": "Bullish",
-    "rs_score": 93.6,
-    "ma_alignment": {
-      "above_ema20": true,
-      "above_sma50": true,
-      "above_sma200": true,
-      "ema20": 94.18,
-      "sma50": 91.61,
-      "sma200": 75.38
-    },
-    "price_5d": null,
-    "price_10d": null,
-    "price_20d": null,
-    "return_5d_pct": null,
-    "return_10d_pct": null,
-    "return_20d_pct": null,
-    "pct_change_1d": 0.01,
-    "atr_pct": 0.39,
-    "avg_dollar_vol_20d": 75669203.0,
-    "rs_vs_spy": 33.91,
-    "rs_vs_sector": 25.3,
-    "dist_to_20d_high_pct": 0.01,
-    "dist_to_52w_high_pct": -0.11,
-    "near_earnings": false,
-    "earnings_date": "2026-06-30",
-    "news": [
-      {
-        "headline": "Is Atkore (ATKR) Stock Outpacing Its Industrial Products Peers This Year?",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=8ca55422ebdb5c1ce84070102c77be28bb1dfad824560d838caaa0cae0cb24e8",
-        "date": "2026-09-30",
-        "category": "Other"
-      },
-      {
-        "headline": "9 Green Days In A Row: nVent Electric Stock Is Up 12%",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=b38b72235bb93957ab2986d6e39783ef2700f84f7c58d5c21a1bfaaf6b059298",
-        "date": "2026-09-28",
-        "category": "Other"
-      }
-    ],
-    "insider_activity": [],
-    "insider_cluster": false,
-    "short_interest": {
-      "shares_short": 1325633,
-      "days_to_cover": 1.6,
-      "short_percent_of_float": null,
-      "settlement_date": "2026-09-15",
-      "change_pct": 16.75,
-      "market_class": "NYSE"
-    },
-    "composite_score": 52.4,
-    "score_components": {
-      "rvol_score": 16.2,
-      "rs_score_component": 93.6,
-      "breakout_proximity_score": 1.0,
-      "trend_strength_score": 100.0,
-      "weights": {
-        "rvol": 0.25,
-        "rs": 0.3,
-        "breakout_proximity": 0.25,
-        "trend_strength": 0.2
-      }
-    },
-    "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
-  },
-  {
-    "id": 98,
-    "timestamp": "2026-10-02",
-    "symbol": "FORM",
-    "name": "FormFactor Inc.",
-    "sector": "Technology",
-    "primary_exchange": "XNAS",
-    "market_cap": 0.0,
-    "setup_name": "Momentum Breakout",
-    "close_price": 149.03,
-    "rvol": 1.63,
-    "rsi": 72.74,
-    "market_regime": "Bullish",
-    "rs_score": 94.4,
-    "ma_alignment": {
-      "above_ema20": true,
-      "above_sma50": true,
-      "above_sma200": true,
-      "ema20": 127.2,
-      "sma50": 115.28,
-      "sma200": 108.54
-    },
-    "price_5d": null,
-    "price_10d": null,
-    "price_20d": null,
-    "return_5d_pct": null,
-    "return_10d_pct": null,
-    "return_20d_pct": null,
-    "pct_change_1d": 0.4,
-    "atr_pct": 4.86,
-    "avg_dollar_vol_20d": 159591285.0,
-    "rs_vs_spy": 37.59,
-    "rs_vs_sector": 28.99,
-    "dist_to_20d_high_pct": -0.19,
-    "dist_to_52w_high_pct": -7.01,
-    "near_earnings": false,
-    "earnings_date": "2026-06-30",
-    "news": [
-      {
-        "headline": "Twilio to join S&P 500 as S&P Dow Jones reshuffles indices",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=886e0b29e200daaaea6ab20d3e7d0c0c85666aa3c0aef814797ac3555d303456",
-        "date": "2026-10-01",
-        "category": "Other"
-      },
-      {
-        "headline": "Vylor Added to the S&P 500; Twilio Set to Join S&P 500; Others to Join S&P MidCap 400 and S&P SmallCap 600",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=be89aee2288d6614a53782ba2b6c34882131c83567eb46ef4c9e32fd0d200f25",
-        "date": "2026-10-01",
-        "category": "Other"
-      },
-      {
-        "headline": "Micron Q4 Earnings Beat Estimates on Strong Pricing and AI Demand",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=42d4bc1cb8d1af1a5eaec00db301fadd13e7dbbc78c851fd78af098f43f40150",
-        "date": "2026-10-01",
-        "category": "Earnings/Guidance"
-      }
-    ],
-    "insider_activity": [],
-    "insider_cluster": false,
-    "short_interest": {
-      "shares_short": 3217345,
-      "days_to_cover": 2.99,
-      "short_percent_of_float": null,
-      "settlement_date": "2026-09-15",
-      "change_pct": 8.93,
-      "market_class": "NNM"
-    },
-    "composite_score": 52.5,
-    "score_components": {
-      "rvol_score": 15.9,
-      "rs_score_component": 94.4,
-      "breakout_proximity_score": 0.8,
-      "trend_strength_score": 100.0,
-      "weights": {
-        "rvol": 0.25,
-        "rs": 0.3,
-        "breakout_proximity": 0.25,
-        "trend_strength": 0.2
-      }
-    },
-    "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
-  },
-  {
-    "id": 100,
-    "timestamp": "2026-10-02",
-    "symbol": "LQDT",
-    "name": "Liquidity Services, Inc.",
-    "sector": "Industrials",
-    "primary_exchange": "XNAS",
-    "market_cap": 0.0,
-    "setup_name": "Momentum Breakout",
-    "close_price": 43.32,
-    "rvol": 1.62,
-    "rsi": 56.39,
-    "market_regime": "Bullish",
-    "rs_score": 84.4,
-    "ma_alignment": {
-      "above_ema20": true,
-      "above_sma50": true,
-      "above_sma200": true,
-      "ema20": 42.83,
-      "sma50": 41.75,
-      "sma200": 35.72
-    },
-    "price_5d": null,
-    "price_10d": null,
-    "price_20d": null,
-    "return_5d_pct": null,
-    "return_10d_pct": null,
-    "return_20d_pct": null,
-    "pct_change_1d": -0.73,
-    "atr_pct": 2.81,
-    "avg_dollar_vol_20d": 10169231.0,
-    "rs_vs_spy": 10.98,
-    "rs_vs_sector": 20.73,
-    "dist_to_20d_high_pct": -0.73,
-    "dist_to_52w_high_pct": -3.3,
-    "near_earnings": false,
-    "earnings_date": "2026-06-30",
-    "news": [
-      {
-        "headline": "Liquidity Services Acquires Invaluable Marketplace",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=5a2a322902413b490511b62920fb60e2768e7f1d726c95d98df65636621d7fb8",
-        "date": "2026-10-01",
-        "category": "M&A"
-      },
-      {
-        "headline": "Liquidity Services Acquires Auction Holdings For $80M In Cash",
-        "source": "Benzinga",
-        "url": "https://finnhub.io/api/news?id=47bf8164644988d7cbec95fb70d4bb3c4ffbfd2357f78d95d95139638522010b",
-        "date": "2026-10-01",
-        "category": "M&A"
-      },
-      {
-        "headline": "Amazon, Walmart Surplus Auctioneer Climbs Toward A Breakout; Stock Up 45%",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=c20de7e6f4ba5d903ec120634700aefd46ee4b3b586840fcc69da9e07a070e3f",
-        "date": "2026-09-29",
-        "category": "Other"
-      }
-    ],
-    "insider_activity": [],
-    "insider_cluster": false,
-    "short_interest": {
-      "shares_short": 1016722,
-      "days_to_cover": 4.65,
-      "short_percent_of_float": null,
-      "settlement_date": "2026-09-15",
-      "change_pct": 11.22,
-      "market_class": "NNM"
-    },
-    "composite_score": 49.3,
-    "score_components": {
-      "rvol_score": 15.6,
-      "rs_score_component": 84.4,
-      "breakout_proximity_score": 0.3,
-      "trend_strength_score": 100.0,
-      "weights": {
-        "rvol": 0.25,
-        "rs": 0.3,
-        "breakout_proximity": 0.25,
-        "trend_strength": 0.2
-      }
-    },
-    "signal_streak": 2,
-    "created_at": "2026-10-02 23:19:15"
-  },
-  {
-    "id": 103,
+    "id": 119,
     "timestamp": "2026-10-02",
     "symbol": "MXL",
     "name": "MaxLinear, Inc. Common Stock",
@@ -1019,18 +1019,18 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 105.95,
-    "rvol": 1.62,
-    "rsi": 71.55,
+    "close_price": 105.93,
+    "rvol": 1.63,
+    "rsi": 71.54,
     "market_regime": "Bullish",
-    "rs_score": 89.5,
+    "rs_score": 89.6,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
       "above_sma200": true,
-      "ema20": 83.76,
+      "ema20": 83.75,
       "sma50": 72.65,
-      "sma200": 53.62
+      "sma200": 53.61
     },
     "price_5d": null,
     "price_10d": null,
@@ -1038,13 +1038,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 15.01,
+    "pct_change_1d": 14.99,
     "atr_pct": 6.6,
-    "avg_dollar_vol_20d": 252633409.0,
-    "rs_vs_spy": 20.52,
-    "rs_vs_sector": 11.91,
-    "dist_to_20d_high_pct": 12.9,
-    "dist_to_52w_high_pct": -17.42,
+    "avg_dollar_vol_20d": 252791246.0,
+    "rs_vs_spy": 20.5,
+    "rs_vs_sector": 11.92,
+    "dist_to_20d_high_pct": 12.88,
+    "dist_to_52w_high_pct": -17.44,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -1080,10 +1080,10 @@
       "change_pct": 7.66,
       "market_class": "NNM"
     },
-    "composite_score": 54.2,
+    "composite_score": 54.3,
     "score_components": {
-      "rvol_score": 15.4,
-      "rs_score_component": 89.5,
+      "rvol_score": 15.7,
+      "rs_score_component": 89.6,
       "breakout_proximity_score": 13.9,
       "trend_strength_score": 100.0,
       "weights": {
@@ -1094,10 +1094,74 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 97,
+    "id": 121,
+    "timestamp": "2026-10-02",
+    "symbol": "RRBI",
+    "name": "Red River Bancshares, Inc. Common Stock",
+    "sector": "Financials",
+    "primary_exchange": "XNAS",
+    "market_cap": 0.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 103.41,
+    "rvol": 1.62,
+    "rsi": 60.23,
+    "market_regime": "Bullish",
+    "rs_score": 76.0,
+    "ma_alignment": {
+      "above_ema20": true,
+      "above_sma50": true,
+      "above_sma200": true,
+      "ema20": 101.36,
+      "sma50": 101.45,
+      "sma200": 91.33
+    },
+    "price_5d": null,
+    "price_10d": null,
+    "price_20d": null,
+    "return_5d_pct": null,
+    "return_10d_pct": null,
+    "return_20d_pct": null,
+    "pct_change_1d": 1.96,
+    "atr_pct": 1.92,
+    "avg_dollar_vol_20d": 7014230.0,
+    "rs_vs_spy": 3.35,
+    "rs_vs_sector": 10.85,
+    "dist_to_20d_high_pct": -0.08,
+    "dist_to_52w_high_pct": -1.39,
+    "near_earnings": false,
+    "earnings_date": "2026-06-30",
+    "news": [],
+    "insider_activity": [],
+    "insider_cluster": false,
+    "short_interest": {
+      "shares_short": 275388,
+      "days_to_cover": 4.49,
+      "short_percent_of_float": null,
+      "settlement_date": "2026-09-15",
+      "change_pct": 21.49,
+      "market_class": "NNM"
+    },
+    "composite_score": 46.9,
+    "score_components": {
+      "rvol_score": 15.4,
+      "rs_score_component": 76.0,
+      "breakout_proximity_score": 0.9,
+      "trend_strength_score": 100.0,
+      "weights": {
+        "rvol": 0.25,
+        "rs": 0.3,
+        "breakout_proximity": 0.25,
+        "trend_strength": 0.2
+      }
+    },
+    "signal_streak": 1,
+    "created_at": "2026-10-03 01:21:51"
+  },
+  {
+    "id": 113,
     "timestamp": "2026-10-02",
     "symbol": "DAC",
     "name": "Danaos Corporation",
@@ -1105,16 +1169,16 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 164.89,
+    "close_price": 165.15,
     "rvol": 1.6,
-    "rsi": 69.46,
+    "rsi": 69.74,
     "market_regime": "Bullish",
     "rs_score": 92.5,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
       "above_sma200": true,
-      "ema20": 156.32,
+      "ema20": 156.34,
       "sma50": 149.8,
       "sma200": 124.16
     },
@@ -1124,13 +1188,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 1.95,
-    "atr_pct": 2.19,
-    "avg_dollar_vol_20d": 21513445.0,
-    "rs_vs_spy": 29.08,
+    "pct_change_1d": 2.11,
+    "atr_pct": 2.36,
+    "avg_dollar_vol_20d": 21516834.0,
+    "rs_vs_spy": 29.29,
     "rs_vs_sector": null,
-    "dist_to_20d_high_pct": 1.53,
-    "dist_to_52w_high_pct": 0.0,
+    "dist_to_20d_high_pct": 1.69,
+    "dist_to_52w_high_pct": -0.06,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -1156,7 +1220,7 @@
     "score_components": {
       "rvol_score": 15.1,
       "rs_score_component": 92.5,
-      "breakout_proximity_score": 2.5,
+      "breakout_proximity_score": 2.7,
       "trend_strength_score": 100.0,
       "weights": {
         "rvol": 0.25,
@@ -1166,74 +1230,10 @@
       }
     },
     "signal_streak": 2,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
   },
   {
-    "id": 105,
-    "timestamp": "2026-10-02",
-    "symbol": "RRBI",
-    "name": "Red River Bancshares, Inc. Common Stock",
-    "sector": "Financials",
-    "primary_exchange": "XNAS",
-    "market_cap": 0.0,
-    "setup_name": "Momentum Breakout",
-    "close_price": 103.61,
-    "rvol": 1.59,
-    "rsi": 60.93,
-    "market_regime": "Bullish",
-    "rs_score": 76.4,
-    "ma_alignment": {
-      "above_ema20": true,
-      "above_sma50": true,
-      "above_sma200": true,
-      "ema20": 101.38,
-      "sma50": 101.45,
-      "sma200": 91.33
-    },
-    "price_5d": null,
-    "price_10d": null,
-    "price_20d": null,
-    "return_5d_pct": null,
-    "return_10d_pct": null,
-    "return_20d_pct": null,
-    "pct_change_1d": 2.16,
-    "atr_pct": 1.9,
-    "avg_dollar_vol_20d": 7006942.0,
-    "rs_vs_spy": 3.55,
-    "rs_vs_sector": 11.09,
-    "dist_to_20d_high_pct": 0.12,
-    "dist_to_52w_high_pct": -1.2,
-    "near_earnings": false,
-    "earnings_date": "2026-06-30",
-    "news": [],
-    "insider_activity": [],
-    "insider_cluster": false,
-    "short_interest": {
-      "shares_short": 275388,
-      "days_to_cover": 4.49,
-      "short_percent_of_float": null,
-      "settlement_date": "2026-09-15",
-      "change_pct": 21.49,
-      "market_class": "NNM"
-    },
-    "composite_score": 46.9,
-    "score_components": {
-      "rvol_score": 14.8,
-      "rs_score_component": 76.4,
-      "breakout_proximity_score": 1.1,
-      "trend_strength_score": 100.0,
-      "weights": {
-        "rvol": 0.25,
-        "rs": 0.3,
-        "breakout_proximity": 0.25,
-        "trend_strength": 0.2
-      }
-    },
-    "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
-  },
-  {
-    "id": 96,
+    "id": 112,
     "timestamp": "2026-10-02",
     "symbol": "AVT",
     "name": "Avnet, Inc.",
@@ -1241,17 +1241,17 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
-    "close_price": 106.97,
+    "close_price": 106.94,
     "rvol": 1.58,
-    "rsi": 68.14,
+    "rsi": 68.1,
     "market_regime": "Bullish",
     "rs_score": 92.3,
     "ma_alignment": {
       "above_ema20": true,
       "above_sma50": true,
       "above_sma200": true,
-      "ema20": 98.42,
-      "sma50": 93.71,
+      "ema20": 98.41,
+      "sma50": 93.7,
       "sma200": 76.48
     },
     "price_5d": null,
@@ -1260,13 +1260,13 @@
     "return_5d_pct": null,
     "return_10d_pct": null,
     "return_20d_pct": null,
-    "pct_change_1d": 4.63,
+    "pct_change_1d": 4.59,
     "atr_pct": 3.75,
-    "avg_dollar_vol_20d": 140514076.0,
-    "rs_vs_spy": 28.36,
-    "rs_vs_sector": 37.56,
-    "dist_to_20d_high_pct": 3.78,
-    "dist_to_52w_high_pct": -1.52,
+    "avg_dollar_vol_20d": 140528515.0,
+    "rs_vs_spy": 28.31,
+    "rs_vs_sector": 37.5,
+    "dist_to_20d_high_pct": 3.74,
+    "dist_to_52w_high_pct": -1.56,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
@@ -1306,7 +1306,7 @@
     "score_components": {
       "rvol_score": 14.5,
       "rs_score_component": 92.3,
-      "breakout_proximity_score": 4.8,
+      "breakout_proximity_score": 4.7,
       "trend_strength_score": 100.0,
       "weights": {
         "rvol": 0.25,
@@ -1316,7 +1316,165 @@
       }
     },
     "signal_streak": 1,
-    "created_at": "2026-10-02 23:19:15"
+    "created_at": "2026-10-03 01:21:51"
+  },
+  {
+    "id": 123,
+    "timestamp": "2026-10-02",
+    "symbol": "SNPS",
+    "name": "Synopsys Inc",
+    "sector": "Technology",
+    "primary_exchange": "XNAS",
+    "market_cap": 0.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 489.9,
+    "rvol": 1.58,
+    "rsi": 74.1,
+    "market_regime": "Bullish",
+    "rs_score": 82.8,
+    "ma_alignment": {
+      "above_ema20": true,
+      "above_sma50": true,
+      "above_sma200": true,
+      "ema20": 423.88,
+      "sma50": 407.61,
+      "sma200": 444.9
+    },
+    "price_5d": null,
+    "price_10d": null,
+    "price_20d": null,
+    "return_5d_pct": null,
+    "return_10d_pct": null,
+    "return_20d_pct": null,
+    "pct_change_1d": -0.13,
+    "atr_pct": 3.89,
+    "avg_dollar_vol_20d": 1003090037.0,
+    "rs_vs_spy": 9.27,
+    "rs_vs_sector": 0.69,
+    "dist_to_20d_high_pct": -0.13,
+    "dist_to_52w_high_pct": -9.19,
+    "near_earnings": false,
+    "earnings_date": "2026-06-30",
+    "news": [
+      {
+        "headline": "Synopsys Is the Nasdaq 100\u2019s Top Stock Today. The Target Says It\u2019s Not Done",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=00d458189dfee1ad8d236639740ffa19962e7eae4398dd9b656a6a22bf813e31",
+        "date": "2026-10-02",
+        "category": "Other"
+      },
+      {
+        "headline": "2026 BayAreaCISO ORBIE Awards Recognize Bay Area\u2019s Top Security Executives",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=bbe6798705edf8521daff1cc8b33e3d323236fa6c01e86d192a84f98dfdf976d",
+        "date": "2026-10-02",
+        "category": "Other"
+      },
+      {
+        "headline": "What Does Fair Isaac Offer That Cadence Does Not?",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=d4304c607364dd178a7f6a8406ea1b42cf920db8507dbe346e40b0ca02a415e3",
+        "date": "2026-10-02",
+        "category": "Other"
+      }
+    ],
+    "insider_activity": [],
+    "insider_cluster": false,
+    "short_interest": {
+      "shares_short": 5712575,
+      "days_to_cover": 3.06,
+      "short_percent_of_float": null,
+      "settlement_date": "2026-09-15",
+      "change_pct": 9.56,
+      "market_class": "NNM"
+    },
+    "composite_score": 48.7,
+    "score_components": {
+      "rvol_score": 14.5,
+      "rs_score_component": 82.8,
+      "breakout_proximity_score": 0.9,
+      "trend_strength_score": 100.0,
+      "weights": {
+        "rvol": 0.25,
+        "rs": 0.3,
+        "breakout_proximity": 0.25,
+        "trend_strength": 0.2
+      }
+    },
+    "signal_streak": 2,
+    "created_at": "2026-10-03 01:21:51"
+  },
+  {
+    "id": 126,
+    "timestamp": "2026-10-02",
+    "symbol": "XP",
+    "name": "XP Inc. Class A Common Stock",
+    "sector": "Unknown",
+    "primary_exchange": "XNAS",
+    "market_cap": 0.0,
+    "setup_name": "Momentum Breakout",
+    "close_price": 21.5,
+    "rvol": 1.54,
+    "rsi": 69.38,
+    "market_regime": "Bullish",
+    "rs_score": 93.1,
+    "ma_alignment": {
+      "above_ema20": true,
+      "above_sma50": true,
+      "above_sma200": true,
+      "ema20": 20.17,
+      "sma50": 18.3,
+      "sma200": 18.22
+    },
+    "price_5d": null,
+    "price_10d": null,
+    "price_20d": null,
+    "return_5d_pct": null,
+    "return_10d_pct": null,
+    "return_20d_pct": null,
+    "pct_change_1d": 1.56,
+    "atr_pct": 3.77,
+    "avg_dollar_vol_20d": 167379885.0,
+    "rs_vs_spy": 31.69,
+    "rs_vs_sector": null,
+    "dist_to_20d_high_pct": 1.37,
+    "dist_to_52w_high_pct": -7.05,
+    "near_earnings": false,
+    "earnings_date": "2026-06-30",
+    "news": [
+      {
+        "headline": "XP Inc. Class A (NASDAQ:XP) Eyes Technical Breakout With 9/10 Strength and Setup Ratings",
+        "source": "ChartMill",
+        "url": "https://finnhub.io/api/news?id=8b5d89e2d2791b86670ea60952b2533977f5d0f9db642a69b39678bc86371a07",
+        "date": "2026-10-01",
+        "category": "Other"
+      }
+    ],
+    "insider_activity": [],
+    "insider_cluster": false,
+    "short_interest": {
+      "shares_short": 17758320,
+      "days_to_cover": 2.08,
+      "short_percent_of_float": null,
+      "settlement_date": "2026-09-15",
+      "change_pct": -7.62,
+      "market_class": "NNM"
+    },
+    "composite_score": 51.9,
+    "score_components": {
+      "rvol_score": 13.5,
+      "rs_score_component": 93.1,
+      "breakout_proximity_score": 2.4,
+      "trend_strength_score": 100.0,
+      "weights": {
+        "rvol": 0.25,
+        "rs": 0.3,
+        "breakout_proximity": 0.25,
+        "trend_strength": 0.2
+      }
+    },
+    "signal_streak": 1,
+    "created_at": "2026-10-03 01:21:51"
   },
   {
     "id": 83,

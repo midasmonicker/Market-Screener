@@ -1,10 +1,10 @@
 {
   "date": "2026-10-02",
   "regime": "Bullish",
-  "spy_close": 769.65,
+  "spy_close": 769.64,
   "spy_sma_200": 720.47,
-  "spy_pct_vs_sma200": 6.83,
+  "spy_pct_vs_sma200": 6.82,
   "pct_universe_above_sma50": 29.1,
-  "universe_breadth_n": 5164,
-  "generated_at": "2026-10-02T23:21:47.329635+00:00"
+  "universe_breadth_n": 5165,
+  "generated_at": "2026-10-03T01:22:06.133103+00:00"
 }
