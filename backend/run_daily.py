@@ -11,7 +11,10 @@ from screener import (
     init_db,
     refresh_ticker_universe,
     ingest_daily_bars,
+    fetch_alpaca_intraday_snapshots,
+    fetch_alpaca_checkpoint_rvol_baselines,
     run_screener_engine,
+    CHECKPOINT_LABELS,
     update_post_breakout_performance,
     get_performance_summary,
     export_web_data,
@@ -151,14 +154,144 @@ def clear_existing_signals_for_date(date_str):
     """
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT count(*) FROM buy_signals WHERE timestamp = ?", (date_str,))
+    cur.execute("SELECT count(*) FROM buy_signals WHERE timestamp = ? AND checkpoint_id = 'eod'", (date_str,))
     existing_count = cur.fetchone()[0] or 0
     if existing_count > 0:
         logger.info("[Idempotency] Removing %d existing buy_signals for %s to prevent duplicates.", existing_count, date_str)
-        cur.execute("DELETE FROM buy_signals WHERE timestamp = ?", (date_str,))
+        cur.execute("DELETE FROM buy_signals WHERE timestamp = ? AND checkpoint_id = 'eod'", (date_str,))
         conn.commit()
     conn.close()
     return existing_count
+
+
+def resolve_checkpoint_id(now_et=None, window_minutes=5):
+    """Resolve an automatic Actions invocation to its nearest ET checkpoint."""
+    if now_et is None:
+        now_et = datetime.datetime.now(ZoneInfo("America/New_York"))
+    elif now_et.tzinfo is None:
+        raise ValueError("now_et must be timezone-aware")
+    else:
+        now_et = now_et.astimezone(ZoneInfo("America/New_York"))
+
+    current_minutes = now_et.hour * 60 + now_et.minute
+    checkpoints = (
+        ("intraday_11am", 11 * 60),
+        ("intraday_1pm", 13 * 60),
+        ("intraday_330pm", 15 * 60 + 30),
+    )
+    matches = [
+        (current_minutes - target_minutes, checkpoint_id)
+        for checkpoint_id, target_minutes in checkpoints
+        if 0 <= current_minutes - target_minutes <= window_minutes
+    ]
+    return min(matches)[1] if matches else None
+
+
+def run_intraday_checkpoint(checkpoint_id="auto", now_utc=None):
+    """Screen the current partial session without refreshing static universe data."""
+    now_utc = now_utc or datetime.datetime.now(datetime.timezone.utc)
+    if now_utc.tzinfo is None:
+        raise ValueError("now_utc must be timezone-aware")
+    now_utc = now_utc.astimezone(datetime.timezone.utc)
+    now_et = now_utc.astimezone(ZoneInfo("America/New_York"))
+
+    if checkpoint_id == "auto":
+        checkpoint_id = resolve_checkpoint_id(now_et)
+        if checkpoint_id is None:
+            logger.info(
+                "No intraday checkpoint is due at %s ET; skipping this DST companion schedule.",
+                now_et.strftime("%Y-%m-%d %H:%M"),
+            )
+            return {"status": "skipped", "reason": "outside checkpoint window"}
+    elif checkpoint_id not in {"intraday_11am", "intraday_1pm", "intraday_330pm"}:
+        raise ValueError(f"Unsupported intraday checkpoint: {checkpoint_id}")
+    elif resolve_checkpoint_id(now_et, window_minutes=5) != checkpoint_id:
+        logger.info(
+            "Requested checkpoint %s is outside its five-minute post-schedule window at %s ET; skipping.",
+            checkpoint_id,
+            now_et.strftime("%Y-%m-%d %H:%M"),
+        )
+        return {"status": "skipped", "reason": "outside checkpoint window"}
+
+    target_date = now_et.date()
+    is_trading_day, _, reason = check_us_market_holiday_and_schedule(target_date)
+    if not is_trading_day:
+        logger.info("US Market Closed (%s); skipping intraday checkpoint.", reason)
+        return {"status": "skipped", "reason": reason, "date": target_date.isoformat()}
+
+    nyse = mcal.get_calendar("NYSE")
+    session = nyse.schedule(
+        start_date=target_date.isoformat(),
+        end_date=target_date.isoformat(),
+    )
+    if session.empty:
+        logger.info("No NYSE session exists for %s; skipping intraday checkpoint.", target_date)
+        return {"status": "skipped", "reason": "no market session", "date": target_date.isoformat()}
+    market_open = session.iloc[0]["market_open"].to_pydatetime()
+    market_close = session.iloc[0]["market_close"].to_pydatetime()
+    if not market_open <= now_utc <= market_close:
+        logger.info(
+            "NYSE is not open at %s ET; skipping intraday checkpoint.",
+            now_et.strftime("%Y-%m-%d %H:%M"),
+        )
+        return {"status": "skipped", "reason": "market is not open", "date": target_date.isoformat()}
+
+    date_str = target_date.isoformat()
+    init_db("schema.sql")
+    conn = get_connection()
+    symbols = [
+        row[0]
+        for row in conn.execute("SELECT symbol FROM tickers WHERE is_active = 1 ORDER BY symbol")
+    ]
+    conn.close()
+    if not symbols:
+        raise RuntimeError("No active tickers are available for the intraday checkpoint.")
+
+    snapshots = fetch_alpaca_intraday_snapshots(symbols, date_str)
+    if not snapshots:
+        raise RuntimeError(
+            f"No current-session Alpaca IEX snapshots were returned for {date_str}; "
+            "checkpoint screening cannot proceed."
+        )
+    rvol_baselines = fetch_alpaca_checkpoint_rvol_baselines(
+        list(snapshots),
+        date_str,
+        checkpoint_id,
+    )
+    if not rvol_baselines:
+        raise RuntimeError(
+            f"No same-time IEX volume baselines were returned for {date_str}; "
+            "checkpoint screening cannot proceed."
+        )
+
+    logger.info(
+        "Running %s (%s ET) against %d current-session snapshots and %d matched IEX volume baselines; "
+        "universe refresh and daily ingestion skipped.",
+        checkpoint_id,
+        CHECKPOINT_LABELS[checkpoint_id],
+        len(snapshots),
+        len(rvol_baselines),
+    )
+    signals = run_screener_engine(
+        date_str,
+        checkpoint_id=checkpoint_id,
+        checkpoint_snapshots=snapshots,
+        checkpoint_rvol_baselines=rvol_baselines,
+    )
+    web_export = export_web_data(
+        output_dir="../frontend/public/data",
+        resolve_missing_metadata=False,
+    )
+    setup_stats = export_setup_stats(output_path="../frontend/public/data/setup_stats.json")
+    return {
+        "status": "completed",
+        "date": date_str,
+        "checkpoint_id": checkpoint_id,
+        "signals_generated": len(signals),
+        "web_export": web_export,
+        "setup_stats": setup_stats,
+    }
+
 
 def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
     """
@@ -241,7 +374,7 @@ def run_daily_pipeline(date_str=None, force_failover=False, dry_run=False):
         clear_existing_signals_for_date(date_str)
         signals = run_screener_engine(date_str)
         signals_count = len(signals)
-        logger.info("Screener engine completed: %d buy signals passed filters.", signals_count)
+        logger.info("Screener engine completed: %d signals passed filters.", signals_count)
 
         # Step 6: Post-Breakout Performance & Outcome Tracking Engine (Phase 8 & Backtest)
         current_step = "[Step 6/8] Updating post-breakout performance and forward outcomes tracking"
@@ -344,11 +477,21 @@ if __name__ == "__main__":
     parser.add_argument("--date", type=str, default=None, help="Target date YYYY-MM-DD")
     parser.add_argument("--force-failover", action="store_true", help="Force failover to Alpaca/yfinance")
     parser.add_argument("--dry-run", action="store_true", help="Run without sending real webhook requests")
+    parser.add_argument(
+        "--checkpoint",
+        choices=("auto", "intraday_11am", "intraday_1pm", "intraday_330pm"),
+        default=None,
+        help="Run one partial-session checkpoint without refreshing the universe",
+    )
     args = parser.parse_args()
 
-    run_daily_pipeline(
-        date_str=args.date,
-        force_failover=args.force_failover,
-        dry_run=args.dry_run
-    )
-
+    if args.checkpoint:
+        if args.date or args.force_failover:
+            parser.error("--checkpoint cannot be combined with --date or --force-failover")
+        run_intraday_checkpoint(checkpoint_id=args.checkpoint)
+    else:
+        run_daily_pipeline(
+            date_str=args.date,
+            force_failover=args.force_failover,
+            dry_run=args.dry_run
+        )

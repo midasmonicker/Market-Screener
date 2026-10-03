@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        ":": true,
+        "printf": true,
+        "exit": true,
+        "npm --prefix frontend": true
+    }
+}

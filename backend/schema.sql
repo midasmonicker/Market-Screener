@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS buy_signals (
     timestamp DATE,
     symbol TEXT,
     setup_name TEXT,
+    checkpoint_id TEXT NOT NULL DEFAULT 'eod',
     close_price REAL,
     rvol REAL,
     rsi REAL,

@@ -36,7 +36,7 @@ def get_recent_signals(date_str=None, limit=20):
             SELECT id, timestamp, symbol, setup_name, close_price, rvol, rsi, details, created_at,
                    return_5d_pct, return_10d_pct, return_20d_pct
             FROM buy_signals
-            WHERE timestamp = ?
+            WHERE timestamp = ? AND checkpoint_id = 'eod'
             ORDER BY rvol DESC
             LIMIT ?
         """, (date_str, limit))
@@ -45,6 +45,7 @@ def get_recent_signals(date_str=None, limit=20):
             SELECT id, timestamp, symbol, setup_name, close_price, rvol, rsi, details, created_at,
                    return_5d_pct, return_10d_pct, return_20d_pct
             FROM buy_signals
+            WHERE checkpoint_id = 'eod'
             ORDER BY id DESC
             LIMIT ?
         """, (limit,))
@@ -95,11 +96,11 @@ def build_discord_payload(signals, date_str=None):
     """
     Construct rich embed JSON payload for Discord Webhook.
 
-    De-duplication rule: only signals with signal_streak == 1 (first breakout day)
+    De-duplication rule: only signals with signal_streak == 1 (first setup day)
     are alerted.  Continuing streaks are mentioned in the embed description so the
     user knows they exist but are not spammed with a repeat card each day.
 
-    Each new-breakout field shows:
+    Each new signal field shows:
       - Composite score (0-100)
       - Earnings warning badge (if near_earnings is True)
       - Price + today's % change, RVOL, RSI
@@ -107,11 +108,11 @@ def build_discord_payload(signals, date_str=None):
     """
     target_date = date_str or (signals[0]["timestamp"] if signals else datetime.date.today().isoformat())
 
-    # Filter: Discord alerts only for brand-new breakout days (streak == 1)
-    new_breakouts = [s for s in signals if (s.get("signal_streak") or 1) == 1]
+    # Filter: Discord alerts only for brand-new setup days (streak == 1)
+    new_signals = [s for s in signals if (s.get("signal_streak") or 1) == 1]
 
-    if not new_breakouts:
-        no_signal_msg = "No new momentum breakout setups today."
+    if not new_signals:
+        no_signal_msg = "No new momentum setups today."
         if signals:
             continuing = [s["symbol"] for s in signals if (s.get("signal_streak") or 1) > 1]
             if continuing:
@@ -134,7 +135,7 @@ def build_discord_payload(signals, date_str=None):
         }
 
     fields = []
-    for sig in new_breakouts[:10]:
+    for sig in new_signals[:10]:
         rs_val    = sig.get("rs_score")
         rs_str    = f"{rs_val:.1f}" if rs_val is not None else "N/A"
         regime    = sig.get("market_regime", "Unknown")
@@ -170,17 +171,17 @@ def build_discord_payload(signals, date_str=None):
             "inline": True
         })
 
-    new_count  = len(new_breakouts)
+    new_count  = len(new_signals)
     continuing = len(signals) - new_count
-    desc = f"**{new_count}** new breakout candidate{'s' if new_count != 1 else ''}"
+    desc = f"**{new_count}** new momentum candidate{'s' if new_count != 1 else ''}"
     if continuing > 0:
         desc += f" _(+{continuing} continuing streak{'s' if continuing != 1 else ''} - see dashboard)_"
     desc += " passing volume, momentum, and quality filters."
 
     embed = {
-        "title":       "\U0001f3af Momentum Breakout Signals: " + target_date,
+        "title":       "\U0001f3af Momentum Signals: " + target_date,
         "description": desc,
-        "color":       0x2ECC71,
+        "color":       0xE74C3C if all(s.get("setup_name") == "Momentum Breakdown" for s in new_signals) else 0x2ECC71,
         "fields":      fields,
         "footer":      {"text": f"Scanned Universe | {new_count} New Setup{'s' if new_count != 1 else ''}"},
         "timestamp":   datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -373,12 +374,12 @@ def format_telegram_message(signals, date_str=None):
     if not norm_signals:
         return (
             f"\U0001f4ca *Daily Stock Screener: {target_date}*\n\n"
-            f"No momentum breakout setups met the screening criteria today."
+            f"No momentum setups met the screening criteria today."
         )
 
     lines = [
-        f"\U0001f3af *Momentum Breakout Signals: {target_date}*",
-        f"Found *{len(norm_signals)}* breakout candidate{'s' if len(norm_signals) != 1 else ''}:\n"
+        f"\U0001f3af *Momentum Signals: {target_date}*",
+        f"Found *{len(norm_signals)}* candidate{'s' if len(norm_signals) != 1 else ''}:\n"
     ]
 
     for sig in norm_signals[:25]:

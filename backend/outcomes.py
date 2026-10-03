@@ -21,7 +21,10 @@ def clear_signals_for_date(date_str, conn=None):
         conn = get_connection()
         close_conn = True
     cur = conn.cursor()
-    cur.execute("DELETE FROM buy_signals WHERE timestamp = ?", (date_str,))
+    cur.execute(
+        "DELETE FROM buy_signals WHERE timestamp = ? AND checkpoint_id = 'eod'",
+        (date_str,),
+    )
     conn.commit()
     if close_conn:
         conn.close()
@@ -97,7 +100,8 @@ def update_signal_outcomes(conn=None):
                o.ret_1d, o.ret_5d, o.ret_10d, o.ret_20d
         FROM buy_signals b
         LEFT JOIN signal_outcomes o ON b.id = o.signal_id
-        WHERE o.ret_20d IS NULL OR o.signal_id IS NULL
+        WHERE b.checkpoint_id = 'eod'
+          AND (o.ret_20d IS NULL OR o.signal_id IS NULL)
         ORDER BY b.timestamp ASC
     """)
     pending_signals = cur.fetchall()
@@ -262,6 +266,7 @@ def export_setup_stats(output_path="../frontend/public/data/setup_stats.json", c
                o.excess_5d, o.excess_20d
         FROM buy_signals b
         JOIN signal_outcomes o ON b.id = o.signal_id
+        WHERE b.checkpoint_id = 'eod'
     """
     df = pd.read_sql(query, conn)
     if close_conn:
@@ -272,6 +277,16 @@ def export_setup_stats(output_path="../frontend/public/data/setup_stats.json", c
         logger.warning("No signal outcomes found in database to compile setup_stats.")
     else:
         for setup_name, group in df.groupby("setup_name"):
+            if setup_name == "Momentum Breakdown":
+                group = group.copy()
+                raw_ret_5d = group["ret_5d"].copy()
+                raw_ret_20d = group["ret_20d"].copy()
+                group["ret_5d"] = -raw_ret_5d
+                group["ret_20d"] = -raw_ret_20d
+                group["excess_5d"] = group["spy_ret_5d"] - raw_ret_5d
+                group["excess_20d"] = group["spy_ret_20d"] - raw_ret_20d
+                group["max_drawdown_20d"] = -group["max_runup_20d"]
+
             total_signals = len(group)
 
             # 5-day metrics
@@ -381,6 +396,7 @@ if __name__ == "__main__":
     parser.add_argument("--export-only", action="store_true", help="Export setup_stats.json without replaying")
     args = parser.parse_args()
 
+    init_db()
     if args.backfill:
         run_backfill()
     elif args.export_only:

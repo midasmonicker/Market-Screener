@@ -9,11 +9,11 @@ interface SetupStat {
   hit_rate_5d: number | null;
   completed_20d_count: number;
   hit_rate_20d: number | null;
-  median_excess_5d: number;
-  avg_excess_5d: number;
-  median_excess_20d: number;
-  avg_excess_20d: number;
-  median_max_drawdown: number;
+  median_excess_5d: number | null;
+  avg_excess_5d: number | null;
+  median_excess_20d: number | null;
+  avg_excess_20d: number | null;
+  median_max_drawdown: number | null;
 }
 
 interface SetupStats {
@@ -23,6 +23,8 @@ interface SetupStats {
 
 interface TrackRecordProps {
   setupStats: SetupStats | null;
+  setupName: string;
+  bearish: boolean;
 }
 
 function ColourNum({
@@ -88,17 +90,19 @@ function HitRate({ rate, n }: { rate: number | null; n: number }) {
   );
 }
 
-export default function TrackRecord({ setupStats }: TrackRecordProps) {
+export default function TrackRecord({ setupStats, setupName, bearish }: TrackRecordProps) {
+  const visibleSetups = Object.entries(setupStats?.setups ?? {})
+    .filter(([name]) => name === setupName);
   const isEmpty =
     !setupStats ||
     !setupStats.setups ||
-    Object.keys(setupStats.setups).length === 0;
+    visibleSetups.length === 0;
 
   return (
     <section className="bg-[#0f172a] border border-slate-800 rounded-xl overflow-hidden shadow-lg">
       <div className="px-6 py-4 border-b border-slate-800/80 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Trophy className="w-4 h-4 text-yellow-400" />
+          <Trophy className={`w-4 h-4 ${bearish ? 'text-rose-400' : 'text-yellow-400'}`} />
           <h2 className="text-base font-bold text-white tracking-tight">
             Strategy Track Record
           </h2>
@@ -117,7 +121,7 @@ export default function TrackRecord({ setupStats }: TrackRecordProps) {
       {isEmpty ? (
         <div className="py-14 text-center text-slate-500 space-y-2">
           <Trophy className="w-8 h-8 mx-auto stroke-[1.5] text-slate-700" />
-          <p className="text-sm font-semibold">No track record data yet.</p>
+          <p className="text-sm font-semibold">No {setupName} track record data yet.</p>
           <p className="text-xs">
             Run{' '}
             <code className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">
@@ -128,10 +132,10 @@ export default function TrackRecord({ setupStats }: TrackRecordProps) {
         </div>
       ) : (
         <div className="p-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Object.entries(setupStats!.setups).map(([name, stat]) => (
+          {visibleSetups.map(([name, stat]) => (
             <div
               key={name}
-              className="bg-[#0a0f1a] border border-slate-800/80 rounded-xl p-5 flex flex-col gap-4"
+              className={`bg-[#0a0f1a] border rounded-xl p-5 flex flex-col gap-4 ${bearish ? 'border-rose-900/60' : 'border-slate-800/80'}`}
             >
               <div className="flex items-center justify-between">
                 <span className="font-bold text-white text-sm">{name}</span>
@@ -165,13 +169,17 @@ export default function TrackRecord({ setupStats }: TrackRecordProps) {
               </div>
 
               <div className="pt-1 border-t border-slate-800/60 flex items-center gap-2 text-[10px] text-slate-500">
-                {stat.avg_excess_20d >= 0 ? (
+                {stat.avg_excess_20d == null ? (
+                  <Minus className="w-3 h-3 text-slate-500" />
+                ) : stat.avg_excess_20d >= 0 ? (
                   <TrendingUp className="w-3 h-3 text-emerald-500" />
                 ) : (
                   <TrendingDown className="w-3 h-3 text-rose-500" />
                 )}
                 <span>
-                  {stat.avg_excess_20d >= 0
+                  {stat.avg_excess_20d == null
+                    ? 'Awaiting 20d outcomes'
+                    : stat.avg_excess_20d >= 0
                     ? 'Positive edge vs SPY over 20 days'
                     : 'Underperforming SPY over 20 days'}
                 </span>
