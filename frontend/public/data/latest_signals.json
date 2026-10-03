@@ -1,6 +1,6 @@
 [
   {
-    "id": 118,
+    "id": 136,
     "timestamp": "2026-10-02",
     "symbol": "MAT",
     "name": "Mattel, Inc.",
@@ -8,6 +8,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 15.27,
     "rvol": 2.99,
     "rsi": 64.95,
@@ -29,10 +38,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 1.53,
     "atr_pct": 4.83,
-    "avg_dollar_vol_20d": 99918115.0,
+    "avg_dollar_vol_20d": 99917887.0,
     "rs_vs_spy": 10.85,
     "rs_vs_sector": 20.05,
     "dist_to_20d_high_pct": 1.53,
+    "dist_to_20d_low_pct": 20.62,
     "dist_to_52w_high_pct": -32.07,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -42,24 +52,28 @@
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=60b50aaf8b3d0a9a5f8ac56b16d6a122dc5d31251a03f48742f3bbce6a2fd1fa",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Paramount to become Skydance after megamerger with Warner Bros. closes",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=f3d6f6ff2d7f7d4888e1543be2fb46bd0b4c4876b47d0c6205002392bf258296",
         "date": "2026-10-02",
-        "category": "M&A"
+        "category": "M&A",
+        "direction": "neutral"
       },
       {
         "headline": "CFOs On the Move: Week ending Oct. 2",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=55ca26f3d781a89b95c8d05a67372ef3bd1a6f9a683f83ca50b7ec209d79bcd8",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 26493895,
@@ -69,6 +83,7 @@
       "change_pct": 1.64,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 51.7,
     "score_components": {
       "rvol_score": 49.7,
@@ -82,11 +97,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 2,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 115,
+    "id": 133,
     "timestamp": "2026-10-02",
     "symbol": "IBRX",
     "name": "ImmunityBio, Inc. Common Stock",
@@ -94,6 +110,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 10.29,
     "rvol": 2.68,
     "rsi": 70.25,
@@ -115,10 +140,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 10.83,
     "atr_pct": 5.9,
-    "avg_dollar_vol_20d": 114318734.0,
+    "avg_dollar_vol_20d": 114284116.0,
     "rs_vs_spy": 14.48,
     "rs_vs_sector": 22.55,
     "dist_to_20d_high_pct": 8.95,
+    "dist_to_20d_low_pct": 33.23,
     "dist_to_52w_high_pct": -17.26,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -128,24 +154,28 @@
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=083d8ff77c6d7b8f8e91203788d831097d2ba90b023af25841e058696282e88f",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "IBRX Stock Racks Up 3 Straight Quarterly Wins: Q3 Filings Reveal BlackRock Closing In On Vanguard With A Bigger Bet",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=224d1a30f92d90b0b1771b57a9e067a8d59128f179e67866f221db6b186ae4b2",
         "date": "2026-10-01",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "IBRX Breaks Above This Key Resistance \u2014 Stock On Track To Record Best Single-Day Gains In 6 Months",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=dc1c691d833fdd22af6e87a8259dc13768f170491c7483f00bafd67e83441eb9",
         "date": "2026-09-30",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 125408192,
@@ -155,9 +185,10 @@
       "change_pct": -0.18,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 59.0,
     "score_components": {
-      "rvol_score": 42.1,
+      "rvol_score": 41.9,
       "rs_score_component": 86.7,
       "breakout_proximity_score": 10.0,
       "trend_strength_score": 100.0,
@@ -168,11 +199,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 120,
+    "id": 138,
     "timestamp": "2026-10-02",
     "symbol": "QGEN",
     "name": "QIAGEN N.V.",
@@ -180,6 +212,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 44.75,
     "rvol": 2.36,
     "rsi": 55.43,
@@ -201,37 +242,42 @@
     "return_20d_pct": null,
     "pct_change_1d": 6.45,
     "atr_pct": 3.1,
-    "avg_dollar_vol_20d": 90935193.0,
+    "avg_dollar_vol_20d": 90934975.0,
     "rs_vs_spy": 12.64,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": -0.58,
+    "dist_to_20d_low_pct": 6.85,
     "dist_to_52w_high_pct": -22.6,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
       {
+        "headline": "QIAGEN Expands US QIAstat-Dx Portfolio With New FDA-Cleared Panel",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=6fd48e7304687ae83dfa7d4a7e88d779d862b62a79e75022612c93c7e216a109",
+        "date": "2026-10-02",
+        "category": "Regulatory/FDA",
+        "direction": "neutral"
+      },
+      {
         "headline": "Biomarkers Market Forecasts Growth from $67.95B (2026) to $112.10B by 2031, Profiling Roche, Abbott, Thermo Fisher & Qiagen",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=2bcc8ac0779ad6e874a3e135d90a4ca6cce8406498c6890643de72a582decaff",
         "date": "2026-10-01",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Qiagen (QGEN), What Is Behind The Fresh Attention Now?",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=037cb711d2ce333da98e13143cdce74558f4bc054c7775a1a641cec0f72222df",
         "date": "2026-09-29",
-        "category": "Other"
-      },
-      {
-        "headline": "What Qiagen (QGEN)'s Expanded Sepsis Testing Portfolio Means For Shareholders",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=243d0e9b3ead9bd87e7f01db3c950ae32140711bb1c4d838c012d1f7158501a5",
-        "date": "2026-09-29",
-        "category": "Earnings/Guidance"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 7664091,
@@ -241,6 +287,7 @@
       "change_pct": 2.06,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.2,
     "score_components": {
       "rvol_score": 34.0,
@@ -254,11 +301,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 124,
+    "id": 141,
     "timestamp": "2026-10-02",
     "symbol": "VECO",
     "name": "Veeco Instruments Inc",
@@ -266,6 +314,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 57.38,
     "rvol": 2.22,
     "rsi": 73.07,
@@ -287,10 +344,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 7.88,
     "atr_pct": 5.02,
-    "avg_dollar_vol_20d": 33029920.0,
+    "avg_dollar_vol_20d": 33029352.0,
     "rs_vs_spy": 4.62,
     "rs_vs_sector": 14.37,
     "dist_to_20d_high_pct": 7.88,
+    "dist_to_20d_low_pct": 40.34,
     "dist_to_52w_high_pct": -33.76,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -300,24 +358,28 @@
         "source": "Benzinga",
         "url": "https://finnhub.io/api/news?id=1c0fb1f2c0615aee8128702c0bbdda58e4caf25c4c3715cf91b84a2bbf4c30a3",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Here\u2019s How Much You Would Have Made Owning Veeco Instruments Stock In The Last 5 Years",
         "source": "Benzinga",
         "url": "https://finnhub.io/api/news?id=110cee4b22802d76ee04a803778016bbb18d1a91b71617b7ec70aaea00f7eb21",
         "date": "2026-10-01",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Is KLA Stock Really Expensive?",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=1f13d6f8d1fc2722c84edb8d48f57a78a52f5a01eda7ffca59788196f0e6775e",
         "date": "2026-09-30",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 5775038,
@@ -327,6 +389,7 @@
       "change_pct": 0.8,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 53.2,
     "score_components": {
       "rvol_score": 30.4,
@@ -340,11 +403,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 110,
+    "id": 128,
     "timestamp": "2026-10-02",
     "symbol": "ARW",
     "name": "Arrow Electronics, Inc.",
@@ -352,6 +416,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 242.01,
     "rvol": 2.1,
     "rsi": 69.01,
@@ -373,37 +446,42 @@
     "return_20d_pct": null,
     "pct_change_1d": 4.48,
     "atr_pct": 3.28,
-    "avg_dollar_vol_20d": 129579571.0,
+    "avg_dollar_vol_20d": 129550937.0,
     "rs_vs_spy": 21.89,
     "rs_vs_sector": 31.09,
     "dist_to_20d_high_pct": 3.96,
+    "dist_to_20d_low_pct": 14.77,
     "dist_to_52w_high_pct": -2.12,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
       {
+        "headline": "Arrow Electronics, Methode Electronics, Proto Labs, and SolarEdge Shares Skyrocket, What You Need To Know",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=ef2a23c4cc98c86033df604e81df02706bca114c39166ab8c67b88a213e4c272",
+        "date": "2026-10-02",
+        "category": "Other",
+        "direction": "neutral"
+      },
+      {
         "headline": "Arrow Electronics, IBD Stock Of The Day, Breaks Out Amid Triple-Digit Earnings Growth",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=e843079d83f557f0ac0266e5eb98c6f72b1456c6e8558cc8e4accc00fa863d76",
         "date": "2026-10-02",
-        "category": "Earnings/Guidance"
+        "category": "Earnings/Guidance",
+        "direction": "neutral"
       },
       {
         "headline": "Is Fastly (FSLY) Outperforming Other Computer and Technology Stocks This Year?",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=52111065932620eba80cf55bcbe4a6681e537305a0b79f22c0e621b9941a5d3e",
         "date": "2026-10-01",
-        "category": "Other"
-      },
-      {
-        "headline": "Data Center IT Asset Disposition Market Outlook 2026-2035 - Featuring Profiles of 3 of the Leading Companies: Arrow Electronics, Hewlett Packard Enterprise, and Iron Mountain",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=0f1e89bb02a3833ea8d81cf34ea7ed57ed824afa13b3b55a6412a1b5ae058fd2",
-        "date": "2026-10-01",
-        "category": "Earnings/Guidance"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1658027,
@@ -413,9 +491,10 @@
       "change_pct": 11.58,
       "market_class": "NYSE"
     },
-    "composite_score": 55.2,
+    "squeeze_risk_caution": false,
+    "composite_score": 55.1,
     "score_components": {
-      "rvol_score": 27.6,
+      "rvol_score": 27.5,
       "rs_score_component": 90.1,
       "breakout_proximity_score": 5.0,
       "trend_strength_score": 100.0,
@@ -426,11 +505,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 109,
+    "id": 127,
     "timestamp": "2026-10-02",
     "symbol": "ARHS",
     "name": "Arhaus, Inc. Class A Common Stock",
@@ -438,6 +518,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 10.24,
     "rvol": 1.98,
     "rsi": 67.0,
@@ -459,10 +548,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 3.75,
     "atr_pct": 4.76,
-    "avg_dollar_vol_20d": 13379690.0,
+    "avg_dollar_vol_20d": 13379676.0,
     "rs_vs_spy": 22.87,
     "rs_vs_sector": 32.06,
     "dist_to_20d_high_pct": 3.75,
+    "dist_to_20d_low_pct": 42.22,
     "dist_to_52w_high_pct": -15.23,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -472,24 +562,28 @@
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=d1e406aee20dc15604d274b10a507ef8d91861cafcc4a469fe1cf9ee2d9682fb",
         "date": "2026-10-01",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Arhaus Announces K.C. Moss as Chief Digital Officer",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=7c3e1e5dd517b04364217a36006b0c10ed9ef517a7b6dfa7efdfd4f1075d51f5",
         "date": "2026-09-30",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Arhaus Has New Momentum\u2014Could Other Furniture Stocks Be Next?",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=c9cb54a5bfcb55272f0660445c2b3404100baae12b10b9673f5888b7a7d9edba",
         "date": "2026-09-30",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 6368005,
@@ -499,6 +593,7 @@
       "change_pct": -0.26,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.5,
     "score_components": {
       "rvol_score": 24.5,
@@ -512,90 +607,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 2,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 111,
-    "timestamp": "2026-10-02",
-    "symbol": "ATKR",
-    "name": "Atkore Inc.",
-    "sector": "Technology",
-    "primary_exchange": "XNYS",
-    "market_cap": 0.0,
-    "setup_name": "Momentum Breakout",
-    "close_price": 94.62,
-    "rvol": 1.79,
-    "rsi": 69.65,
-    "market_regime": "Bullish",
-    "rs_score": 93.5,
-    "ma_alignment": {
-      "above_ema20": true,
-      "above_sma50": true,
-      "above_sma200": true,
-      "ema20": 94.17,
-      "sma50": 91.61,
-      "sma200": 75.38
-    },
-    "price_5d": null,
-    "price_10d": null,
-    "price_20d": null,
-    "return_5d_pct": null,
-    "return_10d_pct": null,
-    "return_20d_pct": null,
-    "pct_change_1d": -0.16,
-    "atr_pct": 0.4,
-    "avg_dollar_vol_20d": 76200158.0,
-    "rs_vs_spy": 33.68,
-    "rs_vs_sector": 25.1,
-    "dist_to_20d_high_pct": -0.16,
-    "dist_to_52w_high_pct": -0.27,
-    "near_earnings": false,
-    "earnings_date": "2026-06-30",
-    "news": [
-      {
-        "headline": "Is Atkore (ATKR) Stock Outpacing Its Industrial Products Peers This Year?",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=8ca55422ebdb5c1ce84070102c77be28bb1dfad824560d838caaa0cae0cb24e8",
-        "date": "2026-09-30",
-        "category": "Other"
-      },
-      {
-        "headline": "9 Green Days In A Row: nVent Electric Stock Is Up 12%",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=b38b72235bb93957ab2986d6e39783ef2700f84f7c58d5c21a1bfaaf6b059298",
-        "date": "2026-09-28",
-        "category": "Other"
-      }
-    ],
-    "insider_activity": [],
-    "insider_cluster": false,
-    "short_interest": {
-      "shares_short": 1325633,
-      "days_to_cover": 1.6,
-      "short_percent_of_float": null,
-      "settlement_date": "2026-09-15",
-      "change_pct": 16.75,
-      "market_class": "NYSE"
-    },
-    "composite_score": 53.2,
-    "score_components": {
-      "rvol_score": 19.9,
-      "rs_score_component": 93.5,
-      "breakout_proximity_score": 0.8,
-      "trend_strength_score": 100.0,
-      "weights": {
-        "rvol": 0.25,
-        "rs": 0.3,
-        "breakout_proximity": 0.25,
-        "trend_strength": 0.2
-      }
-    },
-    "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
-  },
-  {
-    "id": 122,
+    "id": 140,
     "timestamp": "2026-10-02",
     "symbol": "SILC",
     "name": "Silicom Ltd",
@@ -603,6 +620,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 60.03,
     "rvol": 1.79,
     "rsi": 74.21,
@@ -624,10 +650,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 11.93,
     "atr_pct": 5.72,
-    "avg_dollar_vol_20d": 7192033.0,
+    "avg_dollar_vol_20d": 7191814.0,
     "rs_vs_spy": 48.77,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": 11.93,
+    "dist_to_20d_low_pct": 49.83,
     "dist_to_52w_high_pct": -1.15,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -637,10 +664,12 @@
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=03e8089213ebdbebd299094d5757cb17146a42faf156b16a9f4a0d904b7486ae",
         "date": "2026-10-01",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 111432,
@@ -650,6 +679,7 @@
       "change_pct": -18.09,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 56.9,
     "score_components": {
       "rvol_score": 19.9,
@@ -663,11 +693,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 125,
+    "id": 142,
     "timestamp": "2026-10-02",
     "symbol": "VIAV",
     "name": "Viavi Solutions Inc. Common Stock",
@@ -675,6 +706,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 47.1,
     "rvol": 1.73,
     "rsi": 72.63,
@@ -696,10 +736,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 5.18,
     "atr_pct": 5.56,
-    "avg_dollar_vol_20d": 233619242.0,
+    "avg_dollar_vol_20d": 233617914.0,
     "rs_vs_spy": 14.17,
     "rs_vs_sector": 5.59,
     "dist_to_20d_high_pct": 5.18,
+    "dist_to_20d_low_pct": 40.05,
     "dist_to_52w_high_pct": -22.06,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -709,24 +750,28 @@
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=83023a87ff60c307c7708f39fdf2076bae66f5b67d118deff08be8f44a631864",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Can Keysight's Advanced Testing Generator Boost Its Growth Prospects?",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=c44fc8593b3502f80879801b5c8dfcba811aa797b7f6b143913ed0001410539b",
         "date": "2026-09-30",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Can VIAV's New CF50 Strengthen Its Enterprise-Scale Testing Portfolio?",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=57e73b7b66ccba5d12f0657653b5523e593ea6fc9a83f2f1d04f0173253cf811",
         "date": "2026-09-30",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 11262699,
@@ -736,6 +781,7 @@
       "change_pct": 16.71,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.0,
     "score_components": {
       "rvol_score": 18.3,
@@ -749,11 +795,106 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 116,
+    "id": 129,
+    "timestamp": "2026-10-02",
+    "symbol": "ATKR",
+    "name": "Atkore Inc.",
+    "sector": "Technology",
+    "primary_exchange": "XNYS",
+    "market_cap": 0.0,
+    "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
+    "close_price": 94.62,
+    "rvol": 1.72,
+    "rsi": 69.65,
+    "market_regime": "Bullish",
+    "rs_score": 93.5,
+    "ma_alignment": {
+      "above_ema20": true,
+      "above_sma50": true,
+      "above_sma200": true,
+      "ema20": 94.17,
+      "sma50": 91.61,
+      "sma200": 75.38
+    },
+    "price_5d": null,
+    "price_10d": null,
+    "price_20d": null,
+    "return_5d_pct": null,
+    "return_10d_pct": null,
+    "return_20d_pct": null,
+    "pct_change_1d": -0.16,
+    "atr_pct": 0.4,
+    "avg_dollar_vol_20d": 75929840.0,
+    "rs_vs_spy": 33.68,
+    "rs_vs_sector": 25.1,
+    "dist_to_20d_high_pct": -0.16,
+    "dist_to_20d_low_pct": 1.04,
+    "dist_to_52w_high_pct": -0.27,
+    "near_earnings": false,
+    "earnings_date": "2026-06-30",
+    "news": [
+      {
+        "headline": "Is Atkore (ATKR) Stock Outpacing Its Industrial Products Peers This Year?",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=8ca55422ebdb5c1ce84070102c77be28bb1dfad824560d838caaa0cae0cb24e8",
+        "date": "2026-09-30",
+        "category": "Other",
+        "direction": "neutral"
+      },
+      {
+        "headline": "9 Green Days In A Row: nVent Electric Stock Is Up 12%",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=b38b72235bb93957ab2986d6e39783ef2700f84f7c58d5c21a1bfaaf6b059298",
+        "date": "2026-09-28",
+        "category": "Other",
+        "direction": "neutral"
+      }
+    ],
+    "insider_activity": [],
+    "insider_activity_type": "purchase",
+    "insider_cluster": false,
+    "short_interest": {
+      "shares_short": 1325633,
+      "days_to_cover": 1.6,
+      "short_percent_of_float": null,
+      "settlement_date": "2026-09-15",
+      "change_pct": 16.75,
+      "market_class": "NYSE"
+    },
+    "squeeze_risk_caution": false,
+    "composite_score": 52.8,
+    "score_components": {
+      "rvol_score": 18.0,
+      "rs_score_component": 93.5,
+      "breakout_proximity_score": 0.8,
+      "trend_strength_score": 100.0,
+      "weights": {
+        "rvol": 0.25,
+        "rs": 0.3,
+        "breakout_proximity": 0.25,
+        "trend_strength": 0.2
+      }
+    },
+    "score_direction": "bullish",
+    "signal_streak": 1,
+    "created_at": "2026-10-03 08:48:14"
+  },
+  {
+    "id": 134,
     "timestamp": "2026-10-02",
     "symbol": "LQDT",
     "name": "Liquidity Services, Inc.",
@@ -761,8 +902,17 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 43.23,
-    "rvol": 1.71,
+    "rvol": 1.67,
     "rsi": 55.59,
     "market_regime": "Bullish",
     "rs_score": 84.2,
@@ -782,37 +932,42 @@
     "return_20d_pct": null,
     "pct_change_1d": -0.94,
     "atr_pct": 2.86,
-    "avg_dollar_vol_20d": 10212498.0,
+    "avg_dollar_vol_20d": 10189990.0,
     "rs_vs_spy": 10.74,
     "rs_vs_sector": 20.49,
     "dist_to_20d_high_pct": -0.94,
+    "dist_to_20d_low_pct": 6.74,
     "dist_to_52w_high_pct": -3.93,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
       {
+        "headline": "Liquidity Services (LQDT) is on the Move, Here's Why the Trend Could be Sustainable",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=459bb09846fcf8c7b8b92cec54cb86d556749cc9e463cbac3ea5d5a8a1b7f140",
+        "date": "2026-10-02",
+        "category": "Other",
+        "direction": "neutral"
+      },
+      {
         "headline": "Liquidity Services Acquires Invaluable Marketplace",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=5a2a322902413b490511b62920fb60e2768e7f1d726c95d98df65636621d7fb8",
         "date": "2026-10-01",
-        "category": "M&A"
+        "category": "M&A",
+        "direction": "neutral"
       },
       {
         "headline": "Liquidity Services Acquires Auction Holdings For $80M In Cash",
         "source": "Benzinga",
         "url": "https://finnhub.io/api/news?id=47bf8164644988d7cbec95fb70d4bb3c4ffbfd2357f78d95d95139638522010b",
         "date": "2026-10-01",
-        "category": "M&A"
-      },
-      {
-        "headline": "Amazon, Walmart Surplus Auctioneer Climbs Toward A Breakout; Stock Up 45%",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=c20de7e6f4ba5d903ec120634700aefd46ee4b3b586840fcc69da9e07a070e3f",
-        "date": "2026-09-29",
-        "category": "Other"
+        "category": "M&A",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1016722,
@@ -822,9 +977,10 @@
       "change_pct": 11.22,
       "market_class": "NNM"
     },
-    "composite_score": 49.7,
+    "squeeze_risk_caution": false,
+    "composite_score": 49.4,
     "score_components": {
-      "rvol_score": 17.8,
+      "rvol_score": 16.7,
       "rs_score_component": 84.2,
       "breakout_proximity_score": 0.1,
       "trend_strength_score": 100.0,
@@ -835,97 +991,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 2,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 114,
-    "timestamp": "2026-10-02",
-    "symbol": "FORM",
-    "name": "FormFactor Inc.",
-    "sector": "Technology",
-    "primary_exchange": "XNAS",
-    "market_cap": 0.0,
-    "setup_name": "Momentum Breakout",
-    "close_price": 149.15,
-    "rvol": 1.67,
-    "rsi": 72.8,
-    "market_regime": "Bullish",
-    "rs_score": 94.3,
-    "ma_alignment": {
-      "above_ema20": true,
-      "above_sma50": true,
-      "above_sma200": true,
-      "ema20": 127.21,
-      "sma50": 115.28,
-      "sma200": 108.54
-    },
-    "price_5d": null,
-    "price_10d": null,
-    "price_20d": null,
-    "return_5d_pct": null,
-    "return_10d_pct": null,
-    "return_20d_pct": null,
-    "pct_change_1d": 0.48,
-    "atr_pct": 4.88,
-    "avg_dollar_vol_20d": 159885861.0,
-    "rs_vs_spy": 37.71,
-    "rs_vs_sector": 29.13,
-    "dist_to_20d_high_pct": -0.11,
-    "dist_to_52w_high_pct": -6.94,
-    "near_earnings": false,
-    "earnings_date": "2026-06-30",
-    "news": [
-      {
-        "headline": "Twilio to join S&P 500 as S&P Dow Jones reshuffles indices",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=886e0b29e200daaaea6ab20d3e7d0c0c85666aa3c0aef814797ac3555d303456",
-        "date": "2026-10-01",
-        "category": "Other"
-      },
-      {
-        "headline": "Vylor Added to the S&P 500; Twilio Set to Join S&P 500; Others to Join S&P MidCap 400 and S&P SmallCap 600",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=be89aee2288d6614a53782ba2b6c34882131c83567eb46ef4c9e32fd0d200f25",
-        "date": "2026-10-01",
-        "category": "Other"
-      },
-      {
-        "headline": "Micron Q4 Earnings Beat Estimates on Strong Pricing and AI Demand",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=42d4bc1cb8d1af1a5eaec00db301fadd13e7dbbc78c851fd78af098f43f40150",
-        "date": "2026-10-01",
-        "category": "Earnings/Guidance"
-      }
-    ],
-    "insider_activity": [],
-    "insider_cluster": false,
-    "short_interest": {
-      "shares_short": 3217345,
-      "days_to_cover": 2.99,
-      "short_percent_of_float": null,
-      "settlement_date": "2026-09-15",
-      "change_pct": 8.93,
-      "market_class": "NNM"
-    },
-    "composite_score": 52.7,
-    "score_components": {
-      "rvol_score": 16.6,
-      "rs_score_component": 94.3,
-      "breakout_proximity_score": 0.9,
-      "trend_strength_score": 100.0,
-      "weights": {
-        "rvol": 0.25,
-        "rs": 0.3,
-        "breakout_proximity": 0.25,
-        "trend_strength": 0.2
-      }
-    },
-    "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
-  },
-  {
-    "id": 117,
+    "id": 135,
     "timestamp": "2026-10-02",
     "symbol": "LSCC",
     "name": "Lattice Semiconductor Corp",
@@ -933,6 +1004,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 134.0,
     "rvol": 1.67,
     "rsi": 65.57,
@@ -954,10 +1034,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 3.99,
     "atr_pct": 4.15,
-    "avg_dollar_vol_20d": 212120195.0,
+    "avg_dollar_vol_20d": 212112878.0,
     "rs_vs_spy": -0.33,
     "rs_vs_sector": -8.91,
     "dist_to_20d_high_pct": 3.99,
+    "dist_to_20d_low_pct": 26.03,
     "dist_to_52w_high_pct": -14.66,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -967,24 +1048,28 @@
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=821f4bf38dc2e9da9ddb394d48a45da78ab121b54b10c86f0243405a0ea10b55",
         "date": "2026-10-02",
-        "category": "Earnings/Guidance"
+        "category": "Earnings/Guidance",
+        "direction": "neutral"
       },
       {
         "headline": "Lattice Semiconductor (LSCC) Stock Could Be Pricey After AI Infrastructure News",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=3734533888189cf6bf9e44830fa68697f1622f1d9bcac7347cd8a6f471ba8181",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Lattice Semiconductor (LSCC) Joins Chip Index As Its Valuation Story Draws Fresh Scrutiny",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=b4667fa0ee66ad3b878511cb6d0aeaf34e9cdb351e2c7640d7676ccad600a53e",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 6072643,
@@ -994,6 +1079,7 @@
       "change_pct": 5.37,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 46.5,
     "score_components": {
       "rvol_score": 16.6,
@@ -1007,11 +1093,114 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 119,
+    "id": 132,
+    "timestamp": "2026-10-02",
+    "symbol": "FORM",
+    "name": "FormFactor Inc.",
+    "sector": "Technology",
+    "primary_exchange": "XNAS",
+    "market_cap": 0.0,
+    "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
+    "close_price": 149.15,
+    "rvol": 1.66,
+    "rsi": 72.8,
+    "market_regime": "Bullish",
+    "rs_score": 94.3,
+    "ma_alignment": {
+      "above_ema20": true,
+      "above_sma50": true,
+      "above_sma200": true,
+      "ema20": 127.21,
+      "sma50": 115.28,
+      "sma200": 108.54
+    },
+    "price_5d": null,
+    "price_10d": null,
+    "price_20d": null,
+    "return_5d_pct": null,
+    "return_10d_pct": null,
+    "return_20d_pct": null,
+    "pct_change_1d": 0.48,
+    "atr_pct": 4.88,
+    "avg_dollar_vol_20d": 159836483.0,
+    "rs_vs_spy": 37.71,
+    "rs_vs_sector": 29.13,
+    "dist_to_20d_high_pct": -0.11,
+    "dist_to_20d_low_pct": 54.14,
+    "dist_to_52w_high_pct": -6.94,
+    "near_earnings": false,
+    "earnings_date": "2026-06-30",
+    "news": [
+      {
+        "headline": "Why Workiva (WK) Stock Is Trading Up Today",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=25b271ddae2160feb94d861679b11ae71e9fcaf72be0d7bf9083af59b3e0b575",
+        "date": "2026-10-02",
+        "category": "Other",
+        "direction": "neutral"
+      },
+      {
+        "headline": "Twilio To Join S&P 500 Index",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=eab90e8a1a90a594c313b5bd453dcb55bc2f0107681411251c1018629c541b73",
+        "date": "2026-10-02",
+        "category": "Other",
+        "direction": "neutral"
+      },
+      {
+        "headline": "Bull of the Day: Onto Innovation (ONTO)",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=83023a87ff60c307c7708f39fdf2076bae66f5b67d118deff08be8f44a631864",
+        "date": "2026-10-02",
+        "category": "Other",
+        "direction": "neutral"
+      }
+    ],
+    "insider_activity": [],
+    "insider_activity_type": "purchase",
+    "insider_cluster": false,
+    "short_interest": {
+      "shares_short": 3217345,
+      "days_to_cover": 2.99,
+      "short_percent_of_float": null,
+      "settlement_date": "2026-09-15",
+      "change_pct": 8.93,
+      "market_class": "NNM"
+    },
+    "squeeze_risk_caution": false,
+    "composite_score": 52.6,
+    "score_components": {
+      "rvol_score": 16.5,
+      "rs_score_component": 94.3,
+      "breakout_proximity_score": 0.9,
+      "trend_strength_score": 100.0,
+      "weights": {
+        "rvol": 0.25,
+        "rs": 0.3,
+        "breakout_proximity": 0.25,
+        "trend_strength": 0.2
+      }
+    },
+    "score_direction": "bullish",
+    "signal_streak": 1,
+    "created_at": "2026-10-03 08:48:14"
+  },
+  {
+    "id": 137,
     "timestamp": "2026-10-02",
     "symbol": "MXL",
     "name": "MaxLinear, Inc. Common Stock",
@@ -1019,6 +1208,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 105.93,
     "rvol": 1.63,
     "rsi": 71.54,
@@ -1040,37 +1238,42 @@
     "return_20d_pct": null,
     "pct_change_1d": 14.99,
     "atr_pct": 6.6,
-    "avg_dollar_vol_20d": 252791246.0,
+    "avg_dollar_vol_20d": 252785435.0,
     "rs_vs_spy": 20.5,
     "rs_vs_sector": 11.92,
     "dist_to_20d_high_pct": 12.88,
+    "dist_to_20d_low_pct": 78.18,
     "dist_to_52w_high_pct": -17.44,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
       {
+        "headline": "Why MaxLinear Stock Gained 50.7% Last Month",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=1804f0872e15884ebaec10ff75f2bb6031e2412e249ca0c13c2c94736ad117ba",
+        "date": "2026-10-02",
+        "category": "Other",
+        "direction": "neutral"
+      },
+      {
         "headline": "Applied Digital, Bitdeer Technologies, ON Semiconductor And Other Big Stocks Moving Higher On Friday",
         "source": "Benzinga",
         "url": "https://finnhub.io/api/news?id=1c0fb1f2c0615aee8128702c0bbdda58e4caf25c4c3715cf91b84a2bbf4c30a3",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "MaxLinear, Inc. Announces Conference Call to Review Third Quarter 2026 Financial Results Thursday, Oct. 22, 2026 at 1:30 p.m. Pacific Time; 4:30 p.m. Eastern Time",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=8aed6cb8c2e5e00c2eb6ec6f05d5f6fe8dea43807aa8ff0f16dfdd0375e9778e",
         "date": "2026-10-01",
-        "category": "Earnings/Guidance"
-      },
-      {
-        "headline": "MaxLinear: A Quiet AI Beneficiary With Growth Ahead",
-        "source": "SeekingAlpha",
-        "url": "https://finnhub.io/api/news?id=28eb17d6ad880ff88fd249006565aa67a08d1e85a2b64288432b002a666d0fde",
-        "date": "2026-10-01",
-        "category": "Other"
+        "category": "Earnings/Guidance",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 4836594,
@@ -1080,6 +1283,7 @@
       "change_pct": 7.66,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.3,
     "score_components": {
       "rvol_score": 15.7,
@@ -1093,11 +1297,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 121,
+    "id": 139,
     "timestamp": "2026-10-02",
     "symbol": "RRBI",
     "name": "Red River Bancshares, Inc. Common Stock",
@@ -1105,6 +1310,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 103.41,
     "rvol": 1.62,
     "rsi": 60.23,
@@ -1126,15 +1340,17 @@
     "return_20d_pct": null,
     "pct_change_1d": 1.96,
     "atr_pct": 1.92,
-    "avg_dollar_vol_20d": 7014230.0,
+    "avg_dollar_vol_20d": 7014178.0,
     "rs_vs_spy": 3.35,
     "rs_vs_sector": 10.85,
     "dist_to_20d_high_pct": -0.08,
+    "dist_to_20d_low_pct": 3.65,
     "dist_to_52w_high_pct": -1.39,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 275388,
@@ -1144,6 +1360,7 @@
       "change_pct": 21.49,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 46.9,
     "score_components": {
       "rvol_score": 15.4,
@@ -1157,11 +1374,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 113,
+    "id": 131,
     "timestamp": "2026-10-02",
     "symbol": "DAC",
     "name": "Danaos Corporation",
@@ -1169,6 +1387,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 165.15,
     "rvol": 1.6,
     "rsi": 69.74,
@@ -1190,10 +1417,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 2.11,
     "atr_pct": 2.36,
-    "avg_dollar_vol_20d": 21516834.0,
+    "avg_dollar_vol_20d": 21516242.0,
     "rs_vs_spy": 29.29,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": 1.69,
+    "dist_to_20d_low_pct": 7.89,
     "dist_to_52w_high_pct": -0.06,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -1203,10 +1431,12 @@
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=f48661e9f1cd43f004fcf9f79577028a45e6d2d213e0b53e2331d04b835bf5a7",
         "date": "2026-10-01",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1103565,
@@ -1216,6 +1446,7 @@
       "change_pct": 20.31,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.2,
     "score_components": {
       "rvol_score": 15.1,
@@ -1229,11 +1460,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 2,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 112,
+    "id": 130,
     "timestamp": "2026-10-02",
     "symbol": "AVT",
     "name": "Avnet, Inc.",
@@ -1241,6 +1473,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 106.94,
     "rvol": 1.58,
     "rsi": 68.1,
@@ -1262,10 +1503,11 @@
     "return_20d_pct": null,
     "pct_change_1d": 4.59,
     "atr_pct": 3.75,
-    "avg_dollar_vol_20d": 140528515.0,
+    "avg_dollar_vol_20d": 140510568.0,
     "rs_vs_spy": 28.31,
     "rs_vs_sector": 37.5,
     "dist_to_20d_high_pct": 3.74,
+    "dist_to_20d_low_pct": 17.74,
     "dist_to_52w_high_pct": -1.56,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
@@ -1275,24 +1517,28 @@
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=cd76f496e3a3bf95d1a70d9f626c303f3b1ce915fa097c3416530f6ca78a9f80",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Can CDW Corporation Restore Margin Momentum in the Second Half?",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=61fe79e628b58a523f65742b2cf25443945624dec53c6667c5cbcd7c336615c4",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       },
       {
         "headline": "Dow Jones Futures Rise, Oil Prices Fall With Tesla, Jobs Report Due; Micron In Buy Area",
         "source": "Yahoo",
         "url": "https://finnhub.io/api/news?id=98089d435a6a58c165f54da2c6a15983c2ff03e62599bed7e71f2e496892842f",
         "date": "2026-10-02",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 8476230,
@@ -1302,6 +1548,7 @@
       "change_pct": 6.6,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.5,
     "score_components": {
       "rvol_score": 14.5,
@@ -1315,97 +1562,12 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
-    "id": 123,
-    "timestamp": "2026-10-02",
-    "symbol": "SNPS",
-    "name": "Synopsys Inc",
-    "sector": "Technology",
-    "primary_exchange": "XNAS",
-    "market_cap": 0.0,
-    "setup_name": "Momentum Breakout",
-    "close_price": 489.9,
-    "rvol": 1.58,
-    "rsi": 74.1,
-    "market_regime": "Bullish",
-    "rs_score": 82.8,
-    "ma_alignment": {
-      "above_ema20": true,
-      "above_sma50": true,
-      "above_sma200": true,
-      "ema20": 423.88,
-      "sma50": 407.61,
-      "sma200": 444.9
-    },
-    "price_5d": null,
-    "price_10d": null,
-    "price_20d": null,
-    "return_5d_pct": null,
-    "return_10d_pct": null,
-    "return_20d_pct": null,
-    "pct_change_1d": -0.13,
-    "atr_pct": 3.89,
-    "avg_dollar_vol_20d": 1003090037.0,
-    "rs_vs_spy": 9.27,
-    "rs_vs_sector": 0.69,
-    "dist_to_20d_high_pct": -0.13,
-    "dist_to_52w_high_pct": -9.19,
-    "near_earnings": false,
-    "earnings_date": "2026-06-30",
-    "news": [
-      {
-        "headline": "Synopsys Is the Nasdaq 100\u2019s Top Stock Today. The Target Says It\u2019s Not Done",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=00d458189dfee1ad8d236639740ffa19962e7eae4398dd9b656a6a22bf813e31",
-        "date": "2026-10-02",
-        "category": "Other"
-      },
-      {
-        "headline": "2026 BayAreaCISO ORBIE Awards Recognize Bay Area\u2019s Top Security Executives",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=bbe6798705edf8521daff1cc8b33e3d323236fa6c01e86d192a84f98dfdf976d",
-        "date": "2026-10-02",
-        "category": "Other"
-      },
-      {
-        "headline": "What Does Fair Isaac Offer That Cadence Does Not?",
-        "source": "Yahoo",
-        "url": "https://finnhub.io/api/news?id=d4304c607364dd178a7f6a8406ea1b42cf920db8507dbe346e40b0ca02a415e3",
-        "date": "2026-10-02",
-        "category": "Other"
-      }
-    ],
-    "insider_activity": [],
-    "insider_cluster": false,
-    "short_interest": {
-      "shares_short": 5712575,
-      "days_to_cover": 3.06,
-      "short_percent_of_float": null,
-      "settlement_date": "2026-09-15",
-      "change_pct": 9.56,
-      "market_class": "NNM"
-    },
-    "composite_score": 48.7,
-    "score_components": {
-      "rvol_score": 14.5,
-      "rs_score_component": 82.8,
-      "breakout_proximity_score": 0.9,
-      "trend_strength_score": 100.0,
-      "weights": {
-        "rvol": 0.25,
-        "rs": 0.3,
-        "breakout_proximity": 0.25,
-        "trend_strength": 0.2
-      }
-    },
-    "signal_streak": 2,
-    "created_at": "2026-10-03 01:21:51"
-  },
-  {
-    "id": 126,
+    "id": 143,
     "timestamp": "2026-10-02",
     "symbol": "XP",
     "name": "XP Inc. Class A Common Stock",
@@ -1413,8 +1575,17 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 21.5,
-    "rvol": 1.54,
+    "rvol": 1.51,
     "rsi": 69.38,
     "market_regime": "Bullish",
     "rs_score": 93.1,
@@ -1434,23 +1605,34 @@
     "return_20d_pct": null,
     "pct_change_1d": 1.56,
     "atr_pct": 3.77,
-    "avg_dollar_vol_20d": 167379885.0,
+    "avg_dollar_vol_20d": 167089984.0,
     "rs_vs_spy": 31.69,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": 1.37,
+    "dist_to_20d_low_pct": 12.92,
     "dist_to_52w_high_pct": -7.05,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [
       {
+        "headline": "Higher Treasury Yields Could Boost Victory Capital Stock and Bond Fund Platforms",
+        "source": "Yahoo",
+        "url": "https://finnhub.io/api/news?id=aaf417b84faccb2cd1705f55b593088adce8f0526bd8e71765cff44efeadbaa7",
+        "date": "2026-10-02",
+        "category": "Other",
+        "direction": "neutral"
+      },
+      {
         "headline": "XP Inc. Class A (NASDAQ:XP) Eyes Technical Breakout With 9/10 Strength and Setup Ratings",
         "source": "ChartMill",
         "url": "https://finnhub.io/api/news?id=8b5d89e2d2791b86670ea60952b2533977f5d0f9db642a69b39678bc86371a07",
         "date": "2026-10-01",
-        "category": "Other"
+        "category": "Other",
+        "direction": "neutral"
       }
     ],
     "insider_activity": [],
+    "insider_activity_type": "purchase",
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 17758320,
@@ -1460,9 +1642,10 @@
       "change_pct": -7.62,
       "market_class": "NNM"
     },
-    "composite_score": 51.9,
+    "squeeze_risk_caution": false,
+    "composite_score": 51.7,
     "score_components": {
-      "rvol_score": 13.5,
+      "rvol_score": 12.6,
       "rs_score_component": 93.1,
       "breakout_proximity_score": 2.4,
       "trend_strength_score": 100.0,
@@ -1473,8 +1656,9 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
-    "created_at": "2026-10-03 01:21:51"
+    "created_at": "2026-10-03 08:48:14"
   },
   {
     "id": 83,
@@ -1485,6 +1669,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 15.04,
     "rvol": 7.59,
     "rsi": 63.24,
@@ -1510,11 +1703,13 @@
     "rs_vs_spy": 13.56,
     "rs_vs_sector": 23.05,
     "dist_to_20d_high_pct": 2.73,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -33.1,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 26493895,
@@ -1524,6 +1719,7 @@
       "change_pct": 1.64,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 65.2,
     "score_components": {
       "rvol_score": 100.0,
@@ -1537,6 +1733,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -1549,6 +1746,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 212.3,
     "rvol": 5.47,
     "rsi": 70.0,
@@ -1574,11 +1780,13 @@
     "rs_vs_spy": 53.32,
     "rs_vs_sector": 64.13,
     "dist_to_20d_high_pct": 8.87,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -27.07,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 24818048,
@@ -1588,6 +1796,7 @@
       "change_pct": -2.39,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 76.4,
     "score_components": {
       "rvol_score": 100.0,
@@ -1601,6 +1810,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -1613,6 +1823,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 25.44,
     "rvol": 3.92,
     "rsi": 70.22,
@@ -1638,11 +1857,13 @@
     "rs_vs_spy": 10.68,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": 7.66,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -12.73,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1491304,
@@ -1652,6 +1873,7 @@
       "change_pct": 23.7,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 65.7,
     "score_components": {
       "rvol_score": 72.9,
@@ -1665,6 +1887,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -1677,6 +1900,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 490.54,
     "rvol": 3.32,
     "rsi": 74.41,
@@ -1702,11 +1934,13 @@
     "rs_vs_spy": 9.22,
     "rs_vs_sector": 3.15,
     "dist_to_20d_high_pct": 12.78,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -9.07,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 5712575,
@@ -1716,6 +1950,7 @@
       "change_pct": 9.56,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 62.9,
     "score_components": {
       "rvol_score": 58.0,
@@ -1729,6 +1964,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -1741,6 +1977,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 14.36,
     "rvol": 3.31,
     "rsi": 67.5,
@@ -1766,11 +2011,13 @@
     "rs_vs_spy": 70.28,
     "rs_vs_sector": 81.09,
     "dist_to_20d_high_pct": 6.53,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -3.82,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 2055867,
@@ -1780,6 +2027,7 @@
       "change_pct": 27.75,
       "market_class": "SC"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 65.5,
     "score_components": {
       "rvol_score": 57.7,
@@ -1793,6 +2041,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 2,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -1805,6 +2054,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 57.36,
     "rvol": 2.65,
     "rsi": 62.04,
@@ -1830,11 +2088,13 @@
     "rs_vs_spy": 49.61,
     "rs_vs_sector": 60.42,
     "dist_to_20d_high_pct": -0.16,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -1.1,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1945580,
@@ -1844,6 +2104,7 @@
       "change_pct": -6.86,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 59.3,
     "score_components": {
       "rvol_score": 41.2,
@@ -1857,6 +2118,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -1869,6 +2131,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 168.42,
     "rvol": 2.65,
     "rsi": 68.42,
@@ -1894,11 +2165,13 @@
     "rs_vs_spy": 66.71,
     "rs_vs_sector": 77.52,
     "dist_to_20d_high_pct": 5.32,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -9.83,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 748704,
@@ -1908,6 +2181,7 @@
       "change_pct": 17.53,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 61.1,
     "score_components": {
       "rvol_score": 41.2,
@@ -1921,6 +2195,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -1933,6 +2208,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 62.22,
     "rvol": 2.51,
     "rsi": 68.43,
@@ -1958,11 +2242,13 @@
     "rs_vs_spy": 19.38,
     "rs_vs_sector": 28.87,
     "dist_to_20d_high_pct": 5.94,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -6.83,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1035861,
@@ -1972,6 +2258,7 @@
       "change_pct": 15.14,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 58.0,
     "score_components": {
       "rvol_score": 37.6,
@@ -1985,6 +2272,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -1997,6 +2285,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 14.08,
     "rvol": 2.21,
     "rsi": 61.27,
@@ -2022,11 +2319,13 @@
     "rs_vs_spy": 15.2,
     "rs_vs_sector": 9.13,
     "dist_to_20d_high_pct": 0.0,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -2.12,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 10934378,
@@ -2036,6 +2335,7 @@
       "change_pct": 3.34,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.1,
     "score_components": {
       "rvol_score": 30.3,
@@ -2049,6 +2349,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 2,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2061,6 +2362,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 33.63,
     "rvol": 2.04,
     "rsi": 73.41,
@@ -2086,11 +2396,13 @@
     "rs_vs_spy": 30.29,
     "rs_vs_sector": 41.1,
     "dist_to_20d_high_pct": 7.0,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -3.91,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 5250531,
@@ -2100,6 +2412,7 @@
       "change_pct": -1.43,
       "market_class": "SC"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 56.3,
     "score_components": {
       "rvol_score": 25.9,
@@ -2113,6 +2426,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2125,6 +2439,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 30.83,
     "rvol": 1.97,
     "rsi": 57.15,
@@ -2150,11 +2473,13 @@
     "rs_vs_spy": 3.89,
     "rs_vs_sector": -2.18,
     "dist_to_20d_high_pct": -0.77,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -44.95,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 4334857,
@@ -2164,6 +2489,7 @@
       "change_pct": -6.51,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 42.6,
     "score_components": {
       "rvol_score": 24.3,
@@ -2177,6 +2503,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2189,6 +2516,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 571.38,
     "rvol": 1.89,
     "rsi": 72.04,
@@ -2214,11 +2550,13 @@
     "rs_vs_spy": 2.72,
     "rs_vs_sector": 11.03,
     "dist_to_20d_high_pct": 5.44,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -6.23,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 2800470,
@@ -2228,6 +2566,7 @@
       "change_pct": 35.97,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 49.9,
     "score_components": {
       "rvol_score": 22.3,
@@ -2241,6 +2580,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2253,6 +2593,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 11.49,
     "rvol": 1.84,
     "rsi": 73.09,
@@ -2278,11 +2627,13 @@
     "rs_vs_spy": 19.0,
     "rs_vs_sector": 25.47,
     "dist_to_20d_high_pct": 1.23,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -13.12,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 3770393,
@@ -2292,6 +2643,7 @@
       "change_pct": 10.93,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.7,
     "score_components": {
       "rvol_score": 21.1,
@@ -2305,6 +2657,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 3,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2317,6 +2670,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 175.77,
     "rvol": 1.83,
     "rsi": 62.73,
@@ -2342,11 +2704,13 @@
     "rs_vs_spy": 15.53,
     "rs_vs_sector": 26.34,
     "dist_to_20d_high_pct": 1.84,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -22.67,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 298157,
@@ -2356,6 +2720,7 @@
       "change_pct": -0.26,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.2,
     "score_components": {
       "rvol_score": 20.9,
@@ -2369,6 +2734,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2381,6 +2747,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 1097.39,
     "rvol": 1.83,
     "rsi": 63.52,
@@ -2406,11 +2781,13 @@
     "rs_vs_spy": 9.75,
     "rs_vs_sector": 3.68,
     "dist_to_20d_high_pct": 0.11,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -12.56,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 27633780,
@@ -2420,6 +2797,7 @@
       "change_pct": -6.97,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 50.5,
     "score_components": {
       "rvol_score": 20.8,
@@ -2433,6 +2811,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2445,6 +2824,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 9.87,
     "rvol": 1.81,
     "rsi": 63.66,
@@ -2470,11 +2858,13 @@
     "rs_vs_spy": 19.41,
     "rs_vs_sector": 28.9,
     "dist_to_20d_high_pct": 1.65,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -18.29,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 6368005,
@@ -2484,6 +2874,7 @@
       "change_pct": -0.26,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.6,
     "score_components": {
       "rvol_score": 20.3,
@@ -2497,6 +2888,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2509,6 +2901,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 36.19,
     "rvol": 1.77,
     "rsi": 68.93,
@@ -2534,11 +2935,13 @@
     "rs_vs_spy": 107.02,
     "rs_vs_sector": 117.83,
     "dist_to_20d_high_pct": 6.28,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -3.9,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 3629677,
@@ -2548,6 +2951,7 @@
       "change_pct": -9.53,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 56.1,
     "score_components": {
       "rvol_score": 19.2,
@@ -2561,6 +2965,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2573,6 +2978,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 128.5,
     "rvol": 1.74,
     "rsi": 65.83,
@@ -2598,11 +3012,13 @@
     "rs_vs_spy": 4.38,
     "rs_vs_sector": 13.87,
     "dist_to_20d_high_pct": 3.17,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -1.5,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 2456031,
@@ -2612,6 +3028,7 @@
       "change_pct": 6.5,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 49.0,
     "score_components": {
       "rvol_score": 18.5,
@@ -2625,6 +3042,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2637,6 +3055,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 69.9,
     "rvol": 1.7,
     "rsi": 61.6,
@@ -2662,11 +3089,13 @@
     "rs_vs_spy": 12.56,
     "rs_vs_sector": 23.37,
     "dist_to_20d_high_pct": -0.21,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -14.7,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 3080474,
@@ -2676,6 +3105,7 @@
       "change_pct": 4.2,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 50.4,
     "score_components": {
       "rvol_score": 17.6,
@@ -2689,6 +3119,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2701,6 +3132,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 24.4,
     "rvol": 1.67,
     "rsi": 69.29,
@@ -2726,11 +3166,13 @@
     "rs_vs_spy": 52.84,
     "rs_vs_sector": 62.33,
     "dist_to_20d_high_pct": -0.93,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -2.4,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 778747,
@@ -2740,6 +3182,7 @@
       "change_pct": -2.34,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 53.1,
     "score_components": {
       "rvol_score": 16.8,
@@ -2753,6 +3196,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2765,6 +3209,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 1045.78,
     "rvol": 1.65,
     "rsi": 63.71,
@@ -2790,11 +3243,13 @@
     "rs_vs_spy": 41.32,
     "rs_vs_sector": 43.26,
     "dist_to_20d_high_pct": 5.74,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -3.68,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 6513349,
@@ -2804,6 +3259,7 @@
       "change_pct": -8.55,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.2,
     "score_components": {
       "rvol_score": 16.2,
@@ -2817,6 +3273,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2829,6 +3286,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 8.38,
     "rvol": 1.59,
     "rsi": 64.48,
@@ -2854,11 +3320,13 @@
     "rs_vs_spy": 39.86,
     "rs_vs_sector": 33.79,
     "dist_to_20d_high_pct": 1.82,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -17.68,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 4529405,
@@ -2868,6 +3336,7 @@
       "change_pct": -3.66,
       "market_class": "SC"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.8,
     "score_components": {
       "rvol_score": 14.8,
@@ -2881,6 +3350,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2893,6 +3363,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 285.14,
     "rvol": 1.58,
     "rsi": 69.3,
@@ -2918,11 +3397,13 @@
     "rs_vs_spy": 7.22,
     "rs_vs_sector": 18.03,
     "dist_to_20d_high_pct": 5.77,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -6.38,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 594712,
@@ -2932,6 +3413,7 @@
       "change_pct": -3.95,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 49.6,
     "score_components": {
       "rvol_score": 14.4,
@@ -2945,6 +3427,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -2957,6 +3440,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 43.71,
     "rvol": 1.56,
     "rsi": 73.95,
@@ -2982,11 +3474,13 @@
     "rs_vs_spy": 13.79,
     "rs_vs_sector": 24.6,
     "dist_to_20d_high_pct": 2.1,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -0.88,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 540201,
@@ -2996,6 +3490,7 @@
       "change_pct": 1.72,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 50.3,
     "score_components": {
       "rvol_score": 14.1,
@@ -3009,6 +3504,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -3021,6 +3517,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 43.64,
     "rvol": 1.55,
     "rsi": 59.43,
@@ -3046,11 +3551,13 @@
     "rs_vs_spy": 12.03,
     "rs_vs_sector": 22.84,
     "dist_to_20d_high_pct": 0.07,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -2.0,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1016722,
@@ -3060,6 +3567,7 @@
       "change_pct": 11.22,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 49.4,
     "score_components": {
       "rvol_score": 13.7,
@@ -3073,6 +3581,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -3085,6 +3594,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 9.34,
     "rvol": 1.51,
     "rsi": 66.79,
@@ -3110,11 +3628,13 @@
     "rs_vs_spy": 29.3,
     "rs_vs_sector": 23.23,
     "dist_to_20d_high_pct": 0.86,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -8.48,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 28814125,
@@ -3124,6 +3644,7 @@
       "change_pct": -0.55,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 51.5,
     "score_components": {
       "rvol_score": 12.8,
@@ -3137,6 +3658,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -3149,6 +3671,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 161.74,
     "rvol": 1.5,
     "rsi": 65.55,
@@ -3174,11 +3705,13 @@
     "rs_vs_spy": 27.35,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": -0.41,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -1.16,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1103565,
@@ -3188,6 +3721,7 @@
       "change_pct": 20.31,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 50.9,
     "score_components": {
       "rvol_score": 12.5,
@@ -3201,6 +3735,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-02 02:30:06"
   },
@@ -3213,6 +3748,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 152.99,
     "rvol": 5.15,
     "rsi": 71.22,
@@ -3238,11 +3782,13 @@
     "rs_vs_spy": 3.92,
     "rs_vs_sector": 12.68,
     "dist_to_20d_high_pct": 9.72,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -9.47,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 629013,
@@ -3252,6 +3798,7 @@
       "change_pct": 9.19,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 71.1,
     "score_components": {
       "rvol_score": 100.0,
@@ -3265,6 +3812,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3277,6 +3825,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 14.25,
     "rvol": 2.78,
     "rsi": 72.02,
@@ -3302,11 +3859,13 @@
     "rs_vs_spy": 69.91,
     "rs_vs_sector": 77.47,
     "dist_to_20d_high_pct": -0.21,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -0.56,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 9194177,
@@ -3316,6 +3875,7 @@
       "change_pct": 30.1,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 60.5,
     "score_components": {
       "rvol_score": 44.5,
@@ -3329,6 +3889,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3341,6 +3902,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 8.56,
     "rvol": 2.71,
     "rsi": 71.58,
@@ -3366,11 +3936,13 @@
     "rs_vs_spy": 49.38,
     "rs_vs_sector": 58.14,
     "dist_to_20d_high_pct": 6.34,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -4.68,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 42278237,
@@ -3380,6 +3952,7 @@
       "change_pct": 0.23,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 61.3,
     "score_components": {
       "rvol_score": 42.7,
@@ -3393,6 +3966,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3405,6 +3979,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 11.35,
     "rvol": 2.39,
     "rsi": 70.78,
@@ -3430,11 +4013,13 @@
     "rs_vs_spy": 14.49,
     "rs_vs_sector": 20.88,
     "dist_to_20d_high_pct": 2.34,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -14.18,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 3770393,
@@ -3444,6 +4029,7 @@
       "change_pct": 10.93,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 55.7,
     "score_components": {
       "rvol_score": 34.9,
@@ -3457,6 +4043,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 2,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3469,6 +4056,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 15.1,
     "rvol": 2.22,
     "rsi": 65.64,
@@ -3494,11 +4090,13 @@
     "rs_vs_spy": 48.91,
     "rs_vs_sector": 42.91,
     "dist_to_20d_high_pct": 1.0,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -2.96,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 8430028,
@@ -3508,6 +4106,7 @@
       "change_pct": 5.0,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 57.0,
     "score_components": {
       "rvol_score": 30.5,
@@ -3521,6 +4120,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3533,6 +4133,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 9.1,
     "rvol": 2.08,
     "rsi": 68.12,
@@ -3558,11 +4167,13 @@
     "rs_vs_spy": 33.63,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": 5.32,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -2.36,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 7582355,
@@ -3572,6 +4183,7 @@
       "change_pct": 6.61,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 56.4,
     "score_components": {
       "rvol_score": 26.9,
@@ -3585,6 +4197,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3597,6 +4210,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 13.85,
     "rvol": 2.05,
     "rsi": 59.17,
@@ -3622,11 +4244,13 @@
     "rs_vs_spy": 54.28,
     "rs_vs_sector": 48.28,
     "dist_to_20d_high_pct": 0.14,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -6.17,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 6494072,
@@ -3636,6 +4260,7 @@
       "change_pct": -12.66,
       "market_class": "SC"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 55.8,
     "score_components": {
       "rvol_score": 26.1,
@@ -3649,6 +4274,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3661,6 +4287,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 152.89,
     "rvol": 2.03,
     "rsi": 74.91,
@@ -3686,11 +4321,13 @@
     "rs_vs_spy": 32.0,
     "rs_vs_sector": 31.54,
     "dist_to_20d_high_pct": 0.08,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -3.41,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 6217186,
@@ -3700,6 +4337,7 @@
       "change_pct": -1.4,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.7,
     "score_components": {
       "rvol_score": 25.8,
@@ -3713,6 +4351,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3725,6 +4364,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 149.31,
     "rvol": 1.97,
     "rsi": 73.48,
@@ -3750,11 +4398,13 @@
     "rs_vs_spy": 18.41,
     "rs_vs_sector": 12.41,
     "dist_to_20d_high_pct": 9.59,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -6.84,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 3217345,
@@ -3764,6 +4414,7 @@
       "change_pct": 8.93,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 55.4,
     "score_components": {
       "rvol_score": 24.2,
@@ -3777,6 +4428,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3789,6 +4441,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 19.73,
     "rvol": 1.95,
     "rsi": 69.16,
@@ -3814,11 +4475,13 @@
     "rs_vs_spy": 40.89,
     "rs_vs_sector": 47.28,
     "dist_to_20d_high_pct": -0.75,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -0.85,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 4779026,
@@ -3828,6 +4491,7 @@
       "change_pct": -7.7,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.5,
     "score_components": {
       "rvol_score": 23.7,
@@ -3841,6 +4505,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 2,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3853,6 +4518,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 7.91,
     "rvol": 1.85,
     "rsi": 73.77,
@@ -3878,11 +4552,13 @@
     "rs_vs_spy": 51.79,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": 0.0,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -3.18,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1046094,
@@ -3892,6 +4568,7 @@
       "change_pct": -13.25,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.5,
     "score_components": {
       "rvol_score": 21.3,
@@ -3905,6 +4582,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3917,6 +4595,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 28.34,
     "rvol": 1.8,
     "rsi": 65.03,
@@ -3942,11 +4629,13 @@
     "rs_vs_spy": 27.25,
     "rs_vs_sector": 21.25,
     "dist_to_20d_high_pct": 4.58,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -39.38,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 12382007,
@@ -3956,6 +4645,7 @@
       "change_pct": -11.85,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.0,
     "score_components": {
       "rvol_score": 19.9,
@@ -3969,6 +4659,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -3981,6 +4672,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 35.87,
     "rvol": 1.78,
     "rsi": 61.35,
@@ -4006,11 +4706,13 @@
     "rs_vs_spy": 0.83,
     "rs_vs_sector": 12.43,
     "dist_to_20d_high_pct": 2.63,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -3.63,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 3488132,
@@ -4020,6 +4722,7 @@
       "change_pct": 1.99,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 48.0,
     "score_components": {
       "rvol_score": 19.4,
@@ -4033,6 +4736,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -4045,6 +4749,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 31.05,
     "rvol": 1.69,
     "rsi": 74.12,
@@ -4070,11 +4783,13 @@
     "rs_vs_spy": 81.55,
     "rs_vs_sector": 90.31,
     "dist_to_20d_high_pct": 1.14,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -4.31,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 11169335,
@@ -4084,6 +4799,7 @@
       "change_pct": 0.72,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.2,
     "score_components": {
       "rvol_score": 17.3,
@@ -4097,6 +4813,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -4109,6 +4826,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 14.08,
     "rvol": 1.61,
     "rsi": 61.27,
@@ -4134,11 +4860,13 @@
     "rs_vs_spy": 20.47,
     "rs_vs_sector": 14.47,
     "dist_to_20d_high_pct": 3.0,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -2.12,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 10934378,
@@ -4148,6 +4876,7 @@
       "change_pct": 3.34,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 51.7,
     "score_components": {
       "rvol_score": 15.2,
@@ -4161,6 +4890,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -4173,6 +4903,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 13.48,
     "rvol": 1.61,
     "rsi": 60.49,
@@ -4198,11 +4937,13 @@
     "rs_vs_spy": 60.8,
     "rs_vs_sector": 72.4,
     "dist_to_20d_high_pct": 0.22,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -6.58,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 2055867,
@@ -4212,6 +4953,7 @@
       "change_pct": 27.75,
       "market_class": "SC"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 53.2,
     "score_components": {
       "rvol_score": 15.3,
@@ -4225,6 +4967,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -4237,6 +4980,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 60.92,
     "rvol": 1.57,
     "rsi": 61.76,
@@ -4262,11 +5014,13 @@
     "rs_vs_spy": 7.25,
     "rs_vs_sector": 13.64,
     "dist_to_20d_high_pct": -0.02,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -1.12,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1575948,
@@ -4276,6 +5030,7 @@
       "change_pct": 4.2,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 48.4,
     "score_components": {
       "rvol_score": 14.3,
@@ -4289,6 +5044,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -4301,6 +5057,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 28.29,
     "rvol": 1.51,
     "rsi": 64.54,
@@ -4326,11 +5091,13 @@
     "rs_vs_spy": 2.46,
     "rs_vs_sector": 2.0,
     "dist_to_20d_high_pct": -0.6,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -4.36,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 3123641,
@@ -4340,6 +5107,7 @@
       "change_pct": 5.1,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 46.1,
     "score_components": {
       "rvol_score": 12.6,
@@ -4353,6 +5121,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-10-01 11:08:37"
   },
@@ -4365,6 +5134,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 26.0,
     "rvol": 3.38,
     "rsi": 64.06,
@@ -4390,11 +5168,13 @@
     "rs_vs_spy": 0.38,
     "rs_vs_sector": null,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -14.75,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 1731478,
@@ -4404,6 +5184,7 @@
       "change_pct": 0.18,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 56.8,
     "score_components": {
       "rvol_score": 59.4,
@@ -4417,6 +5198,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4429,6 +5211,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 75.56,
     "rvol": 2.92,
     "rsi": 74.02,
@@ -4454,11 +5245,13 @@
     "rs_vs_spy": 27.92,
     "rs_vs_sector": 28.82,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -2.23,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 556078,
@@ -4468,6 +5261,7 @@
       "change_pct": 3.78,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 61.5,
     "score_components": {
       "rvol_score": 48.1,
@@ -4481,6 +5275,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4493,6 +5288,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 19.73,
     "rvol": 2.52,
     "rsi": 69.16,
@@ -4518,11 +5322,13 @@
     "rs_vs_spy": 51.19,
     "rs_vs_sector": 55.07,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -0.85,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 4779026,
@@ -4532,6 +5338,7 @@
       "change_pct": -7.7,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 58.5,
     "score_components": {
       "rvol_score": 38.1,
@@ -4545,6 +5352,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4557,6 +5365,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 33.77,
     "rvol": 2.34,
     "rsi": 59.89,
@@ -4582,11 +5399,13 @@
     "rs_vs_spy": 5.76,
     "rs_vs_sector": 9.64,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -3.71,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 601629,
@@ -4596,6 +5415,7 @@
       "change_pct": 9.79,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.5,
     "score_components": {
       "rvol_score": 33.6,
@@ -4609,6 +5429,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4621,6 +5442,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 126.33,
     "rvol": 1.94,
     "rsi": 73.26,
@@ -4646,11 +5476,13 @@
     "rs_vs_spy": 31.11,
     "rs_vs_sector": 26.57,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -0.37,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 2569857,
@@ -4660,6 +5492,7 @@
       "change_pct": -1.03,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 54.0,
     "score_components": {
       "rvol_score": 23.4,
@@ -4673,6 +5506,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4685,6 +5519,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 11.09,
     "rvol": 1.85,
     "rsi": 65.71,
@@ -4710,11 +5553,13 @@
     "rs_vs_spy": 12.33,
     "rs_vs_sector": 16.21,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -16.14,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 3770393,
@@ -4724,6 +5569,7 @@
       "change_pct": 10.93,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 51.5,
     "score_components": {
       "rvol_score": 21.3,
@@ -4737,6 +5583,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4749,6 +5596,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 34.95,
     "rvol": 1.84,
     "rsi": 69.53,
@@ -4774,11 +5630,13 @@
     "rs_vs_spy": 26.21,
     "rs_vs_sector": 36.25,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -0.3,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 570605,
@@ -4788,6 +5646,7 @@
       "change_pct": 28.9,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 53.0,
     "score_components": {
       "rvol_score": 21.1,
@@ -4801,6 +5660,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4813,6 +5673,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 186.13,
     "rvol": 1.84,
     "rsi": 72.81,
@@ -4838,11 +5707,13 @@
     "rs_vs_spy": 79.56,
     "rs_vs_sector": 85.8,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -2.43,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 12505220,
@@ -4852,6 +5723,7 @@
       "change_pct": 3.65,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 55.1,
     "score_components": {
       "rvol_score": 20.9,
@@ -4865,6 +5737,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4877,6 +5750,15 @@
     "primary_exchange": "XNYS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 677.52,
     "rvol": 1.83,
     "rsi": 64.17,
@@ -4902,11 +5784,13 @@
     "rs_vs_spy": 23.18,
     "rs_vs_sector": 33.22,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -8.69,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 935324,
@@ -4916,6 +5800,7 @@
       "change_pct": -2.2,
       "market_class": "NYSE"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.5,
     "score_components": {
       "rvol_score": 20.7,
@@ -4929,6 +5814,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -4941,6 +5827,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 25.67,
     "rvol": 1.76,
     "rsi": 61.93,
@@ -4966,11 +5861,13 @@
     "rs_vs_spy": 24.11,
     "rs_vs_sector": 21.8,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -4.36,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 11433129,
@@ -4980,6 +5877,7 @@
       "change_pct": 4.14,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 52.3,
     "score_components": {
       "rvol_score": 18.9,
@@ -4993,6 +5891,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   },
@@ -5005,6 +5904,15 @@
     "primary_exchange": "XNAS",
     "market_cap": 0.0,
     "setup_name": "Momentum Breakout",
+    "checkpoint_id": "eod",
+    "checkpoint_label": null,
+    "is_intraday": false,
+    "checkpoint_status": null,
+    "checkpoint_continuous": true,
+    "checkpoint_last_seen_id": null,
+    "checkpoint_last_seen_label": null,
+    "rvol_basis": "full_day_vs_prior_20d",
+    "rvol_label": "RVOL",
     "close_price": 17.01,
     "rvol": 1.56,
     "rsi": 59.91,
@@ -5030,11 +5938,13 @@
     "rs_vs_spy": -0.13,
     "rs_vs_sector": -2.44,
     "dist_to_20d_high_pct": null,
+    "dist_to_20d_low_pct": null,
     "dist_to_52w_high_pct": -17.27,
     "near_earnings": false,
     "earnings_date": "2026-06-30",
     "news": [],
     "insider_activity": [],
+    "insider_activity_type": null,
     "insider_cluster": false,
     "short_interest": {
       "shares_short": 4624052,
@@ -5044,6 +5954,7 @@
       "change_pct": -5.06,
       "market_class": "NNM"
     },
+    "squeeze_risk_caution": false,
     "composite_score": 45.2,
     "score_components": {
       "rvol_score": 14.1,
@@ -5057,6 +5968,7 @@
         "trend_strength": 0.2
       }
     },
+    "score_direction": "bullish",
     "signal_streak": 1,
     "created_at": "2026-09-30 13:28:19"
   }
