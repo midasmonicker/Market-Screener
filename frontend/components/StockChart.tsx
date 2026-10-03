@@ -132,7 +132,7 @@ function calculateVWAP(data: BarData[]) {
   return result;
 }
 
-function calculateATRStop(data: BarData[], period = 14, multiplier = 2) {
+function calculateATRStop(data: BarData[], period = 14, multiplier = 2, direction: 'long' | 'short' = 'long') {
   const result: { time: string; value: number }[] = [];
   if (data.length <= period) return result;
 
@@ -150,7 +150,7 @@ function calculateATRStop(data: BarData[], period = 14, multiplier = 2) {
   }
   atr = atr / period;
 
-  let trailingStop = data[period - 1].close - multiplier * atr;
+  let trailingStop = data[period - 1].close + (direction === 'short' ? 1 : -1) * multiplier * atr;
   result.push({
     time: data[period - 1].timestamp,
     value: Number(Math.max(0, trailingStop).toFixed(2)),
@@ -158,9 +158,11 @@ function calculateATRStop(data: BarData[], period = 14, multiplier = 2) {
 
   for (let i = period; i < data.length; i++) {
     atr = (atr * (period - 1) + tr[i]) / period;
-    const currentStop = data[i].close - multiplier * atr;
-    if (data[i - 1].close > trailingStop) {
-      trailingStop = Math.max(trailingStop, currentStop);
+    const currentStop = data[i].close + (direction === 'short' ? 1 : -1) * multiplier * atr;
+    if (direction === 'short' ? data[i - 1].close < trailingStop : data[i - 1].close > trailingStop) {
+      trailingStop = direction === 'short'
+        ? Math.min(trailingStop, currentStop)
+        : Math.max(trailingStop, currentStop);
     } else {
       trailingStop = currentStop;
     }
@@ -208,16 +210,20 @@ export function calculateRiskSizing({
   atrPercentOverride,
   accountSize,
   riskPct,
+  direction = 'long',
 }: {
   closePrice: number;
   bars?: BarData[];
   atrPercentOverride?: number | null;
   accountSize: number;
   riskPct: number;
+  direction?: 'long' | 'short';
 }) {
   const atrValue = computeAtrValueFromBars(bars, closePrice, atrPercentOverride);
-  const stopPrice = Math.max(0, closePrice - 2 * atrValue);
-  const riskPerShare = Math.max(0.01, closePrice - stopPrice);
+  const stopPrice = direction === 'short'
+    ? closePrice + 2 * atrValue
+    : Math.max(0, closePrice - 2 * atrValue);
+  const riskPerShare = Math.max(0.01, Math.abs(closePrice - stopPrice));
   const maxDollarRisk = (accountSize * riskPct) / 100;
   const positionShares = Math.floor(maxDollarRisk / riskPerShare);
   const positionNotional = positionShares * closePrice;
@@ -260,6 +266,7 @@ export default function StockChart({
   const [showInsiderActivity, setShowInsiderActivity] = useState(false);
   const [showShortInterest, setShowShortInterest] = useState(false);
   const [showRiskCalc, setShowRiskCalc] = useState(false);
+  const isBreakdown = signal?.setup_name === 'Momentum Breakdown';
   const recentNews = Array.isArray(signal?.news) ? signal.news.slice(0, 3) : [];
   const insiderActivity = Array.isArray(signal?.insider_activity)
     ? signal.insider_activity
@@ -279,8 +286,9 @@ export default function StockChart({
         atrPercentOverride: signal?.atr_pct ?? null,
         accountSize,
         riskPct,
+        direction: isBreakdown ? 'short' : 'long',
       }),
-    [bars, closePrice, signal?.atr_pct, accountSize, riskPct]
+    [bars, closePrice, signal?.atr_pct, accountSize, riskPct, isBreakdown]
   );
 
   const atrValue = riskSizing.atrValue;
@@ -425,9 +433,9 @@ export default function StockChart({
         color: '#f43f5e',
         lineWidth: 2,
         lineStyle: LineStyle.Dashed,
-        title: '2x ATR Stop',
+        title: isBreakdown ? '2x ATR Short Stop' : '2x ATR Stop',
       });
-      atrStopSeries.setData(calculateATRStop(sortedBars, 14, 2));
+      atrStopSeries.setData(calculateATRStop(sortedBars, 14, 2, isBreakdown ? 'short' : 'long'));
     }
 
     chart.timeScale().fitContent();
@@ -445,10 +453,79 @@ export default function StockChart({
       chart.remove();
       chartInstanceRef.current = null;
     };
-  }, [bars, showIndicators]);
+  }, [bars, showIndicators, isBreakdown]);
 
-  // Breakout conditions evaluation
-  const conditions = [
+  const earningsCondition = {
+    name: 'Earnings Flag',
+    description: 'Proximity to earnings report',
+    actual: signal?.near_earnings
+      ? `Report on ${signal.earnings_date ?? 'upcoming'}`
+      : 'Clear (>1 trading day)',
+    threshold: 'No earnings in 1d',
+    passed: !signal?.near_earnings,
+    isWarning: signal?.near_earnings,
+  };
+
+  const conditions: Array<{
+    name: string;
+    description: string;
+    actual: string;
+    threshold: string;
+    passed: boolean;
+    isWarning?: boolean;
+  }> = isBreakdown ? [
+    {
+      name: 'RVOL >= 1.5x',
+      description: 'Volume vs 20-day average',
+      actual: `${rvol?.toFixed(2)}x`,
+      threshold: '>= 1.50x',
+      passed: rvol >= 1.5,
+    },
+    {
+      name: 'RSI 25-50',
+      description: 'Bearish momentum, not oversold',
+      actual: `${rsi?.toFixed(1)}`,
+      threshold: '25.0 - 50.0',
+      passed: rsi >= 25 && rsi <= 50,
+    },
+    {
+      name: 'Close < 50-SMA',
+      description: 'Below intermediate trend',
+      actual: signal?.ma_alignment?.sma50 != null
+        ? `$${closePrice.toFixed(2)} vs $${signal.ma_alignment.sma50.toFixed(2)}`
+        : 'Unavailable',
+      threshold: 'Close < 50-SMA',
+      passed: signal?.ma_alignment?.above_sma50 === false,
+    },
+    {
+      name: '20-day Low Proximity',
+      description: 'Within 1% of prior 20-day low',
+      actual: signal?.dist_to_20d_low_pct != null
+        ? `+${signal.dist_to_20d_low_pct.toFixed(1)}%`
+        : 'N/A',
+      threshold: '<= 1.0% above low',
+      passed: signal?.dist_to_20d_low_pct != null && signal.dist_to_20d_low_pct <= 1,
+    },
+    {
+      name: 'RS vs SPY <= -70pp',
+      description: '63-day relative return differential',
+      actual: signal?.rs_vs_spy != null ? `${signal.rs_vs_spy.toFixed(1)}pp` : 'N/A',
+      threshold: '<= -70.0pp',
+      passed: signal?.rs_vs_spy != null && signal.rs_vs_spy <= -70,
+    },
+    {
+      name: 'Below 20/50/200 MAs',
+      description: 'All major moving averages overhead',
+      actual: ['above_ema20', 'above_sma50', 'above_sma200']
+        .map((key) => signal?.ma_alignment?.[key] === false ? 'below' : 'not below')
+        .join(' / '),
+      threshold: 'Below 20-EMA, 50-SMA, 200-SMA',
+      passed: signal?.ma_alignment?.above_ema20 === false
+        && signal?.ma_alignment?.above_sma50 === false
+        && signal?.ma_alignment?.above_sma200 === false,
+    },
+    earningsCondition,
+  ] : [
     {
       name: 'RVOL ≥ 1.5x',
       description: 'Volume vs 20-day average',
@@ -497,16 +574,7 @@ export default function StockChart({
       threshold: 'Outperforming (≥ 0pp)',
       passed: signal?.rs_vs_sector == null || signal.rs_vs_sector >= 0,
     },
-    {
-      name: 'Earnings Flag',
-      description: 'Proximity to earnings report',
-      actual: signal?.near_earnings
-        ? `⚠️ Report on ${signal.earnings_date ?? 'upcoming'}`
-        : 'Clear (>1 trading day)',
-      threshold: 'No earnings in 1d',
-      passed: !signal?.near_earnings,
-      isWarning: signal?.near_earnings,
-    },
+    earningsCondition,
   ];
 
   return (
@@ -515,7 +583,7 @@ export default function StockChart({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-[#0f172a]/80">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-base">
+            <div className={`w-9 h-9 rounded-lg border flex items-center justify-center font-bold text-base ${isBreakdown ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'}`}>
               {symbol.slice(0, 3)}
             </div>
             <div>
@@ -547,7 +615,7 @@ export default function StockChart({
               </div>
               <div>
                 <span className="text-[10px] uppercase text-slate-500 block">RVOL</span>
-                <span className="font-semibold text-emerald-400">{rvol?.toFixed(2)}x</span>
+                <span className={`font-semibold ${isBreakdown ? 'text-rose-300' : 'text-emerald-400'}`}>{rvol?.toFixed(2)}x</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase text-slate-500 block">RSI</span>
@@ -624,7 +692,7 @@ export default function StockChart({
                   : 'border-slate-800 text-slate-600'
               }`}
             >
-              2x ATR Stop
+              {isBreakdown ? '2x ATR Short Stop' : '2x ATR Stop'}
             </button>
           </div>
 
@@ -635,7 +703,9 @@ export default function StockChart({
               aria-expanded={showWhyTriggered}
               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded border text-xs font-medium transition ${
                 showWhyTriggered
-                  ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
+                  ? isBreakdown
+                    ? 'border-rose-500/50 bg-rose-500/10 text-rose-300'
+                    : 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
                   : 'border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white'
               }`}
             >
@@ -677,7 +747,7 @@ export default function StockChart({
               }`}
             >
               <UsersRound className="w-3.5 h-3.5" />
-              <span>Insider Activity</span>
+              <span>{isBreakdown ? 'Insider Selling' : 'Insider Buying'}</span>
               <span className="text-[10px] text-slate-400">{insiderActivity.length}</span>
               {showInsiderActivity ? (
                 <ChevronUp className="w-3 h-3 ml-0.5" />
@@ -736,7 +806,7 @@ export default function StockChart({
               {signal?.near_earnings && (
                 <span className="flex items-center gap-1 text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">
                   <AlertTriangle className="w-3 h-3" />
-                  Earnings on {signal.earnings_date} — caution on breakout continuation
+                  Earnings on {signal.earnings_date} — caution on {isBreakdown ? 'breakdown' : 'breakout'} continuation
                 </span>
               )}
             </div>
@@ -799,6 +869,12 @@ export default function StockChart({
                       <span className={`inline-flex border rounded px-1.5 py-0.5 text-[9px] font-semibold ${newsCategoryClass(article.category)}`}>
                         {article.category || 'Other'}
                       </span>
+                      {article.direction && article.direction !== 'neutral' && (
+                        <span className={`inline-flex border rounded px-1.5 py-0.5 text-[9px] font-semibold ${(article.direction === 'bearish') === isBreakdown ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/30 bg-amber-500/10 text-amber-300'}`}>
+                          {article.direction === 'bearish' ? 'Bearish' : 'Bullish'}
+                          {(article.direction === 'bearish') === isBreakdown ? ' confirming' : ' conflict'}
+                        </span>
+                      )}
                       <div className="min-w-0 flex-1">
                         {article.url ? (
                           <a
@@ -832,17 +908,22 @@ export default function StockChart({
           >
             <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <h4 className="font-semibold text-slate-300 uppercase tracking-wider text-[10px]">
-                Insider Activity
+                {isBreakdown ? 'Insider Selling · Supplementary' : 'Insider Buying'}
               </h4>
               {signal?.insider_cluster && insiderActivity.length > 1 && (
                 <span className="inline-flex items-center gap-1 border border-amber-500/40 rounded px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 bg-amber-500/10">
-                  Multiple insiders bought
+                  {isBreakdown ? 'Multiple insiders sold' : 'Multiple insiders bought'}
                 </span>
               )}
             </div>
+            {isBreakdown && (
+              <p className="mb-2 text-[10px] text-amber-300/80">
+                Supplementary Form 4 sales only; sales may reflect routine 10b5-1 plans or diversification.
+              </p>
+            )}
             {insiderActivity.length === 0 ? (
               <p className="py-3 text-center text-slate-500">
-                No qualifying open-market purchases found for {symbol} in the last 21 calendar days.
+                No qualifying open-market {isBreakdown ? 'sales' : 'purchases'} found for {symbol} in the last 21 calendar days.
               </p>
             ) : (
               <ul className="divide-y divide-slate-800/80">
@@ -918,7 +999,9 @@ export default function StockChart({
               </div>
               {shortInterest?.days_to_cover != null && shortInterest.days_to_cover >= 5.0 && (
                 <span className="inline-flex items-center gap-1 border border-amber-500/40 rounded px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 bg-amber-500/10">
-                  Elevated short squeeze risk (DTC ≥ 5d)
+                  {isBreakdown
+                    ? 'CAUTION: already heavily shorted — squeeze risk'
+                    : 'Elevated short squeeze risk (DTC ≥ 5d)'}
                 </span>
               )}
             </div>
@@ -974,12 +1057,17 @@ export default function StockChart({
             <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
               <span className="font-semibold text-rose-400 flex items-center gap-1.5 text-xs">
                 <ShieldAlert className="w-3.5 h-3.5" />
-                ATR-Based Risk & Position Sizer
+                {isBreakdown ? 'Short Risk & Position Sizer' : 'ATR-Based Risk & Position Sizer'}
               </span>
               <span className="text-[10px] text-slate-500 font-mono">
                 ATR(14): ${atrValue.toFixed(2)} ({((atrValue / closePrice) * 100).toFixed(1)}% of price)
               </span>
             </div>
+            {isBreakdown && (
+              <p className="mb-3 rounded border border-rose-500/20 bg-rose-500/5 px-2.5 py-2 text-[10px] text-rose-200">
+                Short losses are asymmetric and potentially uncapped; long-side downside is capped at 100% of entry value.
+              </p>
+            )}
 
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 items-end">
               {/* Account Size */}
@@ -1013,12 +1101,14 @@ export default function StockChart({
 
               {/* ATR Stop Price */}
               <div className="bg-[#0c121e] border border-slate-800 rounded p-2">
-                <span className="text-[10px] uppercase text-slate-500 block">Stop (Entry − 2×ATR)</span>
+                <span className="text-[10px] uppercase text-slate-500 block">
+                  Stop (Entry {isBreakdown ? '+' : '−'} 2×ATR)
+                </span>
                 <span className="font-mono font-bold text-rose-400 text-sm">
                   ${stopPrice.toFixed(2)}
                 </span>
                 <span className="text-[9px] text-slate-500 block font-mono">
-                  -${riskPerShare.toFixed(2)}/sh (−{((riskPerShare / closePrice) * 100).toFixed(1)}%)
+                  {isBreakdown ? '+' : '-'}${riskPerShare.toFixed(2)}/sh ({isBreakdown ? '+' : '−'}{((riskPerShare / closePrice) * 100).toFixed(1)}%)
                 </span>
               </div>
 

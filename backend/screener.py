@@ -9,10 +9,12 @@ import re
 import xml.etree.ElementTree as ET
 import csv
 import io
+from zoneinfo import ZoneInfo
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import pandas as pd
 import pandas_ta as ta
+import pandas_market_calendars as mcal
 from dotenv import load_dotenv
 
 # Set up logging
@@ -83,6 +85,19 @@ SECTOR_TO_ETF = {
     "Communication Services": "XLC",
 }
 SECTOR_ETFS = ("XLK", "XLV", "XLF", "XLE", "XLY", "XLP", "XLI", "XLB", "XLU", "XLRE", "XLC")
+CHECKPOINT_LABELS = {
+    "intraday_11am": "11:00am",
+    "intraday_1pm": "1:00pm",
+    "intraday_330pm": "3:30pm",
+    "eod": None,
+}
+CHECKPOINT_TIMES = {
+    "intraday_11am": datetime.time(11, 0),
+    "intraday_1pm": datetime.time(13, 0),
+    "intraday_330pm": datetime.time(15, 30),
+}
+CHECKPOINT_RVOL_LOOKBACK_SESSIONS = 20
+CHECKPOINT_RVOL_TIMEFRAME_MINUTES = 30
 
 # ── Short Interest Ingestion Constants (FINRA bi-weekly bulk file) ─────────────
 FINRA_SHORT_INTEREST_URL_BASE = "https://cdn.finra.org/equity/otcmarket/biweekly/shrt{date_str}.csv"
@@ -249,6 +264,7 @@ def init_db(schema_path="schema.sql"):
         ("return_5d_pct", "REAL"),
         ("return_10d_pct", "REAL"),
         ("return_20d_pct", "REAL"),
+        ("checkpoint_id", "TEXT NOT NULL DEFAULT 'eod'"),
     ]
     for col_name, col_type in performance_columns:
         if col_name not in existing_cols:
@@ -746,6 +762,224 @@ def fetch_alpaca_batch_daily(symbols, date_str, chunk_size=100):
         time.sleep(0.3)
 
     return records, source_tag
+
+
+def fetch_alpaca_intraday_snapshots(symbols, date_str, chunk_size=100):
+    """Fetch IEX day-to-date bars for one checkpoint without writing daily history."""
+    if not ALPACA_API_KEY or not ALPACA_API_SECRET:
+        logger.warning("Alpaca credentials not configured; cannot fetch checkpoint snapshots.")
+        return {}
+
+    headers = {
+        "APCA-API-KEY-ID": ALPACA_API_KEY,
+        "APCA-API-SECRET-KEY": ALPACA_API_SECRET,
+    }
+    snapshots = {}
+    for start in range(0, len(symbols), chunk_size):
+        chunk = symbols[start:start + chunk_size]
+        url = (
+            "https://data.alpaca.markets/v2/stocks/snapshots"
+            f"?symbols={','.join(chunk)}&feed=iex"
+        )
+        try:
+            response = requests.get(url, headers=headers, timeout=20)
+            if response.status_code != 200:
+                logger.warning(
+                    "Alpaca IEX snapshot request returned HTTP %d for chunk %d.",
+                    response.status_code,
+                    start // chunk_size + 1,
+                )
+                continue
+            payload = response.json()
+            for symbol, snapshot in payload.items():
+                bar = (snapshot or {}).get("dailyBar")
+                if not bar or str(bar.get("t", ""))[:10] != date_str:
+                    continue
+                close = float(bar.get("c") or 0)
+                if close <= 0:
+                    continue
+                snapshots[symbol] = (
+                    symbol,
+                    date_str,
+                    float(bar.get("o") or close),
+                    float(bar.get("h") or close),
+                    float(bar.get("l") or close),
+                    close,
+                    int(bar.get("v") or 0),
+                    float(bar.get("vw") or close),
+                    "alpaca_iex_intraday",
+                )
+        except Exception as e:
+            logger.warning("Alpaca IEX snapshot request failed for chunk %d: %s", start // chunk_size + 1, e)
+        if start + chunk_size < len(symbols):
+            time.sleep(0.35)
+
+    logger.info(
+        "Fetched current-day IEX snapshot bars for %d/%d active symbols on %s.",
+        len(snapshots), len(symbols), date_str,
+    )
+    return snapshots
+
+
+def fetch_alpaca_checkpoint_rvol_baselines(
+    symbols, date_str, checkpoint_id, lookback_sessions=CHECKPOINT_RVOL_LOOKBACK_SESSIONS, chunk_size=100
+):
+    """Average prior-session IEX volume through the same ET checkpoint time."""
+    if checkpoint_id not in CHECKPOINT_TIMES:
+        raise ValueError(f"Unsupported intraday checkpoint for RVOL: {checkpoint_id}")
+    if not ALPACA_API_KEY or not ALPACA_API_SECRET:
+        raise RuntimeError("Alpaca credentials are required for time-of-day IEX RVOL baselines.")
+
+    conn = get_connection()
+    try:
+        history_dates = [
+            row[0]
+            for row in conn.execute(
+                """SELECT DISTINCT timestamp FROM daily_bars
+                   WHERE timestamp < ? ORDER BY timestamp DESC LIMIT ?""",
+                (date_str, lookback_sessions),
+            )
+        ]
+    finally:
+        conn.close()
+
+    if len(history_dates) < lookback_sessions:
+        raise RuntimeError(
+            f"Only {len(history_dates)} prior sessions are stored; "
+            f"{lookback_sessions} are required for checkpoint RVOL."
+        )
+    history_dates.reverse()
+
+    ny_timezone = ZoneInfo("America/New_York")
+    schedule = mcal.get_calendar("NYSE").schedule(
+        start_date=history_dates[0],
+        end_date=history_dates[-1],
+    )
+    target_time = CHECKPOINT_TIMES[checkpoint_id]
+    session_bounds = {}
+    for session_index, row in schedule.iterrows():
+        session_date = session_index.date().isoformat()
+        if session_date not in history_dates:
+            continue
+        market_open = row["market_open"].to_pydatetime().astimezone(ny_timezone)
+        market_close = row["market_close"].to_pydatetime().astimezone(ny_timezone)
+        checkpoint_cutoff = datetime.datetime.combine(
+            session_index.date(),
+            target_time,
+            tzinfo=ny_timezone,
+        )
+        session_bounds[session_date] = (market_open, min(market_close, checkpoint_cutoff))
+
+    if len(session_bounds) != len(history_dates):
+        raise RuntimeError("NYSE calendar did not resolve every stored RVOL history session.")
+
+    symbols = list(dict.fromkeys(symbols))
+    if not symbols:
+        return {}
+    first_open = session_bounds[history_dates[0]][0].astimezone(datetime.timezone.utc)
+    last_cutoff = session_bounds[history_dates[-1]][1].astimezone(datetime.timezone.utc)
+    params = {
+        "timeframe": f"{CHECKPOINT_RVOL_TIMEFRAME_MINUTES}Min",
+        "start": first_open.isoformat().replace("+00:00", "Z"),
+        "end": last_cutoff.isoformat().replace("+00:00", "Z"),
+        "feed": "iex",
+        "limit": 10000,
+    }
+    session_indices = {session_date: index for index, session_date in enumerate(history_dates)}
+    session_volumes = {
+        symbol: [0] * len(history_dates)
+        for symbol in symbols
+    }
+    headers = {
+        "APCA-API-KEY-ID": ALPACA_API_KEY,
+        "APCA-API-SECRET-KEY": ALPACA_API_SECRET,
+    }
+    page_count = 0
+    started = time.perf_counter()
+
+    for chunk_start in range(0, len(symbols), chunk_size):
+        chunk = symbols[chunk_start:chunk_start + chunk_size]
+        page_params = {**params, "symbols": ",".join(chunk)}
+        while True:
+            retry_count = 0
+            while True:
+                try:
+                    response = requests.get(
+                        "https://data.alpaca.markets/v2/stocks/bars",
+                        headers=headers,
+                        params=page_params,
+                        timeout=30,
+                    )
+                except requests.RequestException as exc:
+                    raise RuntimeError(
+                        f"Alpaca IEX checkpoint-volume request failed for chunk "
+                        f"{chunk_start // chunk_size + 1}."
+                    ) from exc
+
+                if response.status_code == 429 and retry_count < 3:
+                    retry_count += 1
+                    retry_after = float(response.headers.get("Retry-After", 1))
+                    delay = max(retry_after, 0.35)
+                    logger.warning(
+                        "Alpaca checkpoint-volume request hit HTTP 429; retry %d/3 in %.2fs.",
+                        retry_count,
+                        delay,
+                    )
+                    time.sleep(delay)
+                    continue
+                if response.status_code != 200:
+                    raise RuntimeError(
+                        "Alpaca IEX checkpoint-volume request returned HTTP "
+                        f"{response.status_code}: {response.text[:500]}"
+                    )
+                break
+
+            payload = response.json()
+            bars_by_symbol = payload.get("bars")
+            if not isinstance(bars_by_symbol, dict):
+                raise RuntimeError("Alpaca checkpoint-volume response did not contain a bars mapping.")
+            for symbol, bars in bars_by_symbol.items():
+                if symbol not in session_volumes:
+                    continue
+                for bar in bars or []:
+                    bar_timestamp = datetime.datetime.fromisoformat(
+                        str(bar["t"]).replace("Z", "+00:00")
+                    ).astimezone(ny_timezone)
+                    session_date = bar_timestamp.date().isoformat()
+                    session_index = session_indices.get(session_date)
+                    bounds = session_bounds.get(session_date)
+                    if session_index is None or bounds is None:
+                        continue
+                    market_open, checkpoint_cutoff = bounds
+                    bar_end = bar_timestamp + datetime.timedelta(
+                        minutes=CHECKPOINT_RVOL_TIMEFRAME_MINUTES
+                    )
+                    if market_open <= bar_timestamp and bar_end <= checkpoint_cutoff:
+                        session_volumes[symbol][session_index] += int(float(bar["v"]))
+
+            page_count += 1
+            page_token = payload.get("next_page_token")
+            if not page_token:
+                break
+            page_params["page_token"] = page_token
+            time.sleep(0.35)
+        time.sleep(0.35)
+
+    baselines = {
+        symbol: sum(volumes) / len(history_dates)
+        for symbol, volumes in session_volumes.items()
+        if sum(volumes) > 0
+    }
+    logger.info(
+        "Computed same-time IEX volume baselines for %d/%d symbols from %d sessions "
+        "(%d historical pages, %.2fs).",
+        len(baselines),
+        len(symbols),
+        len(history_dates),
+        page_count,
+        time.perf_counter() - started,
+    )
+    return baselines
 
 
 def fetch_yfinance_bulk_daily(
@@ -1282,6 +1516,37 @@ def classify_news_catalyst(headline):
     return "Other"
 
 
+def classify_news_direction(headline):
+    """Return a lightweight directional label; headlines are context, not signals."""
+    text = str(headline or "").lower()
+    if any(word in text for word in (
+        "downgrade", "downgraded", "cut", "cuts", "cutting", "lowered", "lowers",
+        "reduce guidance", "reduced guidance",
+    )):
+        return "bearish"
+    if any(word in text for word in (
+        "upgrade", "upgraded", "raise", "raises", "raised", "hike", "hikes",
+        "increased guidance",
+    )):
+        return "bullish"
+    return "neutral"
+
+
+def _tag_news_directions(articles):
+    if not isinstance(articles, list):
+        return []
+    return [
+        {
+            **article,
+            "direction": article.get("direction")
+            if article.get("direction") in {"bearish", "bullish", "neutral"}
+            else classify_news_direction(article.get("headline")),
+        }
+        for article in articles
+        if isinstance(article, dict)
+    ]
+
+
 def fetch_finnhub_company_news(
     symbol,
     to_date=None,
@@ -1308,7 +1573,7 @@ def fetch_finnhub_company_news(
             if age_hours < ttl_hours:
                 if stats is not None:
                     stats["cache_hits"] = stats.get("cache_hits", 0) + 1
-                return cached_articles[:3] if isinstance(cached_articles, list) else []
+                return _tag_news_directions(cached_articles)[:3]
             if stats is not None:
                 stats["stale_cache"] = stats.get("stale_cache", 0) + 1
         except Exception as e:
@@ -1320,12 +1585,12 @@ def fetch_finnhub_company_news(
 
     if not FINNHUB_API_KEY:
         logger.warning("Finnhub API key not configured; skipping company-news lookup for %s.", sym)
-        return cached_articles[:3] if isinstance(cached_articles, list) else []
+        return _tag_news_directions(cached_articles)[:3]
 
     if max_api_lookups is not None and stats is not None:
         if stats.get("api_lookups", 0) >= max_api_lookups:
             stats["deferred"] = stats.get("deferred", 0) + 1
-            return cached_articles[:3] if isinstance(cached_articles, list) else []
+            return _tag_news_directions(cached_articles)[:3]
         stats["api_lookups"] = stats.get("api_lookups", 0) + 1
 
     try:
@@ -1340,7 +1605,7 @@ def fetch_finnhub_company_news(
     payload = _finnhub_get_json(url, sym, "company-news")
     if not isinstance(payload, list):
         logger.warning("Proceeding without fresh company news for %s.", sym)
-        return cached_articles[:3] if isinstance(cached_articles, list) else []
+        return _tag_news_directions(cached_articles)[:3]
 
     dated_articles = []
     for item in payload:
@@ -1364,6 +1629,7 @@ def fetch_finnhub_company_news(
             "url": str(item.get("url") or ""),
             "date": published_at.date().isoformat(),
             "category": classify_news_catalyst(headline),
+            "direction": classify_news_direction(headline),
         }
         dated_articles.append((published_at, article))
 
@@ -1516,8 +1782,8 @@ def _sec_cik_for_symbol(symbol, company_name=None, cache_dir=".cache"):
 
 
 def _parse_sec_form4(raw_submission, symbol, as_of_date, start_date, filing_date, filing_url):
-    """Extract only acquired, non-derivative open-market P transactions from a filing."""
-    purchases = []
+    """Extract non-derivative open-market purchases and sales from a filing."""
+    activity = {"purchases": [], "sales": []}
     ownership_documents = re.findall(
         r"<ownershipDocument\b[^>]*>.*?</ownershipDocument\s*>",
         raw_submission,
@@ -1532,9 +1798,13 @@ def _parse_sec_form4(raw_submission, symbol, as_of_date, start_date, filing_date
 
         owners = root.findall("./reportingOwner") or [None]
         for transaction in root.findall("./nonDerivativeTable/nonDerivativeTransaction"):
-            if transaction.findtext("./transactionCoding/transactionCode") != "P":
-                continue
-            if transaction.findtext("./transactionAmounts/transactionAcquiredDisposedCode/value") != "A":
+            transaction_code = transaction.findtext("./transactionCoding/transactionCode")
+            acquired_disposed = transaction.findtext("./transactionAmounts/transactionAcquiredDisposedCode/value")
+            if (transaction_code, acquired_disposed) == ("P", "A"):
+                activity_key = "purchases"
+            elif (transaction_code, acquired_disposed) == ("S", "D"):
+                activity_key = "sales"
+            else:
                 continue
 
             transaction_date = transaction.findtext("./transactionDate/value")
@@ -1568,7 +1838,7 @@ def _parse_sec_form4(raw_submission, symbol, as_of_date, start_date, filing_date
                         relationships.append("Director")
                     if relationship.findtext("isTenPercentOwner") == "1":
                         relationships.append("10% owner")
-                purchases.append({
+                activity[activity_key].append({
                     "name": owner_id.findtext("rptOwnerName") if owner_id is not None else None,
                     "title": relationship.findtext("officerTitle") if relationship is not None else None,
                     "relationships": relationships,
@@ -1577,11 +1847,13 @@ def _parse_sec_form4(raw_submission, symbol, as_of_date, start_date, filing_date
                     "price_per_share": price_per_share,
                     "total_value": round(shares * price_per_share, 2) if price_per_share is not None else None,
                     "security": security_title,
+                    "transaction_code": transaction_code,
+                    "transaction_type": "purchase" if activity_key == "purchases" else "sale",
                     "filing_date": filing_date,
                     "filing_url": filing_url,
                 })
 
-    return purchases
+    return activity
 
 
 def fetch_sec_insider_activity(
@@ -1593,9 +1865,12 @@ def fetch_sec_insider_activity(
     max_filings=SEC_INSIDER_MAX_FILINGS_PER_SYMBOL,
     stats=None,
 ):
-    """Fetch recent Form 4 open-market purchases for one screened signal symbol."""
+    """Fetch recent Form 4 open-market purchases and sales for a screened symbol."""
     sym = str(symbol).upper()
-    empty_result = {"purchases": [], "insider_cluster": False}
+    empty_result = {
+        "purchases": [], "sales": [], "insider_cluster": False,
+        "seller_cluster": False,
+    }
     try:
         signal_date = datetime.date.fromisoformat(as_of_date)
     except (TypeError, ValueError):
@@ -1611,13 +1886,16 @@ def fetch_sec_insider_activity(
                 cached = json.load(f)
             cached_result = {
                 "purchases": cached.get("purchases", []),
+                "sales": cached.get("sales", []),
                 "insider_cluster": bool(cached.get("insider_cluster", False)),
+                "seller_cluster": bool(cached.get("seller_cluster", False)),
             }
             fetched_at = cached.get("fetched_at")
             age_hours = (now - datetime.datetime.fromisoformat(fetched_at)).total_seconds() / 3600.0
             if (
                 cached.get("as_of_date") == signal_date.isoformat()
                 and cached.get("lookback_days") == lookback_days
+                and cached.get("schema_version") == 2
                 and age_hours < SEC_INSIDER_CACHE_TTL_HOURS
             ):
                 if stats is not None:
@@ -1646,6 +1924,7 @@ def fetch_sec_insider_activity(
         recent = submissions.get("filings", {}).get("recent", {})
         start_date = signal_date - datetime.timedelta(days=lookback_days - 1)
         purchases = []
+        sales = []
         filings_checked = 0
 
         for index, form in enumerate(recent.get("form", [])):
@@ -1673,34 +1952,48 @@ def fetch_sec_insider_activity(
             filings_checked += 1
             if filing_response is None:
                 continue
-            purchases.extend(_parse_sec_form4(
+            activity = _parse_sec_form4(
                 filing_response.text,
                 sym,
                 signal_date,
                 start_date,
                 filing_date.isoformat(),
                 filing_url,
-            ))
+            )
+            purchases.extend(activity["purchases"])
+            sales.extend(activity["sales"])
             if filings_checked >= max_filings:
                 break
 
-        deduplicated = {}
-        for purchase in purchases:
-            dedupe_key = (
-                purchase.get("name"), purchase["transaction_date"],
-                purchase["shares"], purchase.get("price_per_share"), purchase.get("security"),
+        def deduplicate_transactions(transactions):
+            deduplicated = {}
+            for transaction in transactions:
+                dedupe_key = (
+                    transaction.get("name"), transaction["transaction_date"],
+                    transaction["shares"], transaction.get("price_per_share"), transaction.get("security"),
+                )
+                deduplicated.setdefault(dedupe_key, transaction)
+            return sorted(
+                deduplicated.values(),
+                key=lambda transaction: (transaction["transaction_date"], transaction["filing_date"]),
+                reverse=True,
             )
-            deduplicated.setdefault(dedupe_key, purchase)
-        purchases = sorted(
-            deduplicated.values(),
-            key=lambda purchase: (purchase["transaction_date"], purchase["filing_date"]),
-            reverse=True,
-        )
+
+        purchases = deduplicate_transactions(purchases)
+        sales = deduplicate_transactions(sales)
         buyer_names = {str(purchase.get("name") or "").strip().casefold() for purchase in purchases}
         buyer_names.discard("")
-        result = {"purchases": purchases, "insider_cluster": len(buyer_names) > 1}
+        seller_names = {str(sale.get("name") or "").strip().casefold() for sale in sales}
+        seller_names.discard("")
+        result = {
+            "purchases": purchases,
+            "sales": sales,
+            "insider_cluster": len(buyer_names) > 1,
+            "seller_cluster": len(seller_names) > 1,
+        }
         with open(cache_file, "w", encoding="utf-8") as f:
             json.dump({
+                "schema_version": 2,
                 "fetched_at": now.isoformat(),
                 "as_of_date": signal_date.isoformat(),
                 "lookback_days": lookback_days,
@@ -1709,8 +2002,8 @@ def fetch_sec_insider_activity(
         if stats is not None:
             stats["symbols_fetched"] = stats.get("symbols_fetched", 0) + 1
         logger.info(
-            "SEC insider lookup for %s completed: %d P-code purchases across %d Form 4 filings.",
-            sym, len(purchases), filings_checked
+            "SEC insider lookup for %s completed: %d P-code purchases and %d S-code sales across %d Form 4 filings.",
+            sym, len(purchases), len(sales), filings_checked
         )
         return result
     except Exception as e:
@@ -2106,11 +2399,8 @@ def calculate_universe_rs_scores(grouped, date_str):
     return rs_scores
 
 
-def calculate_signal_streak(symbol, current_date, conn=None):
-    """
-    Computes consecutive trading days up to and including current_date that symbol
-    triggered a buy signal.  Returns 1 for a brand-new signal.
-    """
+def calculate_signal_streak(symbol, current_date, conn=None, setup_name=None, checkpoint_id="eod"):
+    """Compute consecutive EOD setup days without counting same-day checkpoints."""
     close_conn = False
     if conn is None:
         conn = get_connection()
@@ -2118,13 +2408,18 @@ def calculate_signal_streak(symbol, current_date, conn=None):
 
     try:
         cur = conn.cursor()
-        cur.execute("""
-            SELECT DISTINCT timestamp
-            FROM buy_signals
-            WHERE symbol = ? AND timestamp <= ?
-            ORDER BY timestamp DESC
-            LIMIT 50
-        """, (symbol, current_date))
+        if setup_name:
+            cur.execute("""
+                SELECT DISTINCT timestamp FROM buy_signals
+                WHERE symbol = ? AND setup_name = ? AND checkpoint_id = ? AND timestamp <= ?
+                ORDER BY timestamp DESC LIMIT 50
+            """, (symbol, setup_name, checkpoint_id, current_date))
+        else:
+            cur.execute("""
+                SELECT DISTINCT timestamp FROM buy_signals
+                WHERE symbol = ? AND checkpoint_id = ? AND timestamp <= ?
+                ORDER BY timestamp DESC LIMIT 50
+            """, (symbol, checkpoint_id, current_date))
         signal_dates = [r[0] for r in cur.fetchall()]
         if not signal_dates:
             return 1
@@ -2213,7 +2508,8 @@ def process_single_ticker_screener(
     symbol, df_symbol, date_str,
     rs_score=None, market_regime="Unknown",
     spy_return_63d=None, earnings_map=None, trading_days=None,
-    ticker_sector=None, sector_returns_63d=None
+    ticker_sector=None, sector_returns_63d=None,
+    checkpoint_id="eod", allow_iex_checkpoint=False, checkpoint_rvol_baseline=None
 ):
     """
     Compute technical indicators for a single symbol and evaluate Momentum Breakout rules.
@@ -2240,7 +2536,7 @@ def process_single_ticker_screener(
 
         # Reject unconsolidated IEX volume bars
         bar_source = str(latest.get("source") or "").lower()
-        if bar_source == "alpaca_iex":
+        if bar_source in {"alpaca_iex", "alpaca_iex_intraday"} and not allow_iex_checkpoint:
             logger.info("Ticker %s skipped: latest bar source is alpaca_iex (unconsolidated volume).", symbol)
             return None
 
@@ -2250,7 +2546,8 @@ def process_single_ticker_screener(
 
         # Liquidity Filter 2: 20-day average dollar volume >= $5M
         dollar_vol = df["close"] * df["volume"]
-        avg_dollar_vol_20 = float(dollar_vol.tail(20).mean())
+        liquidity_history = dollar_vol.iloc[:-1] if allow_iex_checkpoint else dollar_vol
+        avg_dollar_vol_20 = float(liquidity_history.tail(20).mean())
         if avg_dollar_vol_20 < MIN_AVG_DOLLAR_VOLUME:
             return None
 
@@ -2267,30 +2564,61 @@ def process_single_ticker_screener(
 
         latest_calc = df.iloc[-1]
         rvol    = float(latest_calc["rvol"]) if pd.notnull(latest_calc["rvol"]) else 0.0
+        if allow_iex_checkpoint:
+            if checkpoint_rvol_baseline is None or checkpoint_rvol_baseline <= 0:
+                logger.debug("Ticker %s skipped: no usable same-time IEX volume baseline.", symbol)
+                return None
+            rvol = float(latest_calc["volume"]) / checkpoint_rvol_baseline
         rsi     = float(latest_calc["rsi"])  if pd.notnull(latest_calc["rsi"])  else 0.0
         sma_200 = float(latest_calc["sma_200"]) if pd.notnull(latest_calc["sma_200"]) else None
         sma_50  = float(latest_calc["sma_50"])  if pd.notnull(latest_calc["sma_50"])  else None
         ema_20  = float(latest_calc["ema_20"])  if pd.notnull(latest_calc["ema_20"])  else None
         atr_val = float(latest_calc["atr"])     if pd.notnull(latest_calc["atr"])     else None
 
-        # ── Signal Rules ──────────────────────────────────────────────────────
-        is_above_smas = (close_price > sma_50) if sma_50 is not None else False
-        is_rvol_high  = rvol >= 1.5
-        is_rsi_valid  = 50 <= rsi <= 75
+        # RS vs SPY is also the absolute directional filter for breakdowns.
+        rs_vs_spy = None
+        if spy_return_63d is not None and len(df) >= 2:
+            base_close = float(df["close"].iloc[-63]) if len(df) >= 63 else float(df["close"].iloc[0])
+            if base_close > 0:
+                ticker_return_63d = ((close_price - base_close) / base_close) * 100.0
+                rs_vs_spy = round(ticker_return_63d - spy_return_63d, 2)
 
-        # Lookahead-free 20-day high: exclude today's bar
+        # Lookahead-free 20-day extrema: exclude today's bar for both directions.
         prior_20_bars = df.iloc[:-1].tail(20)
         if len(prior_20_bars) < 20:
             return None
         prior_20d_high    = float(prior_20_bars["close"].max())
         dist_to_20d_high_pct = round(((close_price / prior_20d_high) - 1) * 100, 2)
-        is_new_20d_high   = close_price >= (prior_20d_high * 0.99)
+        prior_20d_low = float(prior_20_bars["close"].min())
+        dist_to_20d_low_pct = round(((close_price / prior_20d_low) - 1) * 100, 2) if prior_20d_low > 0 else None
 
-        if not (is_above_smas and is_rvol_high and is_rsi_valid and is_new_20d_high):
+        is_rvol_high = rvol >= 1.5
+        is_breakout = (
+            sma_50 is not None
+            and close_price > sma_50
+            and 50 <= rsi <= 75
+            and close_price >= prior_20d_high * 0.99
+            and is_rvol_high
+        )
+        is_breakdown = (
+            sma_50 is not None
+            and ema_20 is not None
+            and sma_200 is not None
+            and rs_vs_spy is not None
+            and close_price < sma_50
+            and close_price < ema_20
+            and close_price < sma_200
+            and 25 <= rsi <= 50
+            and close_price <= prior_20d_low * 1.01
+            and rs_vs_spy <= -70
+            and is_rvol_high
+        )
+
+        if not (is_breakout or is_breakdown):
             return None
 
         # Phase 7 Quality Filter: RS Score >= 70
-        if rs_score is not None and rs_score < 70.0:
+        if is_breakout and rs_score is not None and rs_score < 70.0:
             logger.info(
                 "Ticker %s passed technical breakout but filtered out by RS score: %.1f < 70",
                 symbol, rs_score
@@ -2315,7 +2643,6 @@ def process_single_ticker_screener(
         avg_dollar_vol_20d = round(avg_dollar_vol_20, 0)
 
         # 4. RS vs SPY: 63-day return minus SPY's 63-day return
-        rs_vs_spy = None
         ticker_return_63d = None
         if len(df) >= 63:
             try:
@@ -2368,20 +2695,29 @@ def process_single_ticker_screener(
             "sma200":  round(sma_200, 2) if sma_200 is not None else None
         }
 
-        # 8. Composite score components
-        # Breakout proximity: how close close_price is to the 20-day high (0-100)
+        # 8. Directional composite score components (same weights and 0-100 scale).
         if prior_20d_high > 0:
             breakout_proximity_pct = max(0.0, min(100.0, (close_price / prior_20d_high) * 100.0 - 99.0))
         else:
             breakout_proximity_pct = 0.0
+        breakdown_proximity_pct = max(
+            0.0,
+            min(100.0, (1.01 - (close_price / prior_20d_low)) * 10000.0),
+        ) if prior_20d_low > 0 else 0.0
 
-        # Trend strength: % of the 3 MAs that are below the close price (0, 33, 67, 100)
+        # Trend strength: aligned moving averages in the setup's direction.
         ma_vals   = [ema_20, sma_50, sma_200]
         ma_active = [m for m in ma_vals if m is not None]
-        trend_strength_pct = (sum(1 for m in ma_active if close_price > m) / len(ma_active)) * 100.0 if ma_active else 0.0
+        trend_strength_pct = (
+            sum(1 for m in ma_active if (close_price > m if is_breakout else close_price < m))
+            / len(ma_active)
+        ) * 100.0 if ma_active else 0.0
+
+        score_proximity = breakout_proximity_pct if is_breakout else breakdown_proximity_pct
+        score_rs = rs_score if is_breakout else max(0.0, min(100.0, -(rs_vs_spy or 0.0)))
 
         composite_score, score_components = compute_composite_score(
-            rvol, rs_score, breakout_proximity_pct, trend_strength_pct
+            rvol, score_rs, score_proximity, trend_strength_pct
         )
 
         details_json = json.dumps({
@@ -2395,16 +2731,39 @@ def process_single_ticker_screener(
             "rs_vs_spy":            rs_vs_spy,
             "rs_vs_sector":         rs_vs_sector,
             "dist_to_20d_high_pct": dist_to_20d_high_pct,
+            "dist_to_20d_low_pct":  dist_to_20d_low_pct,
             "dist_to_52w_high_pct": dist_to_52w_high_pct,
             "near_earnings":        near_earnings,
             "earnings_date":        earnings_date,
             "composite_score":      composite_score,
-            "score_components":     score_components
+            "score_components":     score_components,
+            "score_direction":      "bearish" if is_breakdown else "bullish",
+            "checkpoint_id":        checkpoint_id,
+            "checkpoint_label":     CHECKPOINT_LABELS.get(checkpoint_id),
+            "is_intraday":          checkpoint_id != "eod",
+            "rvol_basis": (
+                "partial_day_iex_vs_prior_20d_same_time_iex"
+                if checkpoint_id != "eod"
+                else "full_day_vs_prior_20d"
+            ),
+            "rvol_label": (
+                "IEX time-of-day RVOL (not comparable to EOD)"
+                if checkpoint_id != "eod"
+                else "RVOL"
+            ),
+            "rvol_baseline_volume": (
+                round(checkpoint_rvol_baseline, 2)
+                if checkpoint_rvol_baseline is not None
+                else None
+            ),
+            "rvol_baseline_sessions": (
+                CHECKPOINT_RVOL_LOOKBACK_SESSIONS if checkpoint_id != "eod" else None
+            ),
         })
         return (
             date_str,
             symbol,
-            "Momentum Breakout",
+            "Momentum Breakdown" if is_breakdown else "Momentum Breakout",
             round(close_price, 2),
             round(rvol, 2),
             round(rsi, 2),
@@ -2415,9 +2774,108 @@ def process_single_ticker_screener(
     return None
 
 
+def persist_intraday_checkpoint_signals(date_str, checkpoint_id, signals, conn=None):
+    """Upsert one intraday row per symbol/setup while retaining first-seen history."""
+    close_conn = False
+    if conn is None:
+        conn = get_connection()
+        close_conn = True
+    cur = conn.cursor()
+    cur.execute(
+        """SELECT id, symbol, setup_name, details FROM buy_signals
+           WHERE timestamp = ? AND checkpoint_id != 'eod'""",
+        (date_str,),
+    )
+    existing_rows = cur.fetchall()
+    existing_by_signal = {}
+    for signal_id, symbol, setup_name, raw_details in existing_rows:
+        try:
+            details = json.loads(raw_details) if raw_details else {}
+        except Exception:
+            details = {}
+        details["checkpoint_previously_active"] = details.get("checkpoint_status") == "active"
+        details["checkpoint_last_checked_id"] = checkpoint_id
+        details["checkpoint_status"] = "inactive"
+        cur.execute("UPDATE buy_signals SET details = ? WHERE id = ?", (json.dumps(details), signal_id))
+        existing_by_signal[(symbol, setup_name)] = (signal_id, details)
+
+    checkpoint_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    for signal in signals:
+        signal_date, symbol, setup_name, close_price, rvol, rsi, raw_details = signal
+        try:
+            details = json.loads(raw_details) if raw_details else {}
+        except Exception:
+            details = {}
+        key = (symbol, setup_name)
+        existing = existing_by_signal.get(key)
+        observation = {
+            "checkpoint_id": checkpoint_id,
+            "observed_at": checkpoint_at,
+            "close_price": close_price,
+            "rvol": rvol,
+            "rsi": rsi,
+        }
+        if existing:
+            signal_id, stored_details = existing
+            checkpoints_seen = list(stored_details.get("checkpoints_seen") or [])
+            if checkpoint_id not in checkpoints_seen:
+                checkpoints_seen.append(checkpoint_id)
+            observations = [
+                item for item in (stored_details.get("checkpoint_observations") or [])
+                if item.get("checkpoint_id") != checkpoint_id
+            ]
+            observations.append(observation)
+            details.update({
+                "checkpoint_first_seen_id": stored_details.get(
+                    "checkpoint_first_seen_id", stored_details.get("checkpoint_id", checkpoint_id)
+                ),
+                "checkpoint_first_seen_at": stored_details.get(
+                    "checkpoint_first_seen_at", stored_details.get("checkpoint_last_seen_at", checkpoint_at)
+                ),
+                "checkpoint_last_seen_id": checkpoint_id,
+                "checkpoint_last_seen_at": checkpoint_at,
+                "checkpoint_last_checked_id": checkpoint_id,
+                "checkpoint_status": "active",
+                "checkpoint_continuous": bool(stored_details.get("checkpoint_previously_active")),
+                "checkpoints_seen": checkpoints_seen,
+                "checkpoint_observations": observations,
+            })
+            cur.execute(
+                "UPDATE buy_signals SET close_price = ?, rvol = ?, rsi = ?, details = ? WHERE id = ?",
+                (close_price, rvol, rsi, json.dumps(details), signal_id),
+            )
+        else:
+            details.update({
+                "checkpoint_first_seen_id": checkpoint_id,
+                "checkpoint_first_seen_at": checkpoint_at,
+                "checkpoint_last_seen_id": checkpoint_id,
+                "checkpoint_last_seen_at": checkpoint_at,
+                "checkpoint_last_checked_id": checkpoint_id,
+                "checkpoint_status": "active",
+                "checkpoint_continuous": True,
+                "checkpoints_seen": [checkpoint_id],
+                "checkpoint_observations": [observation],
+            })
+            cur.execute("""
+                INSERT INTO buy_signals (
+                    timestamp, symbol, setup_name, close_price, rvol, rsi, details, checkpoint_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                signal_date, symbol, setup_name, close_price, rvol, rsi,
+                json.dumps(details), checkpoint_id,
+            ))
+
+    conn.commit()
+    if close_conn:
+        conn.close()
+
+
 # ── Screener Engine ────────────────────────────────────────────────────────────
 
-def run_screener_engine(date_str, max_workers=4):
+def run_screener_engine(
+    date_str, max_workers=4, checkpoint_id="eod", checkpoint_snapshots=None,
+    checkpoint_rvol_baselines=None
+):
     """
     Step 4 & 5: Load local history into Pandas, compute TA via Pandas_TA,
     apply quality filters, generate buy signals, and calculate signal_streak.
@@ -2427,7 +2885,7 @@ def run_screener_engine(date_str, max_workers=4):
     conn = get_connection()
 
     query = """
-        SELECT symbol, timestamp, open, high, low, close, volume, source
+        SELECT symbol, timestamp, open, high, low, close, volume, vwap, source
         FROM daily_bars
         WHERE timestamp <= ?
         ORDER BY symbol, timestamp ASC
@@ -2441,11 +2899,26 @@ def run_screener_engine(date_str, max_workers=4):
         return []
 
     active_set = set(active_tickers)
-    grouped    = {sym: group for sym, group in df_all.groupby("symbol") if sym in active_set}
+    grouped = {sym: group for sym, group in df_all.groupby("symbol") if sym in active_set}
+    if checkpoint_id != "eod":
+        checkpoint_grouped = {}
+        for symbol, snapshot_bar in (checkpoint_snapshots or {}).items():
+            history = grouped.get(symbol)
+            if history is None:
+                continue
+            history = history[history["timestamp"] < date_str]
+            current_bar = pd.DataFrame([snapshot_bar], columns=df_all.columns)
+            checkpoint_grouped[symbol] = pd.concat([history, current_bar], ignore_index=True)
+        grouped = checkpoint_grouped
+        if not grouped:
+            conn.close()
+            logger.warning("No current-session IEX snapshot bars available for checkpoint %s.", checkpoint_id)
+            return []
     logger.info("Loaded historical bars for %d active universe tickers.", len(grouped))
 
     # Load ticker sector mapping from tickers table
     ticker_sectors = dict(pd.read_sql("SELECT symbol, sector FROM tickers WHERE is_active = 1", conn).itertuples(index=False, name=None))
+    ticker_names = dict(pd.read_sql("SELECT symbol, name FROM tickers WHERE is_active = 1", conn).itertuples(index=False, name=None))
 
     # Pre-compute point-in-time 63-day returns for sector ETFs as of date_str
     sector_returns_63d = {}
@@ -2482,7 +2955,7 @@ def run_screener_engine(date_str, max_workers=4):
                 pass
 
     # Known trading days for earnings proximity calculation
-    all_trading_days = sorted(df_all["timestamp"].unique().tolist())
+    all_trading_days = sorted(set(df_all["timestamp"].unique().tolist()) | {date_str})
 
     signals = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -2498,7 +2971,10 @@ def run_screener_engine(date_str, max_workers=4):
                 {},
                 all_trading_days,
                 ticker_sectors.get(sym),
-                sector_returns_63d
+                sector_returns_63d,
+                checkpoint_id,
+                checkpoint_id != "eod",
+                (checkpoint_rvol_baselines or {}).get(sym),
             ): sym
             for sym, df_sym in grouped.items()
         }
@@ -2516,7 +2992,7 @@ def run_screener_engine(date_str, max_workers=4):
     earnings_started = time.perf_counter()
     earnings_stats = {"cache_hits": 0, "stale_cache": 0, "cache_misses": 0, "api_lookups": 0, "deferred": 0}
     earnings_deferred = 0
-    for index, signal in enumerate(signals):
+    for index, signal in (enumerate(signals) if checkpoint_id == "eod" else ()):
         if time.perf_counter() - earnings_started >= EARNINGS_ENRICHMENT_BUDGET_SECONDS:
             earnings_deferred += len(signals) - index
             break
@@ -2559,7 +3035,7 @@ def run_screener_engine(date_str, max_workers=4):
     news_started = time.perf_counter()
     news_stats = {"cache_hits": 0, "stale_cache": 0, "cache_misses": 0, "api_lookups": 0, "deferred": 0}
     news_deferred = 0
-    for index, signal in enumerate(signals):
+    for index, signal in (enumerate(signals) if checkpoint_id == "eod" else ()):
         if time.perf_counter() - news_started >= NEWS_ENRICHMENT_BUDGET_SECONDS:
             news_deferred += len(signals) - index
             break
@@ -2621,23 +3097,70 @@ def run_screener_engine(date_str, max_workers=4):
         time.perf_counter() - si_started, len(signals), si_found
     )
 
-    if signals:
+    # SEC Form 4 activity is supplementary context, never a standalone signal.
+    insider_started = time.perf_counter()
+    insider_stats = {"cache_hits": 0, "stale_cache": 0, "cache_misses": 0, "symbols_fetched": 0}
+    insider_deferred = 0
+    for index, signal in (enumerate(signals) if checkpoint_id == "eod" else ()):
+        if time.perf_counter() - insider_started >= SEC_INSIDER_ENRICHMENT_BUDGET_SECONDS:
+            insider_deferred += len(signals) - index
+            break
+
+        symbol = signal[1]
+        try:
+            activity = fetch_sec_insider_activity(
+                symbol,
+                as_of_date=date_str,
+                company_name=ticker_names.get(symbol),
+                stats=insider_stats,
+            )
+        except Exception as e:
+            logger.warning("SEC insider enrichment failed for %s; continuing without insider data: %s", symbol, e)
+            activity = {"purchases": [], "sales": [], "insider_cluster": False, "seller_cluster": False}
+
+        try:
+            details = json.loads(signal[6]) if signal[6] else {}
+            is_breakdown = signal[2] == "Momentum Breakdown"
+            details["insider_activity"] = activity["sales"] if is_breakdown else activity["purchases"]
+            details["insider_activity_type"] = "sale" if is_breakdown else "purchase"
+            details["insider_cluster"] = activity["seller_cluster"] if is_breakdown else activity["insider_cluster"]
+            details["squeeze_risk_caution"] = bool(
+                is_breakdown
+                and details.get("short_interest")
+                and (details["short_interest"].get("days_to_cover") or 0) >= 5
+            )
+            signals[index] = (*signal[:6], json.dumps(details))
+        except Exception as e:
+            logger.warning("Could not attach SEC insider fields for %s: %s", symbol, e)
+
+    logger.info(
+        "SEC insider enrichment completed in %.2fs for %d signal(s): %d cache hits, %d stale cache, "
+        "%d cache misses, %d symbols fetched, %d deferred.",
+        time.perf_counter() - insider_started, len(signals), insider_stats["cache_hits"],
+        insider_stats["stale_cache"], insider_stats["cache_misses"],
+        insider_stats["symbols_fetched"], insider_deferred
+    )
+
+    if checkpoint_id != "eod":
+        persist_intraday_checkpoint_signals(date_str, checkpoint_id, signals)
+    elif signals:
         conn = get_connection()
         cur  = conn.cursor()
         cur.executemany("""
-            INSERT INTO buy_signals (timestamp, symbol, setup_name, close_price, rvol, rsi, details)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO buy_signals (timestamp, symbol, setup_name, close_price, rvol, rsi, details, checkpoint_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'eod')
         """, signals)
         conn.commit()
 
         # Attach signal_streak to each signal's details in-place after DB insert
         # (streak requires the row to exist first so the current day counts)
         cur.execute("""
-            SELECT id, symbol, timestamp, details FROM buy_signals WHERE timestamp = ?
+            SELECT id, symbol, timestamp, setup_name, details FROM buy_signals
+            WHERE timestamp = ? AND checkpoint_id = 'eod'
         """, (date_str,))
         inserted_rows = cur.fetchall()
-        for sig_id, sym, ts, det in inserted_rows:
-            streak = calculate_signal_streak(sym, ts, conn=conn)
+        for sig_id, sym, ts, setup_name, det in inserted_rows:
+            streak = calculate_signal_streak(sym, ts, conn=conn, setup_name=setup_name, checkpoint_id="eod")
             try:
                 det_dict = json.loads(det) if det else {}
             except Exception:
@@ -2673,7 +3196,8 @@ def update_post_breakout_performance(conn=None):
             SELECT id, symbol, timestamp, close_price, price_5d, price_10d, price_20d,
                    return_5d_pct, return_10d_pct, return_20d_pct
             FROM buy_signals
-            WHERE price_5d IS NULL OR price_10d IS NULL OR price_20d IS NULL
+            WHERE checkpoint_id = 'eod'
+              AND (price_5d IS NULL OR price_10d IS NULL OR price_20d IS NULL)
         """)
         pending_signals = cur.fetchall()
         logger.info("Checking post-breakout performance updates for %d pending signals...", len(pending_signals))
@@ -2749,9 +3273,11 @@ def get_performance_summary(conn=None):
 
     try:
         df = pd.read_sql(
-            "SELECT timestamp, return_5d_pct, return_10d_pct, return_20d_pct FROM buy_signals",
+            """SELECT setup_name, timestamp, return_5d_pct, return_10d_pct, return_20d_pct
+               FROM buy_signals WHERE checkpoint_id = 'eod'""",
             conn,
         )
+        breakout_df = df[df["setup_name"] == "Momentum Breakout"]
 
         def calc_horizon_stats(series):
             valid = series.dropna()
@@ -2769,7 +3295,7 @@ def get_performance_summary(conn=None):
             }
 
         breakout_returns = []
-        for returns in df[["return_20d_pct", "return_10d_pct", "return_5d_pct"]].itertuples(
+        for returns in breakout_df[["return_20d_pct", "return_10d_pct", "return_5d_pct"]].itertuples(
             index=False, name=None
         ):
             value = next((float(item) for item in returns if pd.notna(item)), None)
@@ -2787,7 +3313,10 @@ def get_performance_summary(conn=None):
             "today_count": 0,
             "avg_per_signal_day_30d": None,
         }
-        latest_signal_date = conn.execute("SELECT MAX(timestamp) FROM buy_signals").fetchone()[0]
+        latest_signal_date = conn.execute(
+            "SELECT MAX(timestamp) FROM buy_signals WHERE setup_name = ? AND checkpoint_id = 'eod'",
+            ("Momentum Breakout",),
+        ).fetchone()[0]
         if latest_signal_date:
             window_start = conn.execute(
                 "SELECT date(?, '-30 days')", (latest_signal_date,)
@@ -2795,12 +3324,14 @@ def get_performance_summary(conn=None):
             total_30d, signal_days_30d = conn.execute(
                 """SELECT COUNT(*), COUNT(DISTINCT timestamp)
                    FROM buy_signals
-                   WHERE timestamp >= ? AND timestamp <= ?""",
-                (window_start, latest_signal_date),
+                   WHERE timestamp >= ? AND timestamp <= ? AND setup_name = ?
+                     AND checkpoint_id = 'eod'""",
+                (window_start, latest_signal_date, "Momentum Breakout"),
             ).fetchone()
             today_count = conn.execute(
-                "SELECT COUNT(*) FROM buy_signals WHERE timestamp = ?",
-                (latest_signal_date,),
+                """SELECT COUNT(*) FROM buy_signals
+                   WHERE timestamp = ? AND setup_name = ? AND checkpoint_id = 'eod'""",
+                (latest_signal_date, "Momentum Breakout"),
             ).fetchone()[0]
             signal_activity = {
                 "as_of": latest_signal_date,
@@ -2810,13 +3341,65 @@ def get_performance_summary(conn=None):
                 else None,
             }
 
+        setup_summaries = {}
+        for setup_name, setup_group in df.groupby("setup_name"):
+            direction = -1.0 if setup_name == "Momentum Breakdown" else 1.0
+            directional_horizons = {
+                horizon: calc_horizon_stats(setup_group[column] * direction)
+                for horizon, column in (
+                    ("horizon_5d", "return_5d_pct"),
+                    ("horizon_10d", "return_10d_pct"),
+                    ("horizon_20d", "return_20d_pct"),
+                )
+            }
+            trade_returns = []
+            for returns in setup_group[["return_20d_pct", "return_10d_pct", "return_5d_pct"]].itertuples(
+                index=False, name=None
+            ):
+                value = next((float(item) * direction for item in returns if pd.notna(item)), None)
+                if value is not None:
+                    trade_returns.append(value)
+            positive_returns = [value for value in trade_returns if value > 0]
+            gain_sample = positive_returns or trade_returns
+
+            setup_date = conn.execute(
+                "SELECT MAX(timestamp) FROM buy_signals WHERE setup_name = ? AND checkpoint_id = 'eod'",
+                (setup_name,),
+            ).fetchone()[0]
+            setup_activity = {"as_of": setup_date, "today_count": 0, "avg_per_signal_day_30d": None}
+            if setup_date:
+                setup_window = conn.execute("SELECT date(?, '-30 days')", (setup_date,)).fetchone()[0]
+                setup_total, setup_days = conn.execute(
+                    """SELECT COUNT(*), COUNT(DISTINCT timestamp) FROM buy_signals
+                       WHERE timestamp >= ? AND timestamp <= ? AND setup_name = ?
+                         AND checkpoint_id = 'eod'""",
+                    (setup_window, setup_date, setup_name),
+                ).fetchone()
+                setup_activity = {
+                    "as_of": setup_date,
+                    "today_count": int(conn.execute(
+                        """SELECT COUNT(*) FROM buy_signals
+                           WHERE timestamp = ? AND setup_name = ? AND checkpoint_id = 'eod'""",
+                        (setup_date, setup_name),
+                    ).fetchone()[0]),
+                    "avg_per_signal_day_30d": round(setup_total / setup_days, 1) if setup_days else None,
+                }
+
+            setup_summaries[setup_name] = {
+                "signal_count": len(setup_group),
+                **directional_horizons,
+                "avg_gain_pct": round(sum(gain_sample) / len(gain_sample), 2) if gain_sample else None,
+                "signal_activity": setup_activity,
+            }
+
         return {
             "total_signals": len(df),
-            "horizon_5d":    calc_horizon_stats(df["return_5d_pct"]),
-            "horizon_10d":   calc_horizon_stats(df["return_10d_pct"]),
-            "horizon_20d":   calc_horizon_stats(df["return_20d_pct"]),
+            "horizon_5d":    calc_horizon_stats(breakout_df["return_5d_pct"]),
+            "horizon_10d":   calc_horizon_stats(breakout_df["return_10d_pct"]),
+            "horizon_20d":   calc_horizon_stats(breakout_df["return_20d_pct"]),
             "signal_activity": signal_activity,
             "avg_breakout_gain_pct": average_breakout_gain,
+            "setups": setup_summaries,
             "generated_at":  datetime.datetime.now(datetime.timezone.utc).isoformat()
         }
     finally:
@@ -2826,7 +3409,7 @@ def get_performance_summary(conn=None):
 
 # ── Web Export ─────────────────────────────────────────────────────────────────
 
-def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
+def export_web_data(output_dir="../frontend/public/data", bars_limit=250, resolve_missing_metadata=True):
     """
     Phase 5+: Export static JSON payloads for web visualization.
       1. latest_signals.json  — all signals with all new fields from details JSON
@@ -2841,7 +3424,11 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
     cur = conn.cursor()
 
     cur.execute(
-        "SELECT DISTINCT timestamp FROM daily_bars ORDER BY timestamp DESC LIMIT ?",
+        """SELECT timestamp FROM (
+               SELECT DISTINCT timestamp FROM daily_bars
+               UNION
+               SELECT DISTINCT timestamp FROM buy_signals
+           ) ORDER BY timestamp DESC LIMIT ?""",
         (SIGNAL_WINDOW_TRADING_DAYS,),
     )
     signal_window_dates = [row[0] for row in cur.fetchall()]
@@ -2863,7 +3450,7 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
               )
         """, signal_window_dates)
         unresolved_symbols = [row[0] for row in cur.fetchall()]
-    if unresolved_symbols:
+    if unresolved_symbols and resolve_missing_metadata:
         logger.info(
             "Resolving sector/exchange metadata for %d export-window symbols: %s",
             len(unresolved_symbols), unresolved_symbols
@@ -2880,7 +3467,7 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
     # 1. latest_signals.json — signals from the most recent trading sessions only
     query_signals = f"""
         SELECT
-            b.id, b.timestamp, b.symbol, b.setup_name, b.close_price,
+            b.id, b.timestamp, b.symbol, b.setup_name, b.checkpoint_id, b.close_price,
             b.rvol, b.rsi, b.details, b.created_at,
             t.name, t.market_cap, t.sector, t.primary_exchange,
             b.price_5d, b.price_10d, b.price_20d,
@@ -2928,12 +3515,12 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
 
     for row in raw_signals:
         (
-            sig_id, timestamp, symbol, setup_name, close_price,
+            sig_id, timestamp, symbol, setup_name, checkpoint_id, close_price,
             rvol, rsi, details, created_at,
             ticker_name, market_cap, sector, primary_exchange,
             p5, p10, p20, ret5, ret10, ret20
         ) = row
-        signal_key = (timestamp, symbol)
+        signal_key = (timestamp, symbol, setup_name, checkpoint_id != "eod")
         if signal_key in seen_signal_keys:
             continue
         seen_signal_keys.add(signal_key)
@@ -2973,6 +3560,35 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
             "primary_exchange": primary_exchange,
             "market_cap":   market_cap,
             "setup_name":   setup_name,
+            "checkpoint_id": (
+                parsed_details.get("checkpoint_first_seen_id", checkpoint_id)
+                if checkpoint_id != "eod"
+                else "eod"
+            ),
+            "checkpoint_label": (
+                CHECKPOINT_LABELS.get(parsed_details.get("checkpoint_first_seen_id", checkpoint_id))
+                if checkpoint_id != "eod"
+                else None
+            ),
+            "is_intraday": checkpoint_id != "eod",
+            "checkpoint_status": parsed_details.get("checkpoint_status"),
+            "checkpoint_continuous": parsed_details.get("checkpoint_continuous", True),
+            "checkpoint_last_seen_id": parsed_details.get("checkpoint_last_seen_id"),
+            "checkpoint_last_seen_label": CHECKPOINT_LABELS.get(
+                parsed_details.get("checkpoint_last_seen_id")
+            ),
+            "rvol_basis": parsed_details.get(
+                "rvol_basis",
+                "partial_day_iex_vs_prior_20d_same_time_iex"
+                if checkpoint_id != "eod"
+                else "full_day_vs_prior_20d",
+            ),
+            "rvol_label": parsed_details.get(
+                "rvol_label",
+                "IEX time-of-day RVOL (not comparable to EOD)"
+                if checkpoint_id != "eod"
+                else "RVOL",
+            ),
             "close_price":  float(close_price) if close_price is not None else None,
             "rvol":         float(rvol) if rvol is not None else None,
             "rsi":          float(rsi)  if rsi  is not None else None,
@@ -2993,15 +3609,19 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250):
             "rs_vs_spy":            parsed_details.get("rs_vs_spy"),
             "rs_vs_sector":         rs_vs_sector,
             "dist_to_20d_high_pct": parsed_details.get("dist_to_20d_high_pct"),
+            "dist_to_20d_low_pct":  parsed_details.get("dist_to_20d_low_pct"),
             "dist_to_52w_high_pct": parsed_details.get("dist_to_52w_high_pct"),
             "near_earnings":        parsed_details.get("near_earnings", False),
             "earnings_date":        parsed_details.get("earnings_date"),
             "news":                 parsed_details.get("news", [])[:3],
             "insider_activity":     parsed_details.get("insider_activity", []),
+            "insider_activity_type": parsed_details.get("insider_activity_type"),
             "insider_cluster":      bool(parsed_details.get("insider_cluster", False)),
             "short_interest":       parsed_details.get("short_interest") or get_symbol_short_interest(symbol, conn=conn),
+            "squeeze_risk_caution": bool(parsed_details.get("squeeze_risk_caution", False)),
             "composite_score":      parsed_details.get("composite_score"),
             "score_components":     parsed_details.get("score_components"),
+            "score_direction":      parsed_details.get("score_direction", "bullish"),
             "signal_streak":        parsed_details.get("signal_streak", 1),
             "created_at":           created_at
         }

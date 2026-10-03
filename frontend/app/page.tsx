@@ -70,6 +70,15 @@ interface Signal {
   sector: string;
   market_cap: number | null;
   setup_name: string;
+  checkpoint_id?: string;
+  checkpoint_label?: string | null;
+  is_intraday?: boolean;
+  checkpoint_status?: 'active' | 'inactive' | null;
+  checkpoint_continuous?: boolean;
+  checkpoint_last_seen_id?: string | null;
+  checkpoint_last_seen_label?: string | null;
+  rvol_basis?: string;
+  rvol_label?: string;
   close_price: number;
   rvol: number;
   rsi: number;
@@ -88,11 +97,14 @@ interface Signal {
   rs_vs_spy?: number | null;
   rs_vs_sector?: number | null;
   dist_to_20d_high_pct?: number | null;
+  dist_to_20d_low_pct?: number | null;
   dist_to_52w_high_pct?: number | null;
   primary_exchange?: string | null;
   insider_activity?: InsiderPurchase[];
+  insider_activity_type?: 'purchase' | 'sale';
   insider_cluster?: boolean;
   short_interest?: ShortInterest | null;
+  squeeze_risk_caution?: boolean;
   near_earnings?: boolean;
   earnings_date?: string | null;
   composite_score?: number | null;
@@ -130,6 +142,18 @@ interface SetupStats {
 interface PerformanceSummary {
   total_signals: number;
   avg_breakout_gain_pct: number | null;
+  setups?: Record<string, {
+    signal_count: number;
+    avg_gain_pct: number | null;
+    signal_activity: {
+      as_of: string | null;
+      today_count: number;
+      avg_per_signal_day_30d: number | null;
+    };
+    horizon_5d: { count: number; win_rate: number | null; avg_return: number | null };
+    horizon_10d: { count: number; win_rate: number | null; avg_return: number | null };
+    horizon_20d: { count: number; win_rate: number | null; avg_return: number | null };
+  }>;
   signal_activity?: {
     as_of: string | null;
     today_count: number;
@@ -148,7 +172,7 @@ interface FilterPreset {
 const BUILTIN_PRESETS: FilterPreset[] = [
   { name: 'All Signals', sector: 'ALL', minRVOL: 1.5, minScore: 0, hideEarnings: false },
   { name: 'High Conviction', sector: 'ALL', minRVOL: 2.0, minScore: 55, hideEarnings: true },
-  { name: 'Fresh Breakouts (No Earn)', sector: 'ALL', minRVOL: 1.5, minScore: 0, hideEarnings: true },
+  { name: 'Fresh Setups (No Earnings)', sector: 'ALL', minRVOL: 1.5, minScore: 0, hideEarnings: true },
 ];
 
 const PRESETS_STORAGE_KEY = 'ms_filter_presets_v1';
@@ -212,14 +236,16 @@ function relativeTime(isoStr: string | null | undefined): string {
   }
 }
 
-function ScorePill({ score }: { score: number | null | undefined }) {
+function ScorePill({ score, bearish = false }: { score: number | null | undefined; bearish?: boolean }) {
   if (score == null) {
     return <span className="text-slate-500 font-mono text-xs">Pending</span>;
   }
 
   let colour = 'bg-slate-800 text-slate-400 border-slate-700';
   if (score >= 80) colour = 'bg-amber-500/15 text-amber-300 border-amber-500/30';
-  else if (score >= 65) colour = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+  else if (score >= 65) colour = bearish
+    ? 'bg-rose-500/15 text-rose-300 border-rose-500/30'
+    : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
   else if (score >= 50) colour = 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
 
   return (
@@ -231,6 +257,7 @@ function ScorePill({ score }: { score: number | null | undefined }) {
 
 export default function DashboardPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
+  const [viewMode, setViewMode] = useState<'bullish' | 'bearish'>('bullish');
   const [barsMap, setBarsMap] = useState<Record<string, BarData[]>>({});
   const [regimeData, setRegimeData] = useState<RegimeData | null>(null);
   const [setupStats, setSetupStats] = useState<SetupStats | null>(null);
@@ -260,6 +287,7 @@ export default function DashboardPage() {
 
   // Responsive mobile row expansion: stores signal keys (e.g. `${symbol}-${id}`)
   const [expandedRowIds, setExpandedRowIds] = useState<Set<string>>(new Set());
+  const [dateExpansionOverrides, setDateExpansionOverrides] = useState<Record<string, boolean>>({});
 
   const toggleRowExpand = (rowKey: string) => {
     setExpandedRowIds((prev) => {
@@ -292,6 +320,25 @@ export default function DashboardPage() {
 
   const clearSignalSelection = () => {
     setSelectedSignalKeys(new Set());
+  };
+
+  const toggleDateGroup = (date: string, defaultExpanded: boolean) => {
+    setDateExpansionOverrides((previous) => ({
+      ...previous,
+      [date]: !(previous[date] ?? defaultExpanded),
+    }));
+  };
+
+  const changeViewMode = (mode: 'bullish' | 'bearish') => {
+    setViewMode(mode);
+    clearSignalSelection();
+    setSelectedSector('ALL');
+    setSearchQuery('');
+    setMinRVOL(1.5);
+    setMinScore(0);
+    setHideEarnings(false);
+    setSelectedPresetName('All Signals');
+    setDateExpansionOverrides({});
   };
 
   // Load presets from localStorage
@@ -395,14 +442,18 @@ export default function DashboardPage() {
           setPerformanceSummary(summaryData);
         }
 
-        const latestSignalBySymbol = new Map<string, Signal>();
+        const latestSignalBySymbolAndSetup = new Map<string, Signal>();
         for (const signal of signalsData) {
-          const current = latestSignalBySymbol.get(signal.symbol);
+          const signalRun = signal.is_intraday
+            ? signal.checkpoint_id ?? 'intraday'
+            : 'eod';
+          const key = `${signal.symbol}-${signal.setup_name}-${signalRun}`;
+          const current = latestSignalBySymbolAndSetup.get(key);
           if (!current || signal.timestamp > current.timestamp) {
-            latestSignalBySymbol.set(signal.symbol, signal);
+            latestSignalBySymbolAndSetup.set(key, signal);
           }
         }
-        setSignals(Array.from(latestSignalBySymbol.values()));
+        setSignals(Array.from(latestSignalBySymbolAndSetup.values()));
       } catch (err: any) {
         console.error('Data load error:', err);
         setError(err.message || 'Error loading screener data');
@@ -414,20 +465,34 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  // Unique sectors
+  const activeSetupName = viewMode === 'bearish' ? 'Momentum Breakdown' : 'Momentum Breakout';
+  const isBearishMode = viewMode === 'bearish';
+  const viewSignals = useMemo(
+    () => signals.filter((signal) => signal.setup_name === activeSetupName),
+    [signals, activeSetupName]
+  );
+  const setupSummary = performanceSummary?.setups?.[activeSetupName];
+
+  // Unique sectors for the selected strategy view.
   const uniqueSectors = useMemo(() => {
     const s = new Set<string>();
-    signals.forEach((sig) => {
+    viewSignals.forEach((sig) => {
       if (sig.sector && sig.sector !== 'Unknown') s.add(sig.sector);
     });
     return Array.from(s).sort();
-  }, [signals]);
+  }, [viewSignals]);
 
-  // Dashboard performance metrics come from full-history database exports.
-  const todayCount = performanceSummary?.signal_activity?.today_count ?? null;
-  const avg30Count = performanceSummary?.signal_activity?.avg_per_signal_day_30d ?? null;
-  const averageGain = performanceSummary?.avg_breakout_gain_pct;
-  const avgBreakoutGain = averageGain == null
+  // Dashboard metrics follow the currently selected setup, never a blended total.
+  const todayCount = setupSummary?.signal_activity.today_count
+    ?? (!isBearishMode ? performanceSummary?.signal_activity?.today_count : null)
+    ?? null;
+  const avg30Count = setupSummary?.signal_activity.avg_per_signal_day_30d
+    ?? (!isBearishMode ? performanceSummary?.signal_activity?.avg_per_signal_day_30d : null)
+    ?? null;
+  const averageGain = setupSummary?.avg_gain_pct
+    ?? (!isBearishMode ? performanceSummary?.avg_breakout_gain_pct : null)
+    ?? null;
+  const averageGainLabel = averageGain == null
     ? '—'
     : `${averageGain > 0 ? '+' : ''}${averageGain.toFixed(1)}%`;
 
@@ -443,7 +508,7 @@ export default function DashboardPage() {
 
   // Filtered and sorted signals
   const displaySignals = useMemo(() => {
-    const filtered = signals.filter((s) => {
+    const filtered = viewSignals.filter((s) => {
       const matchesSearch =
         s.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -456,7 +521,7 @@ export default function DashboardPage() {
       return matchesSearch && matchesSector && matchesRVOL && matchesScore && matchesEarnings;
     });
 
-    return [...filtered].sort((a, b) => {
+    const compareSignals = (a: Signal, b: Signal) => {
       let valA: any = a[sortCol as keyof Signal];
       let valB: any = b[sortCol as keyof Signal];
 
@@ -475,14 +540,39 @@ export default function DashboardPage() {
       }
 
       return sortDir === 'asc' ? cmp : -cmp;
+    };
+
+    const signalsByDate = new Map<string, Signal[]>();
+    filtered.forEach((signal) => {
+      const group = signalsByDate.get(signal.timestamp) ?? [];
+      group.push(signal);
+      signalsByDate.set(signal.timestamp, group);
     });
-  }, [signals, searchQuery, selectedSector, minRVOL, minScore, hideEarnings, sortCol, sortDir]);
+
+    return Array.from(signalsByDate.entries())
+      .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
+      .flatMap(([, group]) => group.sort(compareSignals));
+  }, [viewSignals, searchQuery, selectedSector, minRVOL, minScore, hideEarnings, sortCol, sortDir]);
+
+  const signalGroups = useMemo(() => {
+    const groups = new Map<string, Signal[]>();
+    displaySignals.forEach((signal) => {
+      const group = groups.get(signal.timestamp) ?? [];
+      group.push(signal);
+      groups.set(signal.timestamp, group);
+    });
+    return Array.from(groups.entries()).map(([date, groupSignals], index) => ({
+      date,
+      signals: groupSignals,
+      defaultExpanded: index === 0,
+    }));
+  }, [displaySignals]);
 
   // Feature 2: Running tally and sector breakdown across selected signals
   const portfolioRiskStats = useMemo(() => {
     // Map signal keys to all signals
     const allSignalsMap = new Map<string, Signal>();
-    signals.forEach((s) => {
+    viewSignals.forEach((s) => {
       const key = `${s.symbol}-${s.id}-${s.timestamp}`;
       allSignalsMap.set(key, s);
     });
@@ -513,6 +603,7 @@ export default function DashboardPage() {
         atrPercentOverride: sig.atr_pct ?? null,
         accountSize: portfolioAccountSize,
         riskPct: portfolioRiskPct,
+        direction: sig.setup_name === 'Momentum Breakdown' ? 'short' : 'long',
       });
 
       totalDollarRisk += sizing.maxDollarRisk;
@@ -546,7 +637,7 @@ export default function DashboardPage() {
       sectorBreakdown,
       selectedSignals,
     };
-  }, [signals, displaySignals, selectedSignalKeys, portfolioAccountSize, portfolioRiskPct]);
+  }, [viewSignals, displaySignals, selectedSignalKeys, portfolioAccountSize, portfolioRiskPct]);
 
   // Copy TradingView Watchlist
   const handleCopyTradingViewWatchlist = async () => {
@@ -592,17 +683,20 @@ export default function DashboardPage() {
     label,
     align = 'left',
     className = '',
+    sortable = true,
   }: {
     col: SortColumn;
     label: string;
     align?: 'left' | 'right' | 'center';
     className?: string;
+    sortable?: boolean;
   }) => {
-    const active = sortCol === col;
+    const active = sortable && sortCol === col;
     return (
       <th
-        onClick={() => handleSort(col)}
-        className={`py-3 px-3 cursor-pointer select-none hover:text-white transition group ${
+        onClick={sortable ? () => handleSort(col) : undefined}
+        title={sortable ? undefined : 'Date groups stay newest-first; other columns sort within each date'}
+        className={`py-3 px-3 ${sortable ? 'cursor-pointer hover:text-white group' : 'cursor-default'} select-none transition ${
           align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'
         } ${className}`}
       >
@@ -658,18 +752,18 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-bold text-base tracking-tight text-white">Market Screener</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                  Live Daily
+                <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border ${isBearishMode ? 'bg-rose-500/10 text-rose-300 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'}`}>
+                  {isBearishMode ? 'Bearish Mode' : 'Bullish Mode'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">US Equities Momentum & Breakout Engine</p>
+              <p className="text-[11px] text-slate-400">US Equities Momentum Signal Engine</p>
             </div>
           </div>
 
           <div className="flex items-center space-x-3 text-xs text-slate-400">
             {/* Freshness Badge from regime.json */}
             {regimeData?.date && (
-              <div className="flex items-center space-x-1.5 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-700/80">
+              <div className="hidden sm:flex items-center space-x-1.5 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-700/80">
                 <Calendar className="w-3.5 h-3.5 text-emerald-400" />
                 <span className="text-slate-300 font-mono text-[11px]">
                   As of <strong className="text-white">{regimeData.date}</strong>
@@ -692,6 +786,34 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div role="tablist" aria-label="Signal direction" className="inline-flex w-full sm:w-auto rounded-lg border border-slate-700 bg-[#090d16] p-1">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!isBearishMode}
+              onClick={() => changeViewMode('bullish')}
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition ${!isBearishMode ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Bullish Signals
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isBearishMode}
+              onClick={() => changeViewMode('bearish')}
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition ${isBearishMode ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Bearish Signals
+            </button>
+          </div>
+          {isBearishMode && (
+            <p className="text-xs text-rose-200 border-l-2 border-rose-500/50 pl-3">
+              Short losses can exceed your initial investment.
+            </p>
+          )}
+        </section>
+
         {/* Stat Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Card 1: Market Regime (from regime.json) */}
@@ -748,8 +870,8 @@ export default function DashboardPage() {
           <div className="relative overflow-hidden rounded-xl bg-[#0f172a] border border-slate-800/80 p-5 shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl -mr-10 -mt-10" />
             <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-2">
-              <span>Signals Today vs 30d Avg</span>
-              <Activity className="w-4 h-4 text-cyan-400" />
+              <span>{isBearishMode ? 'Breakdowns' : 'Breakouts'} Today vs 30d Avg</span>
+              <Activity className={`w-4 h-4 ${isBearishMode ? 'text-rose-400' : 'text-cyan-400'}`} />
             </div>
             <div className="flex items-baseline space-x-3">
               <span className="text-3xl font-extrabold text-white tracking-tight font-mono">
@@ -761,7 +883,7 @@ export default function DashboardPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-2">
               {performanceSummary
-                ? `${performanceSummary.total_signals} total historical signals in database`
+                ? `${setupSummary?.signal_count ?? (!isBearishMode ? performanceSummary.total_signals : 0)} historical ${isBearishMode ? 'breakdowns' : 'breakouts'}`
                 : 'Historical signal summary unavailable'}
             </p>
           </div>
@@ -770,12 +892,12 @@ export default function DashboardPage() {
           <div className="relative overflow-hidden rounded-xl bg-[#0f172a] border border-slate-800/80 p-5 shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl -mr-10 -mt-10" />
             <div className="flex items-center justify-between text-slate-400 text-xs font-medium uppercase tracking-wider mb-2">
-              <span>Avg Breakout Gain</span>
+              <span>{isBearishMode ? 'Avg Breakdown Gain' : 'Avg Breakout Gain'}</span>
               <Sparkles className="w-4 h-4 text-purple-400" />
             </div>
             <div className="flex items-baseline space-x-3">
-              <span className="text-3xl font-extrabold text-emerald-400 tracking-tight font-mono">
-                {avgBreakoutGain}
+              <span className={`text-3xl font-extrabold tracking-tight font-mono ${isBearishMode ? 'text-rose-400' : 'text-emerald-400'}`}>
+                {averageGainLabel}
               </span>
               <span className="text-xs text-purple-300 font-medium">Winning Setups</span>
             </div>
@@ -811,7 +933,7 @@ export default function DashboardPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-2 truncate">
               {regimeData?.generated_at
-                ? `Exported ${relativeTime(regimeData.generated_at)} • Latest signal: ${signals[0]?.timestamp ?? regimeData.date ?? 'n/a'}`
+                ? `Exported ${relativeTime(regimeData.generated_at)} • Latest ${isBearishMode ? 'breakdown' : 'breakout'}: ${viewSignals[0]?.timestamp ?? regimeData.date ?? 'n/a'}`
                 : 'Awaiting pipeline export'}
             </p>
           </div>
@@ -947,7 +1069,7 @@ export default function DashboardPage() {
             </label>
 
             <span className="text-slate-600 ml-auto hidden sm:inline text-[11px] font-mono">
-              Showing {displaySignals.length} of {signals.length} setups
+              Showing {displaySignals.length} of {viewSignals.length} {isBearishMode ? 'breakdowns' : 'breakouts'} across {signalGroups.length} dates
             </span>
           </div>
         </section>
@@ -957,18 +1079,18 @@ export default function DashboardPage() {
           <section className="bg-gradient-to-r from-slate-900 via-[#0e1628] to-slate-900 border border-slate-700/80 rounded-xl p-4 shadow-xl text-xs animate-in slide-in-from-top-2 duration-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
               <div className="flex items-center space-x-2">
-                <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                <div className={`p-1.5 rounded-lg border ${isBearishMode ? 'bg-rose-500/10 border-rose-500/30 text-rose-300' : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'}`}>
                   <ShieldAlert className="w-4 h-4" />
                 </div>
                 <div>
                   <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                    Portfolio Risk View
-                    <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    Portfolio Risk View {isBearishMode ? '· Short' : '· Long'}
+                    <span className={`text-xs font-mono font-medium px-2 py-0.5 rounded-full border ${isBearishMode ? 'bg-rose-500/15 text-rose-300 border-rose-500/30' : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'}`}>
                       {portfolioRiskStats.selectedCount} signal{portfolioRiskStats.selectedCount > 1 ? 's' : ''} selected
                     </span>
                   </h3>
                   <p className="text-[11px] text-slate-400">
-                    Running risk aggregate & sector concentration across planned positions
+                    Gross risk aggregate & sector concentration across planned {isBearishMode ? 'short' : 'long'} positions
                   </p>
                 </div>
               </div>
@@ -1152,19 +1274,19 @@ export default function DashboardPage() {
             <div>
               <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
                 Triggered Momentum Signals
-                <span className="text-xs font-mono font-normal text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded">
+                <span className={`text-xs font-mono font-normal px-2 py-0.5 rounded ${isBearishMode ? 'text-rose-300 bg-rose-950/50' : 'text-slate-400 bg-slate-800/80'}`}>
                   {displaySignals.length} results
                 </span>
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                Sort any column by clicking its header &bull; Click any row to view candlestick chart
+                {isBearishMode ? 'Bearish candidates only' : 'Bullish candidates only'} &bull; Sort within dates; groups stay newest-first. Counts and TradingView copy include collapsed dates.
               </p>
             </div>
 
             <button
               onClick={handleCopyTradingViewWatchlist}
               className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-semibold transition active:scale-95 shadow-sm"
-              title="Copy watchlist formatted for TradingView import"
+              title="Copy all filtered signals across dates, including collapsed groups"
             >
               <Copy className="w-3.5 h-3.5" />
               <span>Copy TradingView Watchlist</span>
@@ -1194,10 +1316,10 @@ export default function DashboardPage() {
           ) : displaySignals.length === 0 ? (
             <div className="py-16 text-center text-slate-500 space-y-2">
               <TrendingUp className="w-8 h-8 mx-auto stroke-[1.5] text-slate-700" />
-              <p className="text-sm font-semibold text-slate-400">No breakout setups found</p>
+              <p className="text-sm font-semibold text-slate-400">No {isBearishMode ? 'breakdown' : 'breakout'} setups found</p>
               <p className="text-xs">
-                {signals.length === 0
-                  ? 'Screener ran but no signals met all criteria today — try an older date.'
+                {viewSignals.length === 0
+                  ? `No ${isBearishMode ? 'bearish' : 'bullish'} signals met all criteria in the exported window.`
                   : 'No signals match your current filter settings. Try relaxing the filters.'}
               </p>
             </div>
@@ -1237,7 +1359,7 @@ export default function DashboardPage() {
                       />
                     </th>
                     <SortHeader col="symbol" label="Ticker" />
-                    <SortHeader col="timestamp" label="Date" className="hidden md:table-cell" />
+                    <SortHeader col="timestamp" label="Date" className="hidden md:table-cell" sortable={false} />
                     <SortHeader col="close_price" label="Price" align="right" />
                     <SortHeader col="pct_change_1d" label="Chg%" align="right" className="hidden md:table-cell" />
                     <SortHeader col="rvol" label="RVOL" align="right" />
@@ -1256,16 +1378,67 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/60 font-mono text-xs">
-                  {displaySignals.map((sig) => {
+                  {displaySignals.map((sig, signalIndex) => {
                     const rowKey = `${sig.symbol}-${sig.id}-${sig.timestamp}`;
+                    const isFirstInDate = signalIndex === 0 || displaySignals[signalIndex - 1].timestamp !== sig.timestamp;
+                    const groupIndex = signalGroups.findIndex((group) => group.date === sig.timestamp);
+                    const group = signalGroups[groupIndex];
+                    const defaultExpanded = groupIndex === 0;
+                    const isDateExpanded = dateExpansionOverrides[sig.timestamp] ?? defaultExpanded;
+                    const dateLabel = new Date(`${sig.timestamp}T00:00:00`).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                    });
                     const isExpanded = expandedRowIds.has(rowKey);
-                    const isAbove50 = sig.ma_alignment?.above_sma50 !== false;
-                    const isAbove20 = sig.ma_alignment?.above_ema20 === true;
-                    const isAbove200 = sig.ma_alignment?.above_sma200 === true;
+                    const isAbove50 = isBearishMode
+                      ? sig.ma_alignment?.above_sma50 === false
+                      : sig.ma_alignment?.above_sma50 !== false;
+                    const isAbove20 = isBearishMode
+                      ? sig.ma_alignment?.above_ema20 === false
+                      : sig.ma_alignment?.above_ema20 === true;
+                    const isAbove200 = isBearishMode
+                      ? sig.ma_alignment?.above_sma200 === false
+                      : sig.ma_alignment?.above_sma200 === true;
                     const hasEarnings = sig.near_earnings === true;
 
                     return (
-                      <React.Fragment key={rowKey}>
+                      <React.Fragment key={`signal-${rowKey}`}>
+                        {isFirstInDate && group && (
+                          <tr className="bg-[#0c1322] border-y border-slate-700/80">
+                            <td colSpan={6} className="md:hidden px-3 py-2">
+                              <button
+                                type="button"
+                                onClick={() => toggleDateGroup(sig.timestamp, defaultExpanded)}
+                                aria-expanded={isDateExpanded}
+                                aria-label={`${isDateExpanded ? 'Collapse' : 'Expand'} ${dateLabel}, ${group.signals.length} signals`}
+                                className="flex w-full items-center justify-between gap-3 text-left text-xs"
+                              >
+                                <span className="font-sans font-semibold text-slate-200">{dateLabel}</span>
+                                <span className="flex items-center gap-1.5 font-mono text-slate-400">
+                                  {group.signals.length} signals
+                                  {isDateExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                                </span>
+                              </button>
+                            </td>
+                            <td colSpan={16} className="hidden md:table-cell px-3 py-2">
+                              <button
+                                type="button"
+                                onClick={() => toggleDateGroup(sig.timestamp, defaultExpanded)}
+                                aria-expanded={isDateExpanded}
+                                aria-label={`${isDateExpanded ? 'Collapse' : 'Expand'} ${dateLabel}, ${group.signals.length} signals`}
+                                className="flex w-full items-center justify-between gap-3 text-left text-xs"
+                              >
+                                <span className="font-sans font-semibold text-slate-200">{dateLabel}</span>
+                                <span className="flex items-center gap-1.5 font-mono text-slate-400">
+                                  {group.signals.length} signals
+                                  {isDateExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                                </span>
+                              </button>
+                            </td>
+                          </tr>
+                        )}
+                        {isDateExpanded && (
+                        <React.Fragment>
                         <tr
                           onClick={() => setActiveSymbolForChart(sig)}
                           className={`hover:bg-slate-800/40 cursor-pointer transition group ${
@@ -1300,6 +1473,28 @@ export default function DashboardPage() {
                                 {sig.name}
                               </span>
                             </div>
+                            {sig.is_intraday && (
+                              <div className="mt-1 flex flex-wrap items-center gap-1">
+                                <span
+                                  className="inline-flex items-center rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300"
+                                  title={sig.rvol_label ?? 'Partial-day IEX volume is not comparable to end-of-day RVOL'}
+                                >
+                                  Intraday · {sig.checkpoint_label ?? 'checkpoint'}
+                                </span>
+                                {sig.checkpoint_status === 'active' &&
+                                  sig.checkpoint_last_seen_id !== sig.checkpoint_id &&
+                                  sig.checkpoint_last_seen_label && (
+                                    <span className="text-[9px] text-emerald-300">
+                                      {sig.checkpoint_continuous
+                                        ? `Still active through ${sig.checkpoint_last_seen_label}`
+                                        : `Active again at ${sig.checkpoint_last_seen_label}`}
+                                    </span>
+                                  )}
+                                {sig.checkpoint_status === 'inactive' && (
+                                  <span className="text-[9px] text-slate-400">No longer active</span>
+                                )}
+                              </div>
+                            )}
                             <span className="text-[10px] text-slate-500 block lg:hidden font-mono">
                               {sig.sector}
                             </span>
@@ -1333,9 +1528,19 @@ export default function DashboardPage() {
 
                           {/* 5. RVOL (Mobile: always visible) */}
                           <td className="py-3 px-3 text-right">
-                            <span className="inline-block px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <span
+                              title={sig.rvol_label ?? 'Relative volume'}
+                              className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-bold ${
+                                sig.is_intraday
+                                  ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30'
+                                  : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                              }`}
+                            >
                               {sig.rvol?.toFixed(2)}x
                             </span>
+                            {sig.is_intraday && (
+                              <span className="mt-0.5 block text-[9px] text-amber-300/80">IEX · time-adjusted</span>
+                            )}
                           </td>
 
                           {/* 6. RSI (Desktop only) */}
@@ -1401,7 +1606,7 @@ export default function DashboardPage() {
 
                           {/* 10. Composite Score (Mobile: always visible) */}
                           <td className="py-3 px-3 text-center">
-                            <ScorePill score={sig.composite_score} />
+                            <ScorePill score={sig.composite_score} bearish={isBearishMode} />
                           </td>
 
                           {/* 11. Signal Streak (Desktop only) */}
@@ -1435,18 +1640,18 @@ export default function DashboardPage() {
                           <td className="py-3 px-3 font-sans hidden md:table-cell">
                             <div className="flex flex-wrap gap-1">
                               {isAbove20 && (
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-blue-950/70 text-blue-300 border border-blue-500/30">
-                                  20
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium ${isBearishMode ? 'bg-rose-950/70 text-rose-300 border border-rose-500/30' : 'bg-blue-950/70 text-blue-300 border border-blue-500/30'}`}>
+                                  {isBearishMode ? 'Below 20' : '20'}
                                 </span>
                               )}
                               {isAbove50 && (
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-yellow-950/70 text-yellow-300 border border-yellow-500/30">
-                                  50
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium ${isBearishMode ? 'bg-rose-950/70 text-rose-300 border border-rose-500/30' : 'bg-yellow-950/70 text-yellow-300 border border-yellow-500/30'}`}>
+                                  {isBearishMode ? 'Below 50' : '50'}
                                 </span>
                               )}
                               {isAbove200 && (
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-purple-950/70 text-purple-300 border border-purple-500/30">
-                                  200
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium ${isBearishMode ? 'bg-rose-950/70 text-rose-300 border border-rose-500/30' : 'bg-purple-950/70 text-purple-300 border border-purple-500/30'}`}>
+                                  {isBearishMode ? 'Below 200' : '200'}
                                 </span>
                               )}
                             </div>
@@ -1661,6 +1866,8 @@ export default function DashboardPage() {
                             </td>
                           </tr>
                         )}
+                        </React.Fragment>
+                        )}
                       </React.Fragment>
                     );
                   })}
@@ -1671,7 +1878,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Strategy Track Record Section */}
-        <TrackRecord setupStats={setupStats} />
+        <TrackRecord setupStats={setupStats} setupName={activeSetupName} bearish={isBearishMode} />
       </main>
 
       {/* Chart Modal */}
