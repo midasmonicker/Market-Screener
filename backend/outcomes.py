@@ -279,13 +279,20 @@ def export_setup_stats(output_path="../frontend/public/data/setup_stats.json", c
         for setup_name, group in df.groupby("setup_name"):
             if setup_name == "Momentum Breakdown":
                 group = group.copy()
-                raw_ret_5d = group["ret_5d"].copy()
-                raw_ret_20d = group["ret_20d"].copy()
+                # Coerce to numeric (float64/NaN) before negating: a SQL NULL in an
+                # all-null column comes back from pandas as an object-dtype Series of
+                # Python None, and unary negation on None raises TypeError. This bit
+                # a "Momentum Breakdown" group the first time it had a signal without
+                # a completed 20d outcome yet (e.g. a signal too recent to have 20
+                # trading days of forward data).
+                raw_ret_5d = pd.to_numeric(group["ret_5d"], errors="coerce")
+                raw_ret_20d = pd.to_numeric(group["ret_20d"], errors="coerce")
+                raw_max_runup_20d = pd.to_numeric(group["max_runup_20d"], errors="coerce")
                 group["ret_5d"] = -raw_ret_5d
                 group["ret_20d"] = -raw_ret_20d
                 group["excess_5d"] = group["spy_ret_5d"] - raw_ret_5d
                 group["excess_20d"] = group["spy_ret_20d"] - raw_ret_20d
-                group["max_drawdown_20d"] = -group["max_runup_20d"]
+                group["max_drawdown_20d"] = -raw_max_runup_20d
 
             total_signals = len(group)
 
