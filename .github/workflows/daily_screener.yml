@@ -12,6 +12,22 @@ name: Daily Stock Screener
     # EOD run at 22:30 UTC (after the NYSE close in both EST and EDT).
     - cron: '30 22 * * 1-5'
   workflow_dispatch:
+    inputs:
+      checkpoint_id:
+        description: >-
+          Explicit intraday checkpoint to run, fired by the external
+          scheduler at the real NY-local checkpoint time (GitHub
+          deprioritizes `schedule` events, which were observed firing
+          hours late -- workflow_dispatch runs promptly). Leave blank
+          for a manual EOD run.
+        required: false
+        type: choice
+        default: ''
+        options:
+          - ''
+          - intraday_11am
+          - intraday_1pm
+          - intraday_330pm
 
 permissions:
   contents: write
@@ -37,13 +53,32 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SCHEDULE: ${{ github.event.schedule }}
+          DISPATCH_CHECKPOINT_ID: ${{ github.event.inputs.checkpoint_id }}
         run: |
+          # Primary checkpoint trigger: an external scheduler calling the
+          # workflow_dispatch API at the real NY-local checkpoint time with
+          # an explicit checkpoint_id. workflow_dispatch events run promptly
+          # (unlike `schedule` events, which GitHub deprioritizes and which
+          # this pipeline observed firing 3-4 hours late), so no wall-clock
+          # re-check is needed here beyond the one run_daily.py already does.
+          if [[ "$EVENT_NAME" == "workflow_dispatch" && -n "$DISPATCH_CHECKPOINT_ID" ]]; then
+            echo "mode=checkpoint" >> "$GITHUB_OUTPUT"
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "checkpoint_id=$DISPATCH_CHECKPOINT_ID" >> "$GITHUB_OUTPUT"
+            echo "Explicit checkpoint dispatch received: $DISPATCH_CHECKPOINT_ID"
+            exit 0
+          fi
+
           if [[ "$EVENT_NAME" != "schedule" || "$EVENT_SCHEDULE" == "30 22 * * 1-5" ]]; then
             echo "mode=eod" >> "$GITHUB_OUTPUT"
             echo "should_run=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
+          # Fallback path only: the legacy UTC checkpoint crons below are a
+          # dead-man's-switch in case the external scheduler ever misses a
+          # fire. They are NOT the primary checkpoint trigger and are known
+          # to be unreliable for precise timing on this platform.
           read -r hour minute <<< "$(TZ=America/New_York date '+%H %M')"
           current_minutes=$((10#$hour * 60 + 10#$minute))
           should_run=false
@@ -56,6 +91,7 @@ jobs:
           done
           echo "mode=checkpoint" >> "$GITHUB_OUTPUT"
           echo "should_run=$should_run" >> "$GITHUB_OUTPUT"
+          echo "checkpoint_id=auto" >> "$GITHUB_OUTPUT"
           if [[ "$should_run" == "false" ]]; then
             echo "This is the non-DST companion cron; no checkpoint is due in New York local time."
           fi
@@ -166,7 +202,7 @@ jobs:
           ALPACA_SECRET_KEY: ${{ secrets.ALPACA_API_SECRET }}
           ALPACA_API_SECRET: ${{ secrets.ALPACA_API_SECRET }}
         run: |
-          cd backend && python run_daily.py --checkpoint auto
+          cd backend && python run_daily.py --checkpoint "${{ steps.run-mode.outputs.checkpoint_id }}"
 
       - name: Validate generated web data
         if: steps.run-mode.outputs.should_run == 'true'
