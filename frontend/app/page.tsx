@@ -108,6 +108,9 @@ interface Signal {
   near_earnings?: boolean;
   earnings_date?: string | null;
   composite_score?: number | null;
+  rationale?: string | null;
+  sector_peer_signal_count?: number | null;
+  sector_concentration_flag?: boolean;
   signal_streak?: number | null;
   created_at: string;
 }
@@ -129,8 +132,10 @@ interface SetupStats {
     signal_count: number;
     completed_5d_count: number;
     hit_rate_5d: number;
+    sample_confidence_5d?: 'low' | 'moderate' | 'high';
     completed_20d_count: number;
     hit_rate_20d: number;
+    sample_confidence_20d?: 'low' | 'moderate' | 'high';
     median_excess_5d: number;
     avg_excess_5d: number;
     median_excess_20d: number;
@@ -1606,7 +1611,16 @@ export default function DashboardPage() {
 
                           {/* 10. Composite Score (Mobile: always visible) */}
                           <td className="py-3 px-3 text-center">
-                            <ScorePill score={sig.composite_score} bearish={isBearishMode} />
+                            <div className="inline-flex items-center gap-1">
+                              <ScorePill score={sig.composite_score} bearish={isBearishMode} />
+                              {!!sig.sector_concentration_flag && (
+                                <span
+                                  title={`${sig.sector_peer_signal_count} other ${sig.sector || 'sector'} signals today — check concentration before sizing`}
+                                >
+                                  <AlertTriangle className="w-3 h-3 text-amber-400" />
+                                </span>
+                              )}
+                            </div>
                           </td>
 
                           {/* 11. Signal Streak (Desktop only) */}
@@ -1840,6 +1854,24 @@ export default function DashboardPage() {
                                     </span>
                                   </div>
                                 </div>
+
+                                {/* Why this fired */}
+                                {sig.rationale && (
+                                  <div className="pt-1 border-t border-slate-800/50">
+                                    <span className="text-slate-400 text-[11px] block mb-1">Why this fired</span>
+                                    <p className="text-slate-300 text-[11px] leading-relaxed">{sig.rationale}</p>
+                                  </div>
+                                )}
+
+                                {/* Sector concentration flag */}
+                                {!!sig.sector_concentration_flag && (
+                                  <div className="flex items-center gap-1.5 pt-1 border-t border-slate-800/50">
+                                    <AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0" />
+                                    <span className="text-[11px] text-amber-300">
+                                      {sig.sector_peer_signal_count} other {sig.sector || 'sector'} {sig.sector_peer_signal_count === 1 ? 'signal' : 'signals'} today — check concentration before sizing
+                                    </span>
+                                  </div>
+                                )}
 
                                 {/* MA Alignment in Drawer */}
                                 <div className="flex items-center justify-between pt-1">

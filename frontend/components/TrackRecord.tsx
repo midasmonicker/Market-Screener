@@ -3,12 +3,16 @@
 import React from 'react';
 import { Trophy, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
+type SampleConfidence = 'low' | 'moderate' | 'high';
+
 interface SetupStat {
   signal_count: number;
   completed_5d_count: number;
   hit_rate_5d: number | null;
+  sample_confidence_5d?: SampleConfidence;
   completed_20d_count: number;
   hit_rate_20d: number | null;
+  sample_confidence_20d?: SampleConfidence;
   median_excess_5d: number | null;
   avg_excess_5d: number | null;
   median_excess_20d: number | null;
@@ -73,7 +77,36 @@ function StatCell({
   );
 }
 
-function HitRate({ rate, n }: { rate: number | null; n: number }) {
+function ConfidenceBadge({ confidence }: { confidence?: SampleConfidence }) {
+  if (!confidence || confidence === 'high') return null;
+  const label = confidence === 'low' ? 'Low sample' : 'Growing sample';
+  const title =
+    confidence === 'low'
+      ? 'Under 30 completed outcomes — treat this win rate as noise, not evidence of edge yet.'
+      : 'Under 100 completed outcomes — directionally useful, but still too small to trust as an edge estimate.';
+  return (
+    <span
+      title={title}
+      className={`ml-1 px-1 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wide border ${
+        confidence === 'low'
+          ? 'bg-amber-950/60 text-amber-300 border-amber-500/30'
+          : 'bg-slate-800 text-slate-400 border-slate-700'
+      }`}
+    >
+      {label}
+    </span>
+  );
+}
+
+function HitRate({
+  rate,
+  n,
+  confidence,
+}: {
+  rate: number | null;
+  n: number;
+  confidence?: SampleConfidence;
+}) {
   if (rate == null) return <span className="text-slate-500 font-mono">—</span>;
 
   const colour =
@@ -86,6 +119,7 @@ function HitRate({ rate, n }: { rate: number | null; n: number }) {
     <span className={`font-mono font-semibold ${colour}`}>
       {rate.toFixed(1)}%{' '}
       <span className="text-slate-500 text-xs font-normal">(n={n})</span>
+      <ConfidenceBadge confidence={confidence} />
     </span>
   );
 }
@@ -146,12 +180,17 @@ export default function TrackRecord({ setupStats, setupName, bearish }: TrackRec
 
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <StatCell label="5d Hit Rate">
-                  <HitRate rate={stat.hit_rate_5d} n={stat.completed_5d_count} />
+                  <HitRate
+                    rate={stat.hit_rate_5d}
+                    n={stat.completed_5d_count}
+                    confidence={stat.sample_confidence_5d}
+                  />
                 </StatCell>
                 <StatCell label="20d Hit Rate">
                   <HitRate
                     rate={stat.hit_rate_20d}
                     n={stat.completed_20d_count}
+                    confidence={stat.sample_confidence_20d}
                   />
                 </StatCell>
                 <StatCell label="Avg Excess 5d">

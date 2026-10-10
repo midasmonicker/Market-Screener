@@ -46,6 +46,19 @@ WEIGHT_RS                = 0.30
 WEIGHT_BREAKOUT_PROXIMITY = 0.25
 WEIGHT_TREND_STRENGTH    = 0.20
 
+# ── Regime-Aware Score Derating ────────────────────────────────────────────────
+# Market regime (SPY vs. 50/200-SMA) was previously attached as metadata only and
+# never affected which signals fired. Long (Momentum Breakout) signals are now
+# derated when the broad tape is in "Caution" so they naturally rank lower and
+# display as reduced-conviction, without being suppressed outright (which would
+# also shrink the forward-outcome sample used by get_performance_summary).
+REGIME_CAUTION_DERATE_FACTOR = 0.7
+
+# Sector/theme concentration: flag a signal when this many or more same-day,
+# same-direction signals share its sector, so a user doesn't unknowingly stack
+# correlated bets from one screener run.
+SECTOR_CONCENTRATION_FLAG_THRESHOLD = 3
+
 # Earnings proximity window (calendar days on each side of report date to flag)
 EARNINGS_PROXIMITY_DAYS = 1
 EARNINGS_ENRICHMENT_MAX_LOOKUPS = 25
@@ -2454,7 +2467,7 @@ def calculate_signal_streak(symbol, current_date, conn=None, setup_name=None, ch
 
 # ── Composite Score ────────────────────────────────────────────────────────────
 
-def compute_composite_score(rvol, rs_score, proximity_pct, trend_strength_pct):
+def compute_composite_score(rvol, rs_score, proximity_pct, trend_strength_pct, regime_derate=False):
     """
     Compute a 0-100 composite signal quality score.
 
@@ -2463,6 +2476,10 @@ def compute_composite_score(rvol, rs_score, proximity_pct, trend_strength_pct):
       - RS vs SPY component:       rs_score already 0-99, pass through as 0-100
       - Breakout Proximity:        0=far, 100=at 20-day high (proximity_pct already 0-100)
       - Trend Strength:            % of MAs aligned below price (0, 33, 67, 100)
+
+    regime_derate: when True, multiplies the raw composite by
+    REGIME_CAUTION_DERATE_FACTOR (currently only applied to long/Breakout
+    signals while market_regime == "Caution" — see call site).
 
     Returns (composite_score: float, components: dict)
     """
@@ -2485,7 +2502,9 @@ def compute_composite_score(rvol, rs_score, proximity_pct, trend_strength_pct):
         WEIGHT_BREAKOUT_PROXIMITY * prox_clamped +
         WEIGHT_TREND_STRENGTH    * trend_clamped
     )
-    composite = round(composite, 1)
+
+    regime_multiplier = REGIME_CAUTION_DERATE_FACTOR if regime_derate else 1.0
+    composite = round(composite * regime_multiplier, 1)
 
     components = {
         "rvol_score":             round(rvol_score, 1),
@@ -2497,9 +2516,35 @@ def compute_composite_score(rvol, rs_score, proximity_pct, trend_strength_pct):
             "rs":                WEIGHT_RS,
             "breakout_proximity": WEIGHT_BREAKOUT_PROXIMITY,
             "trend_strength":    WEIGHT_TREND_STRENGTH
-        }
+        },
+        "regime_derate_applied": regime_derate,
+        "regime_multiplier":     regime_multiplier
     }
     return composite, components
+
+
+def build_signal_rationale(is_breakdown, rvol, score_rs, score_proximity, trend_strength_pct, regime_derate_applied):
+    """
+    Phase: Signal transparency. Turns the composite score's own inputs into a
+    one-line, human-readable "why this fired" sentence, so a user doesn't have
+    to trust a bare 0-100 number.
+    """
+    proximity_label = (
+        "right at" if score_proximity >= 80 else
+        "near" if score_proximity >= 40 else
+        "approaching"
+    )
+    extreme_label = "20-day low" if is_breakdown else "20-day high"
+    trend_label   = "below" if is_breakdown else "above"
+    ma_count = round((trend_strength_pct or 0.0) / 100.0 * 3)
+
+    rationale = (
+        f"{rvol:.1f}x average volume, RS {score_rs:.0f}/100 vs. SPY, "
+        f"{proximity_label} its {extreme_label}, trading {trend_label} {ma_count}/3 key moving averages."
+    )
+    if regime_derate_applied:
+        rationale += " Score reduced for a cautious market regime."
+    return rationale
 
 
 # ── Core TA Engine ─────────────────────────────────────────────────────────────
@@ -2716,13 +2761,23 @@ def process_single_ticker_screener(
         score_proximity = breakout_proximity_pct if is_breakout else breakdown_proximity_pct
         score_rs = rs_score if is_breakout else max(0.0, min(100.0, -(rs_vs_spy or 0.0)))
 
+        # Regime-aware derate: only long (Breakout) signals are softened when the
+        # broad tape is in "Caution" — shorts are the preferred bias in that regime,
+        # so Breakdown signals are left at full strength (see REGIME_CAUTION_DERATE_FACTOR).
+        regime_derate = bool(is_breakout and market_regime == "Caution")
+
         composite_score, score_components = compute_composite_score(
-            rvol, score_rs, score_proximity, trend_strength_pct
+            rvol, score_rs, score_proximity, trend_strength_pct, regime_derate=regime_derate
+        )
+
+        rationale = build_signal_rationale(
+            is_breakdown, rvol, score_rs, score_proximity, trend_strength_pct, regime_derate
         )
 
         details_json = json.dumps({
             "ma_alignment":         ma_alignment,
             "market_regime":        market_regime,
+            "rationale":            rationale,
             "rs_score":             round(rs_score, 1) if rs_score is not None else None,
             # New fields
             "pct_change_1d":        pct_change_1d,
@@ -2988,6 +3043,28 @@ def run_screener_engine(
         "Technical screening (excluding earnings enrichment) completed in %.2fs; %d signals passed for %s.",
         screening_seconds, len(signals), date_str
     )
+
+    # Sector/theme concentration: count same-day, same-direction signals sharing a
+    # sector on this run, and flag tickers whose sector has SECTOR_CONCENTRATION_FLAG_THRESHOLD
+    # or more such signals, so a user doesn't unknowingly stack correlated bets.
+    sector_direction_counts = {}
+    for signal in signals:
+        sector = ticker_sectors.get(signal[1])
+        if sector:
+            key = (sector, signal[2])  # (sector, setup_name)
+            sector_direction_counts[key] = sector_direction_counts.get(key, 0) + 1
+
+    for index, signal in enumerate(signals):
+        try:
+            sector = ticker_sectors.get(signal[1])
+            key = (sector, signal[2])
+            sector_total = sector_direction_counts.get(key, 1) if sector else 1
+            details = json.loads(signal[6]) if signal[6] else {}
+            details["sector_peer_signal_count"] = max(0, sector_total - 1)
+            details["sector_concentration_flag"] = sector_total >= SECTOR_CONCENTRATION_FLAG_THRESHOLD
+            signals[index] = (*signal[:6], json.dumps(details))
+        except Exception as e:
+            logger.warning("Could not attach sector concentration fields for %s: %s", signal[1], e)
 
     earnings_started = time.perf_counter()
     earnings_stats = {"cache_hits": 0, "stale_cache": 0, "cache_misses": 0, "api_lookups": 0, "deferred": 0}
@@ -3622,6 +3699,9 @@ def export_web_data(output_dir="../frontend/public/data", bars_limit=250, resolv
             "composite_score":      parsed_details.get("composite_score"),
             "score_components":     parsed_details.get("score_components"),
             "score_direction":      parsed_details.get("score_direction", "bullish"),
+            "rationale":            parsed_details.get("rationale"),
+            "sector_peer_signal_count": parsed_details.get("sector_peer_signal_count", 0),
+            "sector_concentration_flag": bool(parsed_details.get("sector_concentration_flag", False)),
             "signal_streak":        parsed_details.get("signal_streak", 1),
             "created_at":           created_at
         }

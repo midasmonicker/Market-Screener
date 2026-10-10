@@ -248,3 +248,21 @@ jobs:
             # Force-push as single commit to 'data' branch so Git history never accumulates
             git push -f origin data-temp:data
           fi
+
+      - name: Alert on workflow-level failure
+        # Catches failures that happen before Python's own send_discord_failure_alert
+        # can run (checkout, DB restore, dependency install, data validation, git push) —
+        # those are silent otherwise, since run_daily.py's in-process alert only fires
+        # for exceptions raised inside the Python pipeline itself.
+        if: failure() && steps.run-mode.outputs.should_run == 'true'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+            RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            curl -sS -X POST -H "Content-Type: application/json" \
+              -d "{\"content\": \"⚠️ **Daily Stock Screener** workflow failed before completing (mode: ${{ steps.run-mode.outputs.mode }}, run #${{ github.run_number }}). This usually means a step outside the Python pipeline failed (checkout, DB restore, dependency install, data validation, or the git push) — check the run: ${RUN_URL}\"}" \
+              "$DISCORD_WEBHOOK_URL" || true
+          else
+            echo "DISCORD_WEBHOOK_URL not set; skipping workflow-failure alert."
+          fi

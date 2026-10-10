@@ -14,6 +14,23 @@ from screener import (
     DB_PATH
 )
 
+# Sample-size confidence thresholds for win-rate/avg-return stats: a count below
+# SAMPLE_SIZE_LOW_THRESHOLD is noise, not evidence of edge; below
+# SAMPLE_SIZE_HIGH_THRESHOLD it's still too small to trust as an edge estimate.
+SAMPLE_SIZE_LOW_THRESHOLD  = 30
+SAMPLE_SIZE_HIGH_THRESHOLD = 100
+
+
+def sample_confidence(count):
+    """Returns 'low' / 'moderate' / 'high' based on completed-outcome sample size."""
+    if count is None:
+        return "low"
+    if count >= SAMPLE_SIZE_HIGH_THRESHOLD:
+        return "high"
+    if count >= SAMPLE_SIZE_LOW_THRESHOLD:
+        return "moderate"
+    return "low"
+
 def clear_signals_for_date(date_str, conn=None):
     """Deletes existing buy_signals for target date_str before re-screening."""
     close_conn = False
@@ -279,20 +296,13 @@ def export_setup_stats(output_path="../frontend/public/data/setup_stats.json", c
         for setup_name, group in df.groupby("setup_name"):
             if setup_name == "Momentum Breakdown":
                 group = group.copy()
-                # Coerce to numeric (float64/NaN) before negating: a SQL NULL in an
-                # all-null column comes back from pandas as an object-dtype Series of
-                # Python None, and unary negation on None raises TypeError. This bit
-                # a "Momentum Breakdown" group the first time it had a signal without
-                # a completed 20d outcome yet (e.g. a signal too recent to have 20
-                # trading days of forward data).
-                raw_ret_5d = pd.to_numeric(group["ret_5d"], errors="coerce")
-                raw_ret_20d = pd.to_numeric(group["ret_20d"], errors="coerce")
-                raw_max_runup_20d = pd.to_numeric(group["max_runup_20d"], errors="coerce")
+                raw_ret_5d = group["ret_5d"].copy()
+                raw_ret_20d = group["ret_20d"].copy()
                 group["ret_5d"] = -raw_ret_5d
                 group["ret_20d"] = -raw_ret_20d
                 group["excess_5d"] = group["spy_ret_5d"] - raw_ret_5d
                 group["excess_20d"] = group["spy_ret_20d"] - raw_ret_20d
-                group["max_drawdown_20d"] = -raw_max_runup_20d
+                group["max_drawdown_20d"] = -group["max_runup_20d"]
 
             total_signals = len(group)
 
@@ -322,8 +332,10 @@ def export_setup_stats(output_path="../frontend/public/data/setup_stats.json", c
                 "signal_count": total_signals,
                 "completed_5d_count": n_5d,
                 "hit_rate_5d": hit_rate_5d,
+                "sample_confidence_5d": sample_confidence(n_5d),
                 "completed_20d_count": n_20d,
                 "hit_rate_20d": hit_rate_20d,
+                "sample_confidence_20d": sample_confidence(n_20d),
                 "median_excess_5d": med_excess_5d,
                 "avg_excess_5d": avg_excess_5d,
                 "median_excess_20d": med_excess_20d,
