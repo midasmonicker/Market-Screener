@@ -289,6 +289,23 @@ def export_setup_stats(output_path="../frontend/public/data/setup_stats.json", c
     if close_conn:
         conn.close()
 
+    # Outcomes not yet computed (e.g. a signal too recent for its 5d/20d window
+    # to have closed) come back from SQLite as NULL. pd.read_sql surfaces a
+    # column that's NULL for any row as Python None with dtype=object rather
+    # than a proper float64 NaN -- and negating an object-dtype Series below
+    # (for the Breakdown sign-flip) applies Python's unary `-` element-by-
+    # element, which raises "bad operand type for unary -: 'NoneType'" on the
+    # None entries. Coercing to numeric up front turns None into a real NaN,
+    # which negates and aggregates cleanly everywhere in this function.
+    numeric_cols = [
+        "ret_1d", "ret_5d", "ret_10d", "ret_20d",
+        "max_drawdown_20d", "max_runup_20d",
+        "spy_ret_5d", "spy_ret_20d",
+        "excess_5d", "excess_20d",
+    ]
+    for col in numeric_cols:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
     setup_stats = {}
     if df.empty:
         logger.warning("No signal outcomes found in database to compile setup_stats.")
