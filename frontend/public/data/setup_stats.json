@@ -1,19 +1,33 @@
 {
-  "generated_at": "2026-10-13T15:21:16.232356+00:00",
+  "generated_at": "2026-10-14T02:29:22.325727+00:00",
   "setups": {
-    "Momentum Breakout": {
-      "signal_count": 73,
-      "completed_5d_count": 0,
-      "hit_rate_5d": null,
+    "Momentum Breakdown": {
+      "signal_count": 1,
+      "completed_5d_count": 1,
+      "hit_rate_5d": 100.0,
       "sample_confidence_5d": "low",
       "completed_20d_count": 0,
       "hit_rate_20d": null,
       "sample_confidence_20d": "low",
-      "median_excess_5d": null,
-      "avg_excess_5d": null,
+      "median_excess_5d": 28.53,
+      "avg_excess_5d": 28.53,
       "median_excess_20d": null,
       "avg_excess_20d": null,
-      "median_max_drawdown": -1.92
+      "median_max_drawdown": -3.75
+    },
+    "Momentum Breakout": {
+      "signal_count": 98,
+      "completed_5d_count": 98,
+      "hit_rate_5d": 42.9,
+      "sample_confidence_5d": "moderate",
+      "completed_20d_count": 0,
+      "hit_rate_20d": null,
+      "sample_confidence_20d": "low",
+      "median_excess_5d": -1.94,
+      "avg_excess_5d": -2.31,
+      "median_excess_20d": null,
+      "avg_excess_20d": null,
+      "median_max_drawdown": -5.14
     }
   }
 }

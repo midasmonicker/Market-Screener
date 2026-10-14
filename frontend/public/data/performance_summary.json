@@ -1,18 +1,18 @@
 {
-  "total_signals": 99,
+  "total_signals": 117,
   "horizon_5d": {
-    "count": 0,
-    "win_rate": null,
-    "avg_return": null,
-    "max_return": null,
-    "min_return": null
+    "count": 98,
+    "win_rate": 42.9,
+    "avg_return": -1.08,
+    "max_return": 49.86,
+    "min_return": -20.52
   },
   "horizon_10d": {
-    "count": 0,
-    "win_rate": null,
-    "avg_return": null,
-    "max_return": null,
-    "min_return": null
+    "count": 11,
+    "win_rate": 54.5,
+    "avg_return": -1.39,
+    "max_return": 9.42,
+    "min_return": -18.7
   },
   "horizon_20d": {
     "count": 0,
@@ -22,20 +22,20 @@
     "min_return": null
   },
   "signal_activity": {
-    "as_of": "2026-10-05",
-    "today_count": 25,
-    "avg_per_signal_day_30d": 19.6
+    "as_of": "2026-10-13",
+    "today_count": 18,
+    "avg_per_signal_day_30d": 19.3
   },
-  "avg_breakout_gain_pct": null,
+  "avg_breakout_gain_pct": 4.38,
   "setups": {
     "Momentum Breakdown": {
       "signal_count": 1,
       "horizon_5d": {
-        "count": 0,
-        "win_rate": null,
-        "avg_return": null,
-        "max_return": null,
-        "min_return": null
+        "count": 1,
+        "win_rate": 100.0,
+        "avg_return": 28.11,
+        "max_return": 28.11,
+        "min_return": 28.11
       },
       "horizon_10d": {
         "count": 0,
@@ -51,7 +51,7 @@
         "max_return": null,
         "min_return": null
       },
-      "avg_gain_pct": null,
+      "avg_gain_pct": 28.11,
       "signal_activity": {
         "as_of": "2026-10-05",
         "today_count": 1,
@@ -59,20 +59,20 @@
       }
     },
     "Momentum Breakout": {
-      "signal_count": 98,
+      "signal_count": 116,
       "horizon_5d": {
-        "count": 0,
-        "win_rate": null,
-        "avg_return": null,
-        "max_return": null,
-        "min_return": null
+        "count": 98,
+        "win_rate": 42.9,
+        "avg_return": -1.08,
+        "max_return": 49.86,
+        "min_return": -20.52
       },
       "horizon_10d": {
-        "count": 0,
-        "win_rate": null,
-        "avg_return": null,
-        "max_return": null,
-        "min_return": null
+        "count": 11,
+        "win_rate": 54.5,
+        "avg_return": -1.39,
+        "max_return": 9.42,
+        "min_return": -18.7
       },
       "horizon_20d": {
         "count": 0,
@@ -81,13 +81,13 @@
         "max_return": null,
         "min_return": null
       },
-      "avg_gain_pct": null,
+      "avg_gain_pct": 4.38,
       "signal_activity": {
-        "as_of": "2026-10-05",
-        "today_count": 25,
-        "avg_per_signal_day_30d": 19.6
+        "as_of": "2026-10-13",
+        "today_count": 18,
+        "avg_per_signal_day_30d": 19.3
       }
     }
   },
-  "generated_at": "2026-10-13T15:21:06.484459+00:00"
+  "generated_at": "2026-10-14T02:29:13.465758+00:00"
 }
