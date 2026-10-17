@@ -1,10 +1,10 @@
 {
-  "date": "2026-10-15",
-  "regime": "Bullish",
-  "spy_close": 771.79,
-  "spy_sma_200": 724.63,
-  "spy_pct_vs_sma200": 6.51,
-  "pct_universe_above_sma50": 28.1,
-  "universe_breadth_n": 5196,
-  "generated_at": "2026-10-16T17:29:37.243339+00:00"
+  "date": "2026-10-16",
+  "regime": "Caution",
+  "spy_close": 763.25,
+  "spy_sma_200": 725.01,
+  "spy_pct_vs_sma200": 5.27,
+  "pct_universe_above_sma50": 26.1,
+  "universe_breadth_n": 5202,
+  "generated_at": "2026-10-17T01:38:18.567984+00:00"
 }
