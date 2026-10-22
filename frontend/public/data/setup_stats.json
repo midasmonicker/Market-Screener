@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-21T17:19:08.227629+00:00",
+  "generated_at": "2026-10-22T01:41:52.126068+00:00",
   "setups": {
     "Momentum Breakdown": {
       "signal_count": 1,
@@ -16,18 +16,18 @@
       "median_max_drawdown": -3.75
     },
     "Momentum Breakout": {
-      "signal_count": 222,
-      "completed_5d_count": 116,
-      "hit_rate_5d": 46.6,
+      "signal_count": 267,
+      "completed_5d_count": 135,
+      "hit_rate_5d": 51.9,
       "sample_confidence_5d": "high",
       "completed_20d_count": 0,
       "hit_rate_20d": null,
       "sample_confidence_20d": "low",
-      "median_excess_5d": -1.52,
-      "avg_excess_5d": -1.48,
+      "median_excess_5d": -1.03,
+      "avg_excess_5d": -0.93,
       "median_excess_20d": null,
       "avg_excess_20d": null,
-      "median_max_drawdown": -2.79
+      "median_max_drawdown": -2.29
     }
   }
 }
