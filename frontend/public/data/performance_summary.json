@@ -1,11 +1,11 @@
 {
-  "total_signals": 379,
+  "total_signals": 405,
   "horizon_5d": {
-    "count": 165,
-    "win_rate": 57.6,
-    "avg_return": 0.76,
+    "count": 220,
+    "win_rate": 58.6,
+    "avg_return": 0.8,
     "max_return": 49.86,
-    "min_return": -20.52
+    "min_return": -58.38
   },
   "horizon_10d": {
     "count": 98,
@@ -22,11 +22,11 @@
     "min_return": null
   },
   "signal_activity": {
-    "as_of": "2026-10-22",
-    "today_count": 71,
-    "avg_per_signal_day_30d": 29.1
+    "as_of": "2026-10-26",
+    "today_count": 26,
+    "avg_per_signal_day_30d": 28.9
   },
-  "avg_breakout_gain_pct": 5.28,
+  "avg_breakout_gain_pct": 4.95,
   "setups": {
     "Momentum Breakdown": {
       "signal_count": 1,
@@ -59,13 +59,13 @@
       }
     },
     "Momentum Breakout": {
-      "signal_count": 378,
+      "signal_count": 404,
       "horizon_5d": {
-        "count": 165,
-        "win_rate": 57.6,
-        "avg_return": 0.76,
+        "count": 220,
+        "win_rate": 58.6,
+        "avg_return": 0.8,
         "max_return": 49.86,
-        "min_return": -20.52
+        "min_return": -58.38
       },
       "horizon_10d": {
         "count": 98,
@@ -81,13 +81,13 @@
         "max_return": null,
         "min_return": null
       },
-      "avg_gain_pct": 5.28,
+      "avg_gain_pct": 4.95,
       "signal_activity": {
-        "as_of": "2026-10-22",
-        "today_count": 71,
-        "avg_per_signal_day_30d": 29.1
+        "as_of": "2026-10-26",
+        "today_count": 26,
+        "avg_per_signal_day_30d": 28.9
       }
     }
   },
-  "generated_at": "2026-10-26T17:17:29.880913+00:00"
+  "generated_at": "2026-10-27T02:32:26.518551+00:00"
 }
