@@ -1,5 +1,5 @@
 {
-  "total_signals": 540,
+  "total_signals": 607,
   "horizon_5d": {
     "count": 368,
     "win_rate": 58.2,
@@ -8,25 +8,25 @@
     "min_return": -58.38
   },
   "horizon_10d": {
-    "count": 165,
-    "win_rate": 57.0,
-    "avg_return": -0.89,
+    "count": 194,
+    "win_rate": 59.3,
+    "avg_return": -0.45,
     "max_return": 35.95,
     "min_return": -32.75
   },
   "horizon_20d": {
-    "count": 56,
-    "win_rate": 58.9,
-    "avg_return": 2.08,
+    "count": 72,
+    "win_rate": 51.4,
+    "avg_return": -2.17,
     "max_return": 30.25,
-    "min_return": -28.97
+    "min_return": -44.13
   },
   "signal_activity": {
-    "as_of": "2026-10-29",
-    "today_count": 55,
-    "avg_per_signal_day_30d": 31.7
+    "as_of": "2026-10-30",
+    "today_count": 67,
+    "avg_per_signal_day_30d": 35.0
   },
-  "avg_breakout_gain_pct": 5.64,
+  "avg_breakout_gain_pct": 5.57,
   "setups": {
     "Momentum Breakdown": {
       "signal_count": 1,
@@ -59,7 +59,7 @@
       }
     },
     "Momentum Breakout": {
-      "signal_count": 539,
+      "signal_count": 606,
       "horizon_5d": {
         "count": 368,
         "win_rate": 58.2,
@@ -68,26 +68,26 @@
         "min_return": -58.38
       },
       "horizon_10d": {
-        "count": 165,
-        "win_rate": 57.0,
-        "avg_return": -0.89,
+        "count": 194,
+        "win_rate": 59.3,
+        "avg_return": -0.45,
         "max_return": 35.95,
         "min_return": -32.75
       },
       "horizon_20d": {
-        "count": 56,
-        "win_rate": 58.9,
-        "avg_return": 2.08,
+        "count": 72,
+        "win_rate": 51.4,
+        "avg_return": -2.17,
         "max_return": 30.25,
-        "min_return": -28.97
+        "min_return": -44.13
       },
-      "avg_gain_pct": 5.64,
+      "avg_gain_pct": 5.57,
       "signal_activity": {
-        "as_of": "2026-10-29",
-        "today_count": 55,
-        "avg_per_signal_day_30d": 31.7
+        "as_of": "2026-10-30",
+        "today_count": 67,
+        "avg_per_signal_day_30d": 35.0
       }
     }
   },
-  "generated_at": "2026-10-30T17:35:16.928142+00:00"
+  "generated_at": "2026-10-31T02:35:49.382281+00:00"
 }
