@@ -1,10 +1,10 @@
 {
-  "date": "2026-10-30",
+  "date": "2026-11-02",
   "regime": "Caution",
-  "spy_close": 755.72,
-  "spy_sma_200": 728.85,
-  "spy_pct_vs_sma200": 3.69,
-  "pct_universe_above_sma50": 37.5,
-  "universe_breadth_n": 5227,
-  "generated_at": "2026-11-02T18:21:43.009856+00:00"
+  "spy_close": 752.1,
+  "spy_sma_200": 729.15,
+  "spy_pct_vs_sma200": 3.15,
+  "pct_universe_above_sma50": 40.2,
+  "universe_breadth_n": 5228,
+  "generated_at": "2026-11-03T04:34:40.491194+00:00"
 }
