@@ -1,32 +1,32 @@
 {
-  "total_signals": 1196,
+  "total_signals": 1210,
   "horizon_5d": {
-    "count": 867,
-    "win_rate": 52.9,
-    "avg_return": 0.08,
+    "count": 964,
+    "win_rate": 52.3,
+    "avg_return": -0.01,
     "max_return": 57.14,
     "min_return": -58.38
   },
   "horizon_10d": {
-    "count": 468,
-    "win_rate": 58.1,
-    "avg_return": 0.28,
+    "count": 522,
+    "win_rate": 58.0,
+    "avg_return": 0.16,
     "max_return": 62.36,
     "min_return": -44.47
   },
   "horizon_20d": {
-    "count": 131,
-    "win_rate": 53.4,
-    "avg_return": -1.39,
+    "count": 161,
+    "win_rate": 54.7,
+    "avg_return": -0.71,
     "max_return": 52.22,
     "min_return": -44.13
   },
   "signal_activity": {
-    "as_of": "2026-11-11",
-    "today_count": 23,
-    "avg_per_signal_day_30d": 52.2
+    "as_of": "2026-11-12",
+    "today_count": 14,
+    "avg_per_signal_day_30d": 50.5
   },
-  "avg_breakout_gain_pct": 6.51,
+  "avg_breakout_gain_pct": 6.35,
   "setups": {
     "Momentum Breakdown": {
       "signal_count": 1,
@@ -59,35 +59,35 @@
       }
     },
     "Momentum Breakout": {
-      "signal_count": 1195,
+      "signal_count": 1209,
       "horizon_5d": {
-        "count": 867,
-        "win_rate": 52.9,
-        "avg_return": 0.08,
+        "count": 964,
+        "win_rate": 52.3,
+        "avg_return": -0.01,
         "max_return": 57.14,
         "min_return": -58.38
       },
       "horizon_10d": {
-        "count": 468,
-        "win_rate": 58.1,
-        "avg_return": 0.28,
+        "count": 522,
+        "win_rate": 58.0,
+        "avg_return": 0.16,
         "max_return": 62.36,
         "min_return": -44.47
       },
       "horizon_20d": {
-        "count": 131,
-        "win_rate": 53.4,
-        "avg_return": -1.39,
+        "count": 161,
+        "win_rate": 54.7,
+        "avg_return": -0.71,
         "max_return": 52.22,
         "min_return": -44.13
       },
-      "avg_gain_pct": 6.51,
+      "avg_gain_pct": 6.35,
       "signal_activity": {
-        "as_of": "2026-11-11",
-        "today_count": 23,
-        "avg_per_signal_day_30d": 52.2
+        "as_of": "2026-11-12",
+        "today_count": 14,
+        "avg_per_signal_day_30d": 50.5
       }
     }
   },
-  "generated_at": "2026-11-12T04:01:22.731811+00:00"
+  "generated_at": "2026-11-13T03:34:15.302516+00:00"
 }
