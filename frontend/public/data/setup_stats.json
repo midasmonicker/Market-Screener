@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T07:00:48.410885+00:00",
+  "generated_at": "2026-11-25T05:44:36.518889+00:00",
   "setups": {
     "Momentum Breakdown": {
       "signal_count": 1,
@@ -16,18 +16,18 @@
       "median_max_drawdown": -3.75
     },
     "Momentum Breakout": {
-      "signal_count": 1266,
-      "completed_5d_count": 1193,
-      "hit_rate_5d": 49.0,
+      "signal_count": 1276,
+      "completed_5d_count": 1207,
+      "hit_rate_5d": 49.3,
       "sample_confidence_5d": "high",
-      "completed_20d_count": 381,
-      "hit_rate_20d": 50.1,
+      "completed_20d_count": 413,
+      "hit_rate_20d": 48.9,
       "sample_confidence_20d": "high",
-      "median_excess_5d": 0.17,
-      "avg_excess_5d": 0.02,
-      "median_excess_20d": 3.22,
-      "avg_excess_20d": 1.65,
-      "median_max_drawdown": -6.9
+      "median_excess_5d": 0.22,
+      "avg_excess_5d": 0.1,
+      "median_excess_20d": 3.18,
+      "avg_excess_20d": 1.78,
+      "median_max_drawdown": -6.77
     }
   }
 }
