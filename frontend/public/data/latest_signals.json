@@ -1,6 +1,6 @@
 [
   {
-    "id": 4038,
+    "id": 4063,
     "timestamp": "2026-11-25",
     "symbol": "UTZ",
     "name": "Utz Brands, Inc.",
@@ -79,10 +79,10 @@
     "sector_peer_signal_count": 1,
     "sector_concentration_flag": false,
     "signal_streak": 5,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4014,
+    "id": 4048,
     "timestamp": "2026-11-25",
     "symbol": "BIPC",
     "name": "Brookfield Infrastructure Corporation Class A Exchangeable Subordinate Voting Shares",
@@ -161,10 +161,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 4,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4023,
+    "id": 4041,
     "timestamp": "2026-11-25",
     "symbol": "BOW",
     "name": "Bowhead Specialty Holdings Inc.",
@@ -240,13 +240,13 @@
     },
     "score_direction": "bullish",
     "rationale": "3.7x average volume, RS 77/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4033,
+    "id": 4059,
     "timestamp": "2026-11-25",
     "symbol": "RAMP",
     "name": "LiveRamp Holdings, Inc. Common Stock",
@@ -325,10 +325,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 19,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4028,
+    "id": 4056,
     "timestamp": "2026-11-25",
     "symbol": "LXP",
     "name": "LXP Industrial Trust",
@@ -404,13 +404,13 @@
     },
     "score_direction": "bullish",
     "rationale": "2.9x average volume, RS 74/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 8,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4019,
+    "id": 4049,
     "timestamp": "2026-11-25",
     "symbol": "COGT",
     "name": "Cogent Biosciences, Inc. Common Stock",
@@ -486,13 +486,13 @@
     },
     "score_direction": "bullish",
     "rationale": "2.5x average volume, RS 81/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4022,
+    "id": 4052,
     "timestamp": "2026-11-25",
     "symbol": "AWI",
     "name": "Armstrong World Industries, Inc.",
@@ -568,13 +568,13 @@
     },
     "score_direction": "bullish",
     "rationale": "2.5x average volume, RS 83/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 1,
-    "sector_concentration_flag": false,
+    "sector_peer_signal_count": 2,
+    "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4021,
+    "id": 4044,
     "timestamp": "2026-11-25",
     "symbol": "AMTM",
     "name": "Amentum Holdings, Inc.",
@@ -650,13 +650,13 @@
     },
     "score_direction": "bullish",
     "rationale": "2.5x average volume, RS 94/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 2,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4025,
+    "id": 4040,
     "timestamp": "2026-11-25",
     "symbol": "CBZ",
     "name": "CBIZ, Inc.",
@@ -732,13 +732,13 @@
     },
     "score_direction": "bullish",
     "rationale": "2.4x average volume, RS 70/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 6,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4018,
+    "id": 4054,
     "timestamp": "2026-11-25",
     "symbol": "GRDN",
     "name": "Guardian Pharmacy Services, Inc.",
@@ -817,10 +817,10 @@
     "sector_peer_signal_count": 1,
     "sector_concentration_flag": false,
     "signal_streak": 2,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4035,
+    "id": 4061,
     "timestamp": "2026-11-25",
     "symbol": "RLI",
     "name": "RLI Corp.",
@@ -896,13 +896,13 @@
     },
     "score_direction": "bullish",
     "rationale": "2.3x average volume, RS 88/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4031,
+    "id": 4057,
     "timestamp": "2026-11-25",
     "symbol": "NPK",
     "name": "National Presto Industries, Inc.",
@@ -978,13 +978,13 @@
     },
     "score_direction": "bullish",
     "rationale": "2.2x average volume, RS 83/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4016,
+    "id": 4055,
     "timestamp": "2026-11-25",
     "symbol": "KSS",
     "name": "Kohls Corporation",
@@ -1063,10 +1063,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 2,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4039,
+    "id": 4064,
     "timestamp": "2026-11-25",
     "symbol": "WTW",
     "name": "Willis Towers Watson Public Limited Company Ordinary Shares",
@@ -1142,13 +1142,13 @@
     },
     "score_direction": "bullish",
     "rationale": "2.1x average volume, RS 79/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4037,
+    "id": 4065,
     "timestamp": "2026-11-25",
     "symbol": "STN",
     "name": "Stantec, Inc.",
@@ -1227,10 +1227,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4030,
+    "id": 4047,
     "timestamp": "2026-11-25",
     "symbol": "BZH",
     "name": "Beazer Homes USA, Inc. New",
@@ -1315,13 +1315,13 @@
     },
     "score_direction": "bullish",
     "rationale": "1.9x average volume, RS 75/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 15,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4032,
+    "id": 4058,
     "timestamp": "2026-11-25",
     "symbol": "OCTV",
     "name": "Octave Intelligence plc Class B Ordinary Shares",
@@ -1400,10 +1400,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 2,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4020,
+    "id": 4043,
     "timestamp": "2026-11-25",
     "symbol": "ANF",
     "name": "Abercrombie & Fitch Co.",
@@ -1482,10 +1482,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4029,
+    "id": 4045,
     "timestamp": "2026-11-25",
     "symbol": "AEE",
     "name": "Ameren Corporation",
@@ -1564,10 +1564,10 @@
     "sector_peer_signal_count": 0,
     "sector_concentration_flag": false,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4027,
+    "id": 4046,
     "timestamp": "2026-11-25",
     "symbol": "ATKR",
     "name": "Atkore Inc.",
@@ -1663,10 +1663,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 23,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4017,
+    "id": 4051,
     "timestamp": "2026-11-25",
     "symbol": "GBTG",
     "name": "Global Business Travel Group, Inc.",
@@ -1742,13 +1742,13 @@
     },
     "score_direction": "bullish",
     "rationale": "1.6x average volume, RS 74/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
-    "sector_concentration_flag": true,
+    "sector_peer_signal_count": 0,
+    "sector_concentration_flag": false,
     "signal_streak": 8,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4034,
+    "id": 4060,
     "timestamp": "2026-11-25",
     "symbol": "RKT",
     "name": "Rocket Companies, Inc.",
@@ -1824,13 +1824,13 @@
     },
     "score_direction": "bullish",
     "rationale": "1.6x average volume, RS 88/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4026,
+    "id": 4050,
     "timestamp": "2026-11-25",
     "symbol": "DIS",
     "name": "The Walt Disney Company",
@@ -1909,10 +1909,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4036,
+    "id": 4062,
     "timestamp": "2026-11-25",
     "symbol": "RXO",
     "name": "RXO, Inc.",
@@ -1988,13 +1988,13 @@
     },
     "score_direction": "bullish",
     "rationale": "1.6x average volume, RS 96/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 3,
+    "sector_peer_signal_count": 4,
     "sector_concentration_flag": true,
     "signal_streak": 1,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4015,
+    "id": 4053,
     "timestamp": "2026-11-25",
     "symbol": "GLOB",
     "name": "GLOBANT S.A.",
@@ -2073,10 +2073,10 @@
     "sector_peer_signal_count": 2,
     "sector_concentration_flag": true,
     "signal_streak": 2,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
-    "id": 4024,
+    "id": 4042,
     "timestamp": "2026-11-25",
     "symbol": "ALKS",
     "name": "Alkermes Inc. plc",
@@ -2152,10 +2152,10 @@
     },
     "score_direction": "bullish",
     "rationale": "1.5x average volume, RS 85/100 vs. SPY, approaching its 20-day high, trading above 3/3 key moving averages. Score reduced for a cautious market regime.",
-    "sector_peer_signal_count": 1,
-    "sector_concentration_flag": false,
+    "sector_peer_signal_count": 2,
+    "sector_concentration_flag": true,
     "signal_streak": 2,
-    "created_at": "2026-11-26 05:00:58"
+    "created_at": "2026-11-27 04:28:47"
   },
   {
     "id": 4012,
